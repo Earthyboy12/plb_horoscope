@@ -45,52 +45,35 @@
 
 ---
 
-## 🚀 วิธีติดตั้งและรันโปรเจกต์ (Installation & Running)
+## 🚀 วิธีเปิดใช้งานและรันโปรเจกต์ (Running the App)
 
-### 1. ติดตั้ง Dependencies
-เปิดเทอร์มินัลในโฟลเดอร์โปรเจกต์:
-```bash
-cd "C:\Users\Earth PLB\.gemini\antigravity\scratch\thai-daily-horoscope"
-npm install
-```
+โปรเจกต์นี้ทำงานด้วย **Python Standard Library (Pure Python)** โดยไม่ต้องลงแพ็กเกจภายนอกใดๆ เพิ่มเติม
 
-### 2. รัน Frontend Web App (Vite + React)
+### รันบนเครื่องตนเอง (Local Development):
+เปิดเทอร์มินัลในโฟลเดอร์โปรเจกต์แล้วรันคำสั่ง:
 ```bash
-npm run dev
+python -X utf8 app.py
 ```
-เปิดเบราว์เซอร์ไปที่: `http://localhost:5173`
-
-### 3. (ทางเลือก) รัน Backend API Server (Express API)
-หากต้องการใช้งาน REST API สำหรับดึงข้อมูลดวง:
-```bash
-npm run server
-```
-Backend API จะทำงานที่: `http://localhost:3001`
+- ระบบจะเปิดเบราว์เซอร์และเข้าสู่ `http://localhost:5173` ให้โดยอัตโนมัติ
 
 ---
 
-## 📡 รายละเอียด Backend API (Endpoints)
+## 🌐 การ Deploy ขึ้นเว็บด้วย Vercel
 
-- **GET `/api/astrology/provinces`**: ดึงรายชื่อ 77 จังหวัดพร้อมพิกัดละติจูด-ลองจิจูด
-- **POST `/api/astrology/natal`**: คำนวณผูกดวงกำเนิดและลัคนา
-  ```json
-  {
-    "name": "คุณสมชาย",
-    "birthDate": "1992-04-18",
-    "birthTime": "06:45",
-    "province": "กรุงเทพมหานคร"
-  }
-  ```
-- **POST `/api/astrology/daily`**: คำนวณผลการดูดวงรายวันแยกหมวดหมู่
-  ```json
-  {
-    "name": "คุณสมชาย",
-    "birthDate": "1992-04-18",
-    "birthTime": "06:45",
-    "province": "กรุงเทพมหานคร",
-    "targetDate": "2026-09-21"
-  }
-  ```
+โปรเจกต์พร้อมสำหรับการ Deploy ขึ้น Vercel ทันที โดยใช้สถาปัตยกรรม **Static Frontend + Python Serverless Function**:
+
+1. **นำโค้ดขึ้น GitHub Repository ของคุณ**:
+   ```bash
+   git remote add origin https://github.com/<your-username>/<your-repo-name>.git
+   git push -u origin main
+   ```
+2. **เปิดหน้า Vercel**:
+   - ไปที่ [https://vercel.com/new](https://vercel.com/new)
+   - ล็อกอินด้วยบัญชี GitHub ของคุณ
+   - กดปุ่ม **Import** ที่ repository นี้
+3. **กด Deploy**:
+   - Vercel จะตรวจพบ `vercel.json`, `index.html` และ Serverless Function `api/index.py` อัตโนมัติ
+   - รอเพียงไม่กี่วินาที จะได้รับ URL สด เช่น `https://your-project.vercel.app` พร้อมใช้งานทันทีทั่วโลก!
 
 ---
 
@@ -98,39 +81,19 @@ Backend API จะทำงานที่: `http://localhost:3001`
 
 ```
 thai-daily-horoscope/
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-├── tailwind.config.js
-├── src/
-│   ├── types/
-│   │   └── astrology.ts             # Type definitions ดาว, ภพ, ผลดวง
-│   ├── data/
-│   │   ├── provinces.ts             # ฐานข้อมูลพิกัด 77 จังหวัดทั่วไทย
-│   │   ├── astrologyRules.ts        # ตำราและกฎเกณฑ์โหราศาสตร์ไทย
-│   │   └── thaksaRules.ts           # ตารางทักษาและสีมงคลประจำวัน
-│   ├── engine/
-│   │   ├── ayanamsa.ts              # คำนวณ Julian Day & Lahiri Ayanamsa
-│   │   ├── ephemeris.ts             # คำนวณพิกัดดาราศาสตร์ของดาว ๑-๐
-│   │   ├── ascendant.ts             # คำนวณลัคนา & ภพทั้ง 12
-│   │   ├── transitCalculator.ts     # คำนวณดาวจรเทียบดวงเดิม
-│   │   ├── horoscopeSynthesizer.ts  # ประมวลผลคำทำนายรายวันแยกหมวด
-│   │   └── astrologyFacade.ts       # Unified Facade Service
-│   ├── components/
-│   │   ├── Navbar.tsx
-│   │   ├── BirthForm.tsx            # ฟอร์มข้อมูลเกิด
-│   │   ├── DateSelector.tsx         # ตัวเลือกวันที่ดูดวง
-│   │   ├── ThaiDuangWheel.tsx       # ผังจักรราศี 12 ช่อง
-│   │   ├── CategoryTabs.tsx         # แท็บเลือกหมวดหมู่
-│   │   ├── CategoryCard.tsx         # การ์ดแสดงผลคำทำนาย
-│   │   ├── LuckyBoosters.tsx        # กล่องสีมงคล เลขมงคล ฤกษ์ดี
-│   │   ├── ProfileManager.tsx       # สลับ/บันทึกโปรไฟล์
-│   │   └── AstroDetailModal.tsx     # ตารางพิกัดดาราศาสตร์เชิงลึก
-│   ├── App.tsx
-│   ├── index.css
-│   └── main.tsx
-└── server/
-    ├── server.ts                    # Express Server
-    └── routes/
-        └── astrologyApi.ts          # RESTful Endpoints
+├── index.html                   # หน้าเว็บแอปพลิเคชันหลัก (Standalone HTML/JS/Tailwind)
+├── logo.jpg                     # โลโก้แบรนด์ Earth PLB
+├── app.py                       # Local HTTP Server (Python 3)
+├── thai_astrology.py            # เอนจินคำนวณโหราศาสตร์ไทย (สุริยยาตร์ + นิรายนะ)
+├── detailed_forecast.py         # ฐานข้อมูลคำทำนายเชิงลึกและเกร็ดมงคลประจำวัน
+├── vercel.json                  # การตั้งค่า Vercel Routing & Serverless
+├── requirements.txt             # Python runtime specification สำหรับ Vercel
+├── api/
+│   ├── index.py                 # Vercel Serverless Function (POST /api/astrology/daily)
+│   ├── thai_astrology.py        # โค้ดคำนวณดวงดาว
+│   └── detailed_forecast.py     # โค้ดคำทำนาย
+└── public/
+    ├── index.html               # ไฟล์ Static สำรอง
+    └── logo.jpg                 # ไฟล์โลโก้ Earth PLB สำรอง
 ```
+
