@@ -701,22 +701,69 @@
 
     // Fetch horoscope from Python API
     async function loadHoroscope() {
+      const heroTitle = document.getElementById('heroSummaryTitle');
+      const heroDesc = document.getElementById('heroSummaryDesc');
+      if (heroTitle) heroTitle.innerText = "กำลังคำนวณตำแหน่งดวงดาวและลัคนา...";
+
       try {
         const resp = await fetch('/api/astrology/daily', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
           body: JSON.stringify({
             ...state.birth,
             targetDate: state.targetDate
           })
         });
+
+        if (resp.status === 401) {
+          if (heroTitle) {
+            heroTitle.innerHTML = `<span class="text-amber-400">🔒 ติดสิทธิ์ป้องกันของ Vercel (401 Protected Deployment)</span>`;
+          }
+          if (heroDesc) {
+            heroDesc.innerHTML = `
+              <div class="mt-2 p-3 bg-amber-950/60 border border-amber-500/40 rounded-xl text-amber-200 text-xs sm:text-sm">
+                <p class="font-bold text-amber-300">💡 วิธีปลดล็อกให้ทุกคนใช้งานได้:</p>
+                <ol class="list-decimal list-inside space-y-1 mt-1 text-slate-200">
+                  <li>เข้าไปที่ <strong>Vercel Dashboard</strong> เลือกโปรเจกต์ <code>plb_horoscope</code></li>
+                  <li>ไปที่แท็บ <strong>Settings</strong> ➔ เมนูซ้าย <strong>Deployment Protection</strong></li>
+                  <li>ตรงหัวข้อ <strong>Vercel Authentication</strong> ให้เลือกเป็น <strong>Disabled (ปิด)</strong> แล้วกด <strong>Save</strong></li>
+                </ol>
+                <button onclick="loadHoroscope()" class="mt-3 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition-all active:scale-95 shadow-md">
+                  🔄 กดเพื่อลองโหลดใหม่
+                </button>
+              </div>
+            `;
+          }
+          return;
+        }
+
+        if (!resp.ok) {
+          throw new Error(`เซิร์ฟเวอร์ตอบกลับรหัส: ${resp.status} ${resp.statusText}`);
+        }
+
         const res = await resp.json();
         if (res.success) {
           state.data = res.data;
           renderApp();
+        } else {
+          throw new Error(res.error || "ไม่สามารถประมวลผลดวงชะตาได้");
         }
       } catch (err) {
         console.error("API error:", err);
+        if (heroTitle) {
+          heroTitle.innerHTML = `<span class="text-rose-400">⚠️ เกิดข้อผิดพลาดในการโหลดดวง</span>`;
+        }
+        if (heroDesc) {
+          heroDesc.innerHTML = `
+            <div class="mt-2 text-slate-300 text-xs sm:text-sm space-y-2">
+              <p class="text-rose-300">${err.message || err}</p>
+              <button onclick="loadHoroscope()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold rounded-xl border border-slate-700 text-xs transition-all active:scale-95">
+                🔄 กดเพื่อลองใหม่อีกครั้ง
+              </button>
+            </div>
+          `;
+        }
       }
     }
 
