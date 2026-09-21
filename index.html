@@ -1,0 +1,2058 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PLB โหราศาสตร์ - แอพดูดวงรายวันลัคนาราศีและดวงจร</title>
+  <link rel="icon" type="image/jpeg" href="/logo.jpg">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Prompt', 'Sarabun', sans-serif;
+      background-color: #030611;
+      color: #F8FAFC;
+      overflow-x: hidden;
+    }
+
+    /* Cosmic Astrology Background */
+    .astrology-bg {
+      background: 
+        radial-gradient(circle at 15% 15%, rgba(217, 119, 6, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 85% 20%, rgba(124, 58, 237, 0.14) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(30, 27, 75, 0.4) 0%, transparent 70%),
+        radial-gradient(circle at 50% 90%, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
+        #030611;
+      position: relative;
+    }
+
+    /* Star dust layer */
+    .stars-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background-image: 
+        radial-gradient(1.5px 1.5px at 40px 60px, rgba(253, 224, 71, 0.8), transparent),
+        radial-gradient(1px 1px at 120px 180px, rgba(255, 255, 255, 0.9), transparent),
+        radial-gradient(1.5px 1.5px at 280px 90px, rgba(245, 158, 11, 0.7), transparent),
+        radial-gradient(2px 2px at 450px 220px, rgba(255, 255, 255, 0.85), transparent),
+        radial-gradient(1px 1px at 600px 140px, rgba(192, 132, 252, 0.8), transparent),
+        radial-gradient(2px 2px at 750px 300px, rgba(253, 224, 71, 0.7), transparent),
+        radial-gradient(1.5px 1.5px at 900px 80px, rgba(255, 255, 255, 0.9), transparent),
+        radial-gradient(1px 1px at 1050px 240px, rgba(245, 158, 11, 0.75), transparent),
+        radial-gradient(1.5px 1.5px at 1200px 160px, rgba(255, 255, 255, 0.85), transparent);
+      background-size: 550px 550px;
+      opacity: 0.65;
+      animation: twinkle 8s ease-in-out infinite alternate;
+      z-index: 0;
+    }
+
+    @keyframes twinkle {
+      0% { opacity: 0.45; transform: scale(1); }
+      50% { opacity: 0.75; transform: scale(1.01); }
+      100% { opacity: 0.5; transform: scale(1); }
+    }
+
+    /* Slow spinning celestial astrolabe */
+    @keyframes spin-slow {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .astrolabe-wheel {
+      position: fixed;
+      top: 35%;
+      left: 50%;
+      width: 850px;
+      height: 850px;
+      pointer-events: none;
+      animation: spin-slow 180s linear infinite;
+      opacity: 0.05;
+      z-index: 0;
+    }
+  </style>
+</head>
+<body class="min-h-screen astrology-bg flex flex-col selection:bg-amber-500 selection:text-black">
+
+  <!-- Fixed Astrological Star and Sacred Mandala Layers -->
+  <div class="stars-layer"></div>
+
+  <!-- Sacred Zodiac Mandala Watermark -->
+  <svg class="astrolabe-wheel" viewBox="0 0 1000 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="500" cy="500" r="480" stroke="#F59E0B" stroke-width="2" stroke-dasharray="8 8"/>
+    <circle cx="500" cy="500" r="440" stroke="#EAB308" stroke-width="1.5"/>
+    <circle cx="500" cy="500" r="370" stroke="#F59E0B" stroke-width="1"/>
+    <circle cx="500" cy="500" r="280" stroke="#EAB308" stroke-width="1.5" stroke-dasharray="6 6"/>
+    <circle cx="500" cy="500" r="160" stroke="#F59E0B" stroke-width="1"/>
+    <!-- 12 Radiating Constellation Lines -->
+    <line x1="500" y1="20" x2="500" y2="980" stroke="#EAB308" stroke-width="1"/>
+    <line x1="20" y1="500" x2="980" y2="500" stroke="#EAB308" stroke-width="1"/>
+    <line x1="160" y1="160" x2="840" y2="840" stroke="#EAB308" stroke-width="1"/>
+    <line x1="840" y1="160" x2="160" y2="840" stroke="#EAB308" stroke-width="1"/>
+    <line x1="245" y1="60" x2="755" y2="940" stroke="#EAB308" stroke-width="1"/>
+    <line x1="60" y1="245" x2="940" y2="755" stroke="#EAB308" stroke-width="1"/>
+    <!-- 12 Zodiac Ring Glyphs -->
+    <text x="500" y="90" text-anchor="middle" fill="#F59E0B" font-size="36" font-family="sans-serif">♈</text>
+    <text x="705" y="145" text-anchor="middle" fill="#F59E0B" font-size="36" font-family="sans-serif">♉</text>
+    <text x="855" y="295" text-anchor="middle" fill="#F59E0B" font-size="36" font-family="sans-serif">♊</text>
+    <text x="910" y="500" text-anchor="middle" fill="#F59E0B" font-size="36" font-family="sans-serif">♋</text>
+    <text x="855" y="705" text-anchor="middle" fill="#F59E0B" font-size="36" font-family="sans-serif">♌</text>
+    <text x="705" y="855" text-anchor="middle" fill="#F59E0B" font-size="36" font-family="sans-serif">♍</text>
+    <text x="500" y="910" text-anchor="middle" fill="#F59E0B" font-size="36" font-family="sans-serif">♎</text>
+    <text x="295" y="855" text-anchor="middle" fill="#F59E0B" font-size="36" font-family="sans-serif">♏</text>
+    <text x="145" y="705" text-anchor="middle" fill="#F59E0B" font-size="36" font-family="sans-serif">♐</text>
+    <text x="90" y="500" text-anchor="middle" fill="#F59E0B" font-size="36" font-family="sans-serif">♑</text>
+    <text x="145" y="295" text-anchor="middle" fill="#F59E0B" font-size="36" font-family="sans-serif">♒</text>
+    <text x="295" y="145" text-anchor="middle" fill="#F59E0B" font-size="36" font-family="sans-serif">♓</text>
+  </svg>
+
+  <!-- Header Navbar -->
+  <header class="sticky top-0 z-40 backdrop-blur-md bg-[#070b1a]/90 border-b border-amber-500/25 px-4 py-3 shadow-xl">
+    <div class="max-w-6xl mx-auto flex items-center justify-between relative z-10">
+      <div class="flex items-center gap-3">
+        <div class="relative flex items-center">
+          <img src="/logo.jpg" alt="Earth PLB Logo" class="w-11 h-11 rounded-2xl object-cover border-2 border-amber-400 shadow-xl shadow-amber-500/30 ring-2 ring-amber-500/20 transition-transform hover:scale-105">
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-black bg-gradient-to-r from-amber-100 via-amber-300 to-yellow-500 bg-clip-text text-transparent tracking-wide">
+              PLB โหราศาสตร์
+            </h1>
+            <span id="headerMethodBadge" class="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-300 font-semibold shadow-sm">
+              สุริยยาตร์ (อันโตนาทีสามัญ)
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 hidden sm:block">
+            พยากรณ์รายวันตามหลักคัมภีร์โหราศาสตร์ไทย • คำนวณตัดเวลาท้องถิ่นจริงระดับเขต (LMT) ตามมาตรฐานโหราศาสตร์ไทย
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="toggleAstroModal(true)" class="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-xl transition-all shadow-md">
+          <span>☸</span>
+          <span>ตรวจพิกัดดาว</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-6 space-y-6 relative z-10">
+
+    <!-- Top Action Bar: Edit Birth Info + Date Navigation -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <button onclick="toggleBirthForm()" class="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-amber-500/40 text-amber-300 text-xs font-bold transition-all shadow-lg">
+          <span>✏️</span>
+          <span id="btnEditLabel">แก้ไขข้อมูลเกิด / เลือกจังหวัด-เขต</span>
+        </button>
+        <span id="activeUserBadge" class="text-xs text-slate-300 font-medium"></span>
+      </div>
+
+      <!-- Quick Date Selector -->
+      <div class="flex items-center gap-2 justify-center sm:justify-end">
+        <button onclick="shiftDate(-1)" class="px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-700 text-xs font-medium transition-all">
+          ◀ เมื่อวาน
+        </button>
+        <button onclick="setToday()" id="btnToday" class="px-3.5 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-black border border-amber-400 text-xs shadow-lg shadow-amber-500/25 transition-all">
+          วันนี้
+        </button>
+        <button onclick="shiftDate(1)" class="px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-700 text-xs font-medium transition-all">
+          พรุ่งนี้ ▶
+        </button>
+        <input type="date" id="inputCustomDate" onchange="onCustomDateChange(this.value)" class="bg-slate-900/90 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 outline-none focus:border-amber-400">
+      </div>
+    </div>
+
+    <!-- Collapsible Birth Form with 77 Provinces & District Selection (Natal & Transit Locations) -->
+    <div id="birthFormContainer" class="bg-slate-900/95 border border-amber-500/40 rounded-3xl p-6 backdrop-blur-md shadow-2xl transition-all">
+      <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center gap-2">
+            <span>✨</span> ระบุวันเวลาเกิดและสถานที่ (ลัคนาเดิม & สถานที่จรปัจจุบัน)
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">
+            ระบบคำนวณตัดเวลาท้องถิ่นจริง (LMT) ระดับเขต และคำนวณเวลาอาทิตย์อุทัย/ฤกษ์มงคลตามสถานที่จรจริง
+          </p>
+        </div>
+        <span class="text-xs text-amber-400 font-bold hidden sm:inline">
+          *มาตรฐานโหราศาสตร์ไทย
+        </span>
+      </div>
+
+      <!-- Section 1: ข้อมูลกำเนิด (Natal Chart) -->
+      <div class="mb-5">
+        <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <span>📍</span> 1. ข้อมูลกำเนิดและสถานที่เกิด (ดวงเดิม / ลัคนาเกิด)
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Name -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">ชื่อ / นามสมมุติ</label>
+            <input type="text" id="inputName" value="คุณดวงดี" class="w-full bg-slate-950 border border-slate-700 focus:border-amber-400 rounded-xl px-3 py-2 text-sm text-slate-100 outline-none">
+          </div>
+
+          <!-- Birth Date -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">วันเดือนปีเกิด (ค.ศ.)</label>
+            <input type="date" id="inputBirthDate" value="1995-05-15" class="w-full bg-slate-950 border border-slate-700 focus:border-amber-400 rounded-xl px-3 py-2 text-sm text-slate-100 outline-none">
+          </div>
+
+          <!-- Birth Time -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">เวลาเกิดบนนาฬิกา (เวลาตกฟาก)</label>
+            <input type="time" id="inputBirthTime" value="09:30" class="w-full bg-slate-950 border border-slate-700 focus:border-amber-400 rounded-xl px-3 py-2 text-sm text-slate-100 outline-none">
+          </div>
+
+          <!-- Birth Province (77 Provinces) -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+              จังหวัดที่เกิด <span class="text-amber-400">(ครบทั้ง 77 จังหวัด)</span>
+            </label>
+            <select id="selectProvince" onchange="onProvinceChange(this.value)" class="w-full bg-slate-950 border border-slate-700 focus:border-amber-400 rounded-xl px-3 py-2 text-sm text-slate-100 outline-none">
+              <!-- Populated via JS -->
+            </select>
+          </div>
+
+          <!-- Birth District (เขต / อำเภอ) -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+              เขต / อำเภอที่เกิด <span class="text-amber-400">(คำนวณตัดเวลาท้องถิ่น LMT)</span>
+            </label>
+            <select id="selectDistrict" class="w-full bg-slate-950 border border-amber-500/50 rounded-xl px-3 py-2 text-sm text-amber-200 outline-none">
+              <!-- Populated via JS -->
+            </select>
+          </div>
+
+          <!-- Calculation Method -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+              คัมภีร์และระบบคำนวณลัคนา
+            </label>
+            <select id="selectMethod" class="w-full bg-slate-950 border border-slate-700 focus:border-amber-400 rounded-xl px-3 py-2 text-sm text-slate-100 outline-none">
+              <option value="suriyayatra">🌟 สุริยยาตร์ (อันโตนาทีสามัญ สมผุสอาทิตย์ - มาตรฐานโหราศาสตร์ไทย)</option>
+              <option value="nirayana">🪐 นิรายนะวิธี (ลาหิรี Ayanamsa - ดาราศาสตร์สากล)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: สถานที่จร (Transit Location ณ วันที่ดูดวง) -->
+      <div class="pt-4 border-t border-slate-800/80 mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+          <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span>🧭</span> 2. สถานที่จร (ที่อยู่ปัจจุบัน ณ วันที่ดูดวง เพื่อความแม่นยำสูงสุด)
+          </h3>
+          
+          <label class="inline-flex items-center gap-2 cursor-pointer bg-slate-950/90 border border-slate-800 hover:border-amber-500/40 px-3 py-1.5 rounded-xl transition-all">
+            <input type="checkbox" id="checkSameLocation" onchange="toggleSameLocation(this.checked)" checked class="w-4 h-4 rounded text-amber-500 bg-slate-900 border-slate-700 focus:ring-amber-400 cursor-pointer">
+            <span class="text-xs font-medium text-slate-300">อยู่ที่เดียวกับสถานที่เกิด (ภูมิลำเนาเดิม)</span>
+          </label>
+        </div>
+
+        <!-- Collapsible Transit Location Fields -->
+        <div id="transitLocationFields" class="hidden bg-slate-950/60 border border-amber-500/25 rounded-2xl p-4 space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Transit Province -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+                จังหวัดที่อยู่ปัจจุบัน (สถานที่จร) <span class="text-amber-400">(77 จังหวัด)</span>
+              </label>
+              <select id="selectTransitProvince" onchange="onTransitProvinceChange(this.value)" class="w-full bg-slate-950 border border-slate-700 focus:border-amber-400 rounded-xl px-3 py-2 text-sm text-slate-100 outline-none">
+                <!-- Populated via JS -->
+              </select>
+            </div>
+
+            <!-- Transit District -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1.5">
+                เขต / อำเภอที่อยู่ปัจจุบัน (สถานที่จร)
+              </label>
+              <select id="selectTransitDistrict" class="w-full bg-slate-950 border border-amber-500/50 rounded-xl px-3 py-2 text-sm text-amber-200 outline-none">
+                <!-- Populated via JS -->
+              </select>
+            </div>
+          </div>
+          <p class="text-[11px] text-slate-400 flex items-center gap-1.5">
+            <span>💡</span> ระบบจะนำพิกัดสถานที่จรไปคำนวณเวลาอาทิตย์อุทัยจริง ยามฤกษ์มงคล และลัคนาจรประจำถิ่นให้อัตโนมัติ
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="text-[11px] text-slate-400 leading-relaxed">
+          💡 <strong>การตัดเวลาท้องถิ่นจริง (LMT) & ดวงจร:</strong> ประเทศไทยอิงเวลามาตรฐาน 105°E (อุบลราชธานี) ระบบจะคำนวณ LMT ของสถานที่เกิด และนำสถานที่จรมาปรับเวลาอาทิตย์อุทัยและยามมงคลประจำถิ่น
+        </div>
+
+        <button onclick="saveBirthDetails()" class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-300 hover:from-amber-400 hover:to-yellow-200 text-slate-950 font-bold rounded-xl text-sm shadow-xl shadow-amber-500/30 active:scale-95 transition-all">
+          ผูกดวง & ดูดวงใหม่
+        </button>
+      </div>
+    </div>
+
+    <!-- Hero Card: Personalized Daily Summary -->
+    <div class="relative overflow-hidden bg-gradient-to-br from-slate-900/90 via-slate-900/95 to-amber-950/40 border border-amber-500/40 rounded-3xl p-6 sm:p-8 shadow-2xl">
+      <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div class="space-y-2.5">
+          <div class="flex flex-wrap items-center gap-2">
+            <span id="heroAscendantBadge" class="text-xs font-black px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-md">
+              ลัคนาราศี...
+            </span>
+            <span id="heroLmtBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+              ตัดเวลา LMT: -
+            </span>
+            <span id="heroTransitBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30">
+              🧭 สถานที่จร: -
+            </span>
+          </div>
+
+          <h2 id="heroSummaryTitle" class="text-xl sm:text-2xl font-black text-white tracking-wide">
+            กำลังโหลดคำพยากรณ์...
+          </h2>
+
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-300">
+            <span id="heroLocationBadge" class="font-medium text-slate-200"></span>
+            <span class="text-slate-500">•</span>
+            <span id="heroTransitSunriseBadge" class="text-amber-300"></span>
+          </div>
+
+          <p id="heroSummaryDesc" class="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed pt-1">
+          </p>
+        </div>
+
+        <div class="flex items-center gap-4 self-end md:self-center flex-shrink-0">
+          <div class="text-center p-3.5 rounded-2xl bg-slate-950/80 border border-amber-500/30 shadow-inner">
+            <div id="heroScoreVal" class="text-3xl font-black bg-gradient-to-r from-amber-300 to-yellow-400 bg-clip-text text-transparent">
+              88%
+            </div>
+            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              พลังดวงวันนี้
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+            <button onclick="toggleExportModal(true)" id="btnExportImg" class="flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-amber-500 hover:from-pink-400 hover:to-amber-400 text-white font-bold text-xs shadow-lg shadow-rose-500/25 transition-all active:scale-95 whitespace-nowrap">
+              <span>📸</span>
+              <span>Export รูปภาพ IG / TikTok</span>
+            </button>
+            <button onclick="copyShareText()" id="btnShare" class="flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-amber-300 font-bold text-xs shadow-md transition-all active:scale-95 whitespace-nowrap">
+              <span>📋</span>
+              <span id="btnShareLabel">คัดลอกข้อความ</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thai Duang Wheel (ผังจักรราศี 12 ช่อง) -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 sm:p-6 backdrop-blur-md shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+              <span class="text-amber-400">☸</span>
+              ผังจักรราศีไทย 12 ช่อง (ดวงกำเนิดเดิม & ดาวจร)
+            </h2>
+            <span id="chartAscSignBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              ลัคนา
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">
+            ดาวสีฟ้า = ดาวเดิมกำเนิด • ดาวสีส้มทอง = ดาวจรวันนี้ • สัญลักษณ์ ลั = จุดสถิตลัคนา
+          </p>
+        </div>
+      </div>
+
+      <div id="zodiacGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+
+    <!-- Category Tabs Filter -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+      <button onclick="setCategoryTab('all')" id="tab-all" class="cat-tab px-4 py-2.5 rounded-xl font-medium text-xs sm:text-sm whitespace-nowrap bg-amber-500/20 border border-amber-400 text-amber-300 font-bold shadow-md">
+        🌟 สรุปรวมทั้งหมด
+      </button>
+      <button onclick="setCategoryTab('career')" id="tab-career" class="cat-tab px-4 py-2.5 rounded-xl font-medium text-xs sm:text-sm whitespace-nowrap bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400">
+        💼 การงาน & ธุรกิจ
+      </button>
+      <button onclick="setCategoryTab('finance')" id="tab-finance" class="cat-tab px-4 py-2.5 rounded-xl font-medium text-xs sm:text-sm whitespace-nowrap bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400">
+        💰 การเงิน & โชคลาภ
+      </button>
+      <button onclick="setCategoryTab('love')" id="tab-love" class="cat-tab px-4 py-2.5 rounded-xl font-medium text-xs sm:text-sm whitespace-nowrap bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400">
+        ❤️ ความรัก
+      </button>
+      <button onclick="setCategoryTab('health')" id="tab-health" class="cat-tab px-4 py-2.5 rounded-xl font-medium text-xs sm:text-sm whitespace-nowrap bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400">
+        🛡️ สุขภาพ & เตือนภัย
+      </button>
+      <button onclick="setCategoryTab('lucky')" id="tab-lucky" class="cat-tab px-4 py-2.5 rounded-xl font-medium text-xs sm:text-sm whitespace-nowrap bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400">
+        🔮 เกร็ดมงคลประจำวัน
+      </button>
+    </div>
+
+    <!-- Category Cards Container -->
+    <div id="cardsContainer" class="space-y-4">
+      <!-- Injected via JS -->
+    </div>
+
+    <!-- Lucky Boosters Card -->
+    <div id="luckyBoostersSection" class="bg-slate-900/90 border border-amber-500/30 rounded-3xl p-5 sm:p-6 backdrop-blur-md shadow-2xl">
+      <!-- Injected via JS -->
+    </div>
+
+    <!-- Social Share CTA Card -->
+    <div class="p-5 rounded-3xl bg-gradient-to-r from-pink-950/40 via-purple-950/30 to-amber-950/30 border border-pink-500/30 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left shadow-xl">
+      <div class="flex items-center gap-3.5">
+        <span class="text-3xl">📸</span>
+        <div>
+          <h4 class="text-sm sm:text-base font-bold text-white flex items-center gap-2 justify-center sm:justify-start">
+            แชร์ดวงของคุณลง Instagram Stories & TikTok
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30">ยอดนิยม</span>
+          </h4>
+          <p class="text-xs text-slate-400 mt-0.5">
+            สร้างการ์ดรูปภาพดวงแนวตั้ง 9:16 หรือสี่เหลี่ยม 1:1 ความละเอียดสูงระดับ HD สวยหรู พร้อมโพสต์ทันที
+          </p>
+        </div>
+      </div>
+      <button onclick="toggleExportModal(true)" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-amber-500 hover:from-pink-400 hover:to-amber-400 text-white font-bold text-xs shadow-lg shadow-rose-500/25 flex items-center gap-2 whitespace-nowrap transition-all active:scale-95">
+        <span>✨</span>
+        <span>สร้างรูปภาพแชร์ทันที</span>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Astronomical Deep-Dive Modal -->
+  <div id="astroModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
+    <div class="bg-slate-900 border border-amber-500/40 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl p-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <span class="text-amber-400">☸</span> ข้อมูลพิกัดดาวและวิธีคำนวณตามคัมภีร์
+        </h3>
+        <button onclick="toggleAstroModal(false)" class="text-slate-400 hover:text-white p-1 text-lg">✕</button>
+      </div>
+      <div id="modalContent" class="text-xs space-y-4">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Image Modal for Instagram / TikTok -->
+  <div id="exportModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md">
+    <div class="bg-slate-900 border border-amber-500/40 rounded-3xl w-full max-w-4xl max-h-[94vh] flex flex-col shadow-2xl overflow-hidden">
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 p-4 sm:p-5">
+        <div class="flex items-center gap-3">
+          <img src="/logo.jpg" alt="Earth PLB Logo" class="w-10 h-10 rounded-2xl object-cover border-2 border-amber-400/80 shadow-md">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              Export รูปภาพสำหรับ Instagram / TikTok
+            </h3>
+            <p class="text-xs text-slate-400">สร้างรูปการ์ดสรุปดวงสวยงามความละเอียดสูง (HD) พร้อมแชร์ลงสตอรี่หรือโพสต์</p>
+          </div>
+        </div>
+        <button onclick="toggleExportModal(false)" class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 text-lg transition-all">✕</button>
+      </div>
+
+      <!-- Controls & Preview Body -->
+      <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
+        <!-- Format & Theme Selector -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Format Selector -->
+          <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-3.5">
+            <label class="text-xs font-bold text-amber-300 mb-2 block flex items-center gap-1.5">
+              <span>📐</span> เลือกขนาดและสัดส่วนภาพ
+            </label>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="setExportFormat('story')" id="btnFormatStory" class="export-fmt-btn py-2.5 px-3 rounded-xl text-xs font-bold border transition-all flex flex-col items-center gap-1 bg-amber-500/20 border-amber-400 text-amber-300 shadow">
+                <span class="text-base">📱</span>
+                <span>สตอรี่ / TikTok (9:16)</span>
+                <span class="text-[10px] text-amber-300/80 font-normal">1080 x 1920 px</span>
+              </button>
+              <button onclick="setExportFormat('square')" id="btnFormatSquare" class="export-fmt-btn py-2.5 px-3 rounded-xl text-xs font-medium border transition-all flex flex-col items-center gap-1 bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700">
+                <span class="text-base">🖼️</span>
+                <span>โพสต์ฟีดสี่เหลี่ยม (1:1)</span>
+                <span class="text-[10px] text-slate-500 font-normal">1080 x 1080 px</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Theme Palette Selector -->
+          <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-3.5">
+            <label class="text-xs font-bold text-amber-300 mb-2 block flex items-center gap-1.5">
+              <span>🎨</span> เลือกโทนสีพื้นหลัง
+            </label>
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="setExportTheme('cosmic')" id="btnThemeCosmic" class="export-theme-btn py-2.5 px-2 rounded-xl text-xs font-bold border transition-all flex flex-col items-center gap-1 bg-amber-500/20 border-amber-400 text-amber-300">
+                <div class="w-4 h-4 rounded-full bg-gradient-to-r from-amber-500 via-purple-600 to-indigo-900 border border-amber-300/50"></div>
+                <span class="text-[11px]">Cosmic Gold</span>
+              </button>
+              <button onclick="setExportTheme('mystic')" id="btnThemeMystic" class="export-theme-btn py-2.5 px-2 rounded-xl text-xs font-medium border transition-all flex flex-col items-center gap-1 bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700">
+                <div class="w-4 h-4 rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-slate-900 border border-purple-400/50"></div>
+                <span class="text-[11px]">Mystic Violet</span>
+              </button>
+              <button onclick="setExportTheme('midnight')" id="btnThemeMidnight" class="export-theme-btn py-2.5 px-2 rounded-xl text-xs font-medium border transition-all flex flex-col items-center gap-1 bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700">
+                <div class="w-4 h-4 rounded-full bg-gradient-to-r from-cyan-500 via-blue-700 to-slate-950 border border-cyan-400/50"></div>
+                <span class="text-[11px]">Midnight Blue</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Preview Container -->
+        <div class="flex flex-col items-center justify-center p-4 bg-slate-950/80 rounded-2xl border border-slate-800 min-h-[440px]">
+          <div class="text-xs text-slate-400 mb-3 flex items-center gap-2">
+            <span>👁️ ตัวอย่างการ์ดความละเอียดสูง (HD Preview)</span>
+          </div>
+          <div id="canvasWrapper" class="relative max-h-[55vh] overflow-hidden rounded-2xl shadow-2xl border border-amber-500/30 flex items-center justify-center bg-slate-950">
+            <canvas id="exportCanvas" class="max-h-[55vh] w-auto object-contain rounded-2xl shadow-2xl"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="p-4 sm:p-5 border-t border-slate-800 bg-slate-950/60 flex flex-wrap items-center justify-between gap-3">
+        <div class="text-xs text-slate-400 flex items-center gap-1.5">
+          <span>✨</span>
+          <span>สร้างภาพความละเอียดสูง คมชัด รองรับทุกแพลตฟอร์ม</span>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button onclick="copyExportCanvasImage()" id="btnCopyImg" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95">
+            <span>📋</span>
+            <span id="btnCopyImgLabel">คัดลอกรูปภาพ</span>
+          </button>
+          <button onclick="shareExportCanvasImage()" id="btnShareImg" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-rose-500/20 transition-all active:scale-95">
+            <span>🚀</span>
+            <span>แชร์ลง IG / TikTok</span>
+          </button>
+          <button onclick="downloadExportCanvasImage()" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-amber-500/25 transition-all active:scale-95">
+            <span>📥</span>
+            <span>บันทึกรูปลงเครื่อง (PNG)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 bg-slate-950/80 py-6 px-4 text-center text-xs text-slate-400 mt-auto relative z-10">
+    <div class="max-w-6xl mx-auto flex flex-col items-center space-y-2.5">
+      <img src="/logo.jpg" alt="Earth PLB Logo" class="w-11 h-11 rounded-full object-cover border-2 border-amber-400/70 shadow-lg shadow-amber-500/20">
+      <p class="font-bold text-slate-300">
+        PLB โหราศาสตร์ • เว็บแอปพลิเคชันดูดวงรายวันลัคนาราศีและดาวจร
+      </p>
+      <p class="text-[11px] text-slate-500">
+        คำนวณตามคัมภีร์สุริยยาตร์ (มาตรฐานโหราศาสตร์ไทย) และระบบนิรายนะวิธี ลาหิรี Ayanamsa • รองรับ 77 จังหวัดทั่วไทย
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // All 77 Provinces of Thailand (Alphabetical)
+    const ALL_77_PROVINCES = [
+      "กระบี่", "กรุงเทพมหานคร", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", "ขอนแก่น", "จันทบุรี",
+      "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร", "เชียงราย", "เชียงใหม่", "ตรัง",
+      "ตราด", "ตาก", "นครนายก", "นครปฐม", "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์",
+      "นนทบุรี", "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์",
+      "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา", "พัทลุง", "พิจิตร",
+      "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์", "แพร่", "ภูเก็ต", "มหาสารคาม", "มุกดาหาร",
+      "แม่ฮ่องสอน", "ยโสธร", "ยะลา", "ร้อยเอ็ด", "ระนอง", "ระยอง", "ราชบุรี", "ลพบุรี",
+      "ลำปาง", "ลำพูน", "เลย", "ศรีสะเกษ", "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ",
+      "สมุทรสงคราม", "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย", "สุพรรณบุรี",
+      "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย", "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ",
+      "อุดรธานี", "อุตรดิตถ์", "อุทัยธานี", "อุบลราชธานี"
+    ];
+
+    // 50 Bangkok Districts
+    const BKK_DISTRICTS = [
+      "พระนคร", "ดุสิต", "หนองจอก", "บางรัก", "บางเขน", "บางกะปิ", "ปทุมวัน", "ป้อมปราบศัตรูพ่าย",
+      "พระโขนง", "มีนบุรี", "ลาดกระบัง", "ยานนาวา", "สัมพันธวงศ์", "พญาไท", "ธนบุรี", "บางกอกใหญ่",
+      "ห้วยขวาง", "คลองสาน", "ตลิ่งชัน", "บางกอกน้อย", "บางขุนเทียน", "ภาษีเจริญ", "หนองแขม", "ราษฎร์บูรณะ",
+      "บางพลัด", "ดินแดง", "บึงกุ่ม", "สาทร", "บางซื่อ", "จตุจักร", "บางคอแหลม", "ประเวศ",
+      "คลองเตย", "สวนหลวง", "จอมทอง", "ดอนเมือง", "ราชเทวี", "ลาดพร้าว", "วัฒนา", "บางแค",
+      "หลักสี่", "สายไหม", "คันนายาว", "สะพานสูง", "วังทองหลาง", "คลองสามวา", "บางนา", "ทวีวัฒนา",
+      "ทุ่งครุ", "บางบอน"
+    ];
+
+    let state = {
+      birth: {
+        name: "คุณดวงดี",
+        birthDate: "1995-05-15",
+        birthTime: "09:30",
+        province: "กรุงเทพมหานคร",
+        district: "พระนคร",
+        calcMethod: "suriyayatra",
+        isSameLocation: true,
+        transitProvince: "กรุงเทพมหานคร",
+        transitDistrict: "พระนคร"
+      },
+      targetDate: new Date().toISOString().split('T')[0],
+      activeTab: "all",
+      data: null,
+      exportFormat: "story",
+      exportTheme: "cosmic"
+    };
+
+    // Load saved profile
+    try {
+      const saved = localStorage.getItem('plb_horo_birth_v4') || localStorage.getItem('plb_horo_birth_v3');
+      if (saved) state.birth = { ...state.birth, ...JSON.parse(saved) };
+    } catch(e) {}
+
+    function initInputs() {
+      // Populate 77 Provinces Dropdown for both birth and transit
+      const provSelect = document.getElementById('selectProvince');
+      const transitProvSelect = document.getElementById('selectTransitProvince');
+      provSelect.innerHTML = '';
+      transitProvSelect.innerHTML = '';
+
+      ALL_77_PROVINCES.forEach(p => {
+        const opt1 = document.createElement('option');
+        opt1.value = p;
+        opt1.innerText = p;
+        if (p === (state.birth.province || "กรุงเทพมหานคร")) opt1.selected = true;
+        provSelect.appendChild(opt1);
+
+        const opt2 = document.createElement('option');
+        opt2.value = p;
+        opt2.innerText = p;
+        if (p === (state.birth.transitProvince || state.birth.province || "กรุงเทพมหานคร")) opt2.selected = true;
+        transitProvSelect.appendChild(opt2);
+      });
+
+      document.getElementById('inputName').value = state.birth.name;
+      document.getElementById('inputBirthDate').value = state.birth.birthDate;
+      document.getElementById('inputBirthTime').value = state.birth.birthTime;
+      document.getElementById('selectMethod').value = state.birth.calcMethod || "suriyayatra";
+      document.getElementById('inputCustomDate').value = state.targetDate;
+      
+      const isSame = state.birth.isSameLocation !== false;
+      document.getElementById('checkSameLocation').checked = isSame;
+      toggleSameLocation(isSame);
+
+      populateDistricts(state.birth.province || "กรุงเทพมหานคร", state.birth.district || "พระนคร");
+      populateTransitDistricts(state.birth.transitProvince || state.birth.province || "กรุงเทพมหานคร", state.birth.transitDistrict || state.birth.district || "พระนคร");
+    }
+
+    function populateDistricts(province, selectedDistrict) {
+      const select = document.getElementById('selectDistrict');
+      select.innerHTML = '';
+      let list = [];
+      if (province === 'กรุงเทพมหานคร') {
+        list = BKK_DISTRICTS;
+      } else {
+        list = [`อำเภอเมือง${province}`, `อำเภออื่นๆ (คำนวณตามพิกัด${province})`];
+      }
+
+      list.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.innerText = d;
+        if (d === selectedDistrict) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
+    function populateTransitDistricts(province, selectedDistrict) {
+      const select = document.getElementById('selectTransitDistrict');
+      select.innerHTML = '';
+      let list = [];
+      if (province === 'กรุงเทพมหานคร') {
+        list = BKK_DISTRICTS;
+      } else {
+        list = [`อำเภอเมือง${province}`, `อำเภออื่นๆ (คำนวณตามพิกัด${province})`];
+      }
+
+      list.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.innerText = d;
+        if (d === selectedDistrict) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+
+    function onProvinceChange(prov) {
+      populateDistricts(prov, '');
+      if (document.getElementById('checkSameLocation').checked) {
+        document.getElementById('selectTransitProvince').value = prov;
+        populateTransitDistricts(prov, '');
+      }
+    }
+
+    function onTransitProvinceChange(prov) {
+      populateTransitDistricts(prov, '');
+    }
+
+    function toggleSameLocation(isSame) {
+      const fields = document.getElementById('transitLocationFields');
+      if (isSame) {
+        fields.classList.add('hidden');
+      } else {
+        fields.classList.remove('hidden');
+      }
+    }
+
+    // Fetch horoscope from Python API
+    async function loadHoroscope() {
+      try {
+        const resp = await fetch('/api/astrology/daily', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ...state.birth,
+            targetDate: state.targetDate
+          })
+        });
+        const res = await resp.json();
+        if (res.success) {
+          state.data = res.data;
+          renderApp();
+        }
+      } catch (err) {
+        console.error("API error:", err);
+      }
+    }
+
+    function renderApp() {
+      if (!state.data) return;
+      const d = state.data;
+      const asc = d.natalChart.ascendant;
+      const info = d.natalChart.birthInfo;
+      const tLoc = d.transitLocation || {
+        isSameLocation: true,
+        province: info.province,
+        district: info.district,
+        sunriseTime: "06:06",
+        sunsetTime: "18:13",
+        lmtOffsetMinutes: info.lmtOffset || 18.0
+      };
+
+      // Update Method Badge
+      const isSuriyayatra = (info.calcMethod || "suriyayatra") === "suriyayatra";
+      document.getElementById('headerMethodBadge').innerText = isSuriyayatra ? "สุริยยาตร์ (อันโตนาทีสามัญ)" : "นิรายนะ (ลาหิรี Ayanamsa)";
+
+      // Update Hero
+      document.getElementById('heroAscendantBadge').innerText = `ลัคนาราศี${asc.signName} (${asc.signDegree}° ${asc.arcMinutes}')`;
+      document.getElementById('heroLmtBadge').innerText = isSuriyayatra ? `LMT เกิด: ${asc.lmtTime || '-'} น. (ตัด ${asc.lmtOffset ? asc.lmtOffset.toFixed(1) : '18'} นาที)` : `พิกัดองศา: ${asc.degree.toFixed(2)}°`;
+      
+      const isSameLoc = tLoc.isSameLocation !== false;
+      document.getElementById('heroTransitBadge').innerText = isSameLoc 
+        ? `🧭 สถิตภูมิลำเนาเดิม (${tLoc.province})`
+        : `🧭 ปัจจุบัน: ${tLoc.province} (${tLoc.district || ''}) • LMT ตัด ${tLoc.lmtOffsetMinutes ? tLoc.lmtOffsetMinutes.toFixed(1) : '18'} นาที`;
+
+      document.getElementById('heroLocationBadge').innerText = `📍 กำเนิด: ${info.name} • ${info.province} (${info.district || ''})`;
+      document.getElementById('heroTransitSunriseBadge').innerText = `☀️ อาทิตย์อุทัยวันนี้ (${tLoc.province}): ${tLoc.sunriseTime} น. (ตก ${tLoc.sunsetTime} น.)`;
+      document.getElementById('heroSummaryTitle').innerText = d.categories.overall.summary;
+      document.getElementById('heroSummaryDesc').innerText = d.categories.overall.highlights[0];
+      document.getElementById('heroScoreVal').innerText = `${d.categories.overall.score}%`;
+      
+      document.getElementById('activeUserBadge').innerText = isSameLoc
+        ? `${info.name} • ลัคนาราศี${asc.signName} (${info.province})`
+        : `${info.name} • ลัคนาราศี${asc.signName} (เกิด: ${info.province} ➔ ปัจจุบัน: ${tLoc.province})`;
+
+      document.getElementById('chartAscSignBadge').innerText = `ลัคนาสถิตราศี${asc.signName} • ${asc.nakshatra || ''}`;
+
+      // Render Zodiac 12 Grid
+      const signs = [
+        {id:0, name:"เมษ", sym:"♈"}, {id:1, name:"พฤษภ", sym:"♉"}, {id:2, name:"เมถุน", sym:"♊"},
+        {id:3, name:"กรกฎ", sym:"♋"}, {id:4, name:"สิงห์", sym:"♌"}, {id:5, name:"กันย์", sym:"♍"},
+        {id:6, name:"ตุลย์", sym:"♎"}, {id:7, name:"พิจิก", sym:"♏"}, {id:8, name:"ธนู", sym:"♐"},
+        {id:9, name:"มังกร", sym:"♑"}, {id:10, name:"กุมภ์", sym:"♒"}, {id:11, name:"มีน", sym:"♓"}
+      ];
+
+      const natalBySign = {};
+      const transitBySign = {};
+      for (let i=0; i<12; i++) { natalBySign[i] = []; transitBySign[i] = []; }
+
+      d.natalChart.planets.forEach(p => natalBySign[p.signId].push(p));
+      d.transitChart.planets.forEach(p => transitBySign[p.signId].push(p));
+
+      let gridHtml = '';
+      signs.forEach(s => {
+        const isAsc = s.id === asc.signId;
+        const house = d.natalChart.houses.find(h => h.signId === s.id);
+        const np = natalBySign[s.id];
+        const tp = transitBySign[s.id];
+
+        gridHtml += `
+          <div class="rounded-2xl p-3 border min-h-[100px] flex flex-col justify-between transition-all ${isAsc ? 'bg-amber-500/20 border-amber-400 shadow-xl shadow-amber-500/15' : 'bg-slate-950/70 border-slate-800/80 hover:border-slate-700'}">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-1 mb-1">
+              <span class="text-xs font-bold ${isAsc ? 'text-amber-300' : 'text-slate-200'}">${s.sym} ราศี${s.name}</span>
+              <div class="flex gap-1">
+                ${isAsc ? '<span class="text-[9px] px-1.5 py-0.2 bg-amber-400 text-slate-950 font-black rounded shadow">ลั</span>' : ''}
+                <span class="text-[9px] px-1.5 py-0.2 bg-slate-800 text-slate-400 rounded">${house ? house.name : ''}</span>
+              </div>
+            </div>
+            <div class="space-y-1 text-[10px]">
+              <div class="flex flex-wrap gap-1 items-center">
+                <span class="text-cyan-400 font-medium">เดิม:</span>
+                ${np.length ? np.map(p => `<span class="px-1 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-300 font-bold">${p.symbol}</span>`).join('') : '<span class="text-slate-600">-</span>'}
+              </div>
+              <div class="flex flex-wrap gap-1 items-center">
+                <span class="text-amber-400 font-medium">จร:</span>
+                ${tp.length ? tp.map(p => `<span class="px-1 rounded bg-amber-950 border border-amber-400/50 text-amber-300 font-bold">${p.symbol}</span>`).join('') : '<span class="text-slate-600">-</span>'}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      document.getElementById('zodiacGrid').innerHTML = gridHtml;
+
+      // Render Cards & Lucky
+      renderCards();
+      renderLucky(d.luckyInfo);
+    }
+
+    function renderCards() {
+      if (!state.data) return;
+      const cats = state.data.categories;
+      const container = document.getElementById('cardsContainer');
+      const luckySec = document.getElementById('luckyBoostersSection');
+
+      if (state.activeTab === 'lucky') {
+        container.innerHTML = '';
+        luckySec.classList.remove('hidden');
+        return;
+      }
+
+      luckySec.classList.remove('hidden');
+
+      let list = [];
+      if (state.activeTab === 'all') {
+        list = [cats.overall, cats.career, cats.finance, cats.love, cats.health];
+      } else {
+        list = [cats[state.activeTab]];
+      }
+
+      let html = '';
+      list.forEach(c => {
+        const badgeColor = c.score >= 85 ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+          : c.score >= 70 ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+          : 'bg-rose-500/20 text-rose-300 border-rose-500/30';
+
+        // Render time periods if present (for overall)
+        let timePeriodsHtml = '';
+        if (c.timePeriods) {
+          timePeriodsHtml = `
+            <div class="my-4">
+              <div class="text-xs font-bold text-amber-300 mb-2 flex items-center gap-1.5">
+                <span>⏱️</span> จังหวะดวงรายช่วงเวลาของวัน
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+                <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-3">
+                  <div class="text-xs font-bold text-amber-400 mb-1 flex items-center gap-1">
+                    <span>🌅</span> ${c.timePeriods.morning.label}
+                  </div>
+                  <div class="text-[11px] text-slate-300 leading-relaxed">${c.timePeriods.morning.desc}</div>
+                </div>
+                <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-3">
+                  <div class="text-xs font-bold text-yellow-400 mb-1 flex items-center gap-1">
+                    <span>☀️</span> ${c.timePeriods.afternoon.label}
+                  </div>
+                  <div class="text-[11px] text-slate-300 leading-relaxed">${c.timePeriods.afternoon.desc}</div>
+                </div>
+                <div class="bg-slate-950/60 border border-slate-800 rounded-2xl p-3">
+                  <div class="text-xs font-bold text-indigo-300 mb-1 flex items-center gap-1">
+                    <span>🌙</span> ${c.timePeriods.evening.label}
+                  </div>
+                  <div class="text-[11px] text-slate-300 leading-relaxed">${c.timePeriods.evening.desc}</div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        // Render subsections if present (career, finance, love, health)
+        let subsectionsHtml = '';
+        if (c.subsections) {
+          const subEntries = Object.values(c.subsections);
+          subsectionsHtml = `
+            <div class="my-4">
+              <div class="text-xs font-bold text-amber-300 mb-2 flex items-center gap-1.5">
+                <span>📋</span> จำแนกรายละเอียดเชิงลึก
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+                ${subEntries.map(s => `
+                  <div class="bg-slate-950/60 border border-slate-800 hover:border-slate-700/90 rounded-2xl p-3 flex flex-col justify-start transition-all">
+                    <div class="text-xs font-bold text-slate-200 mb-1.5 pb-1 border-b border-slate-800/80">${s.title}</div>
+                    <div class="text-[11px] text-slate-300 leading-relaxed">${s.desc}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        // Render highlights if present
+        let highlightsHtml = '';
+        if (c.highlights && c.highlights.length > 0) {
+          highlightsHtml = `
+            <div class="bg-slate-950/40 border border-slate-800/80 rounded-2xl p-3 my-3">
+              <div class="text-xs font-bold text-amber-300 mb-1.5 flex items-center gap-1">
+                <span>✨</span> ไฮไลต์สำคัญประจำหมวด
+              </div>
+              <div class="space-y-1">
+                ${c.highlights.map(h => `
+                  <div class="text-[11px] text-slate-300 flex items-start gap-1.5">
+                    <span class="text-amber-400 font-bold">•</span>
+                    <span>${h}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        // Render key planets badge
+        let keyPlanetsHtml = '';
+        if (c.keyPlanets && c.keyPlanets.length > 0) {
+          keyPlanetsHtml = `
+            <div class="flex items-center flex-wrap gap-1.5 mt-2">
+              <span class="text-[10px] text-slate-400 font-medium">ดาวส่งอิทธิพล:</span>
+              ${c.keyPlanets.map(p => `<span class="px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-400/30 text-amber-300 font-bold text-[10px]">${p}</span>`).join('')}
+            </div>
+          `;
+        }
+
+        html += `
+          <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 sm:p-6 backdrop-blur-md shadow-xl hover:border-slate-700 transition-all">
+            <div class="flex items-start justify-between gap-3 mb-2">
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <h3 class="text-base font-bold text-white">${c.title}</h3>
+                  <span class="text-[11px] px-2.5 py-0.5 rounded-full border font-semibold ${badgeColor}">${c.statusLabel}</span>
+                </div>
+                <div class="text-xs font-bold text-amber-400">ดัชนีพลังดวง: ${c.score}% (${'⭐'.repeat(c.ratingStars)})</div>
+              </div>
+            </div>
+
+            <div class="w-full bg-slate-950 rounded-full h-2 my-2 overflow-hidden border border-slate-800">
+              <div class="h-full bg-gradient-to-r from-amber-500 to-yellow-400" style="width: ${c.score}%"></div>
+            </div>
+
+            <div class="text-xs sm:text-sm font-medium text-amber-100/95 bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 my-3 leading-relaxed">
+              ${c.summary}
+            </div>
+
+            ${timePeriodsHtml}
+            ${subsectionsHtml}
+            ${highlightsHtml}
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <div class="bg-emerald-950/20 border border-emerald-500/20 rounded-2xl p-3.5">
+                <div class="text-xs font-bold text-emerald-400 mb-1.5 flex items-center gap-1">
+                  <span>✓</span> สิ่งที่ควรทำในวันนี้
+                </div>
+                <ul class="text-[11px] text-slate-300 space-y-1.5">
+                  ${c.doList.map(item => `<li class="flex items-start gap-1"><span class="text-emerald-400">•</span><span>${item}</span></li>`).join('')}
+                </ul>
+              </div>
+              <div class="bg-rose-950/20 border border-rose-500/20 rounded-2xl p-3.5">
+                <div class="text-xs font-bold text-rose-400 mb-1.5 flex items-center gap-1">
+                  <span>✕</span> ข้อควรระวัง
+                </div>
+                <ul class="text-[11px] text-slate-300 space-y-1.5">
+                  ${c.dontList.map(item => `<li class="flex items-start gap-1"><span class="text-rose-400">•</span><span>${item}</span></li>`).join('')}
+                </ul>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-800/80 text-[11px] text-slate-400 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div>
+                <strong class="text-slate-300">หลักโหราศาสตร์:</strong> ${c.astrologicalReason}
+              </div>
+              ${keyPlanetsHtml}
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function renderLucky(l) {
+      const el = document.getElementById('luckyBoostersSection');
+      el.innerHTML = `
+        <div class="flex items-center justify-between flex-wrap gap-2 mb-4 border-b border-slate-800/80 pb-3">
+          <div class="flex items-center gap-2.5">
+            <span class="text-2xl">🔮</span>
+            <div>
+              <h3 class="text-base font-bold text-white">เกร็ดมงคลเสริมดวงประจำวัน (มหาทักษา & ฤกษ์ยามท้องถิ่น)</h3>
+              <div class="text-xs text-amber-300/90 font-medium mt-0.5">${l.dailyDayLord || ''}</div>
+            </div>
+          </div>
+          <span class="text-[11px] px-2.5 py-1 bg-amber-500/15 border border-amber-400/30 text-amber-300 rounded-full font-semibold">
+            ทักษาจร
+          </span>
+        </div>
+
+        <!-- Color Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-3.5">
+            <div class="text-[11px] font-semibold text-blue-400 mb-1">👔 สีเสริมการงาน / อำนาจบารมี (เดช)</div>
+            <div class="text-xs font-bold text-white">${l.auspiciousColors.work.join(' หรือ ')}</div>
+          </div>
+          <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-3.5">
+            <div class="text-[11px] font-semibold text-emerald-400 mb-1">💰 สีเสริมเงินทอง / โชคลาภ (ศรี)</div>
+            <div class="text-xs font-bold text-white">${l.auspiciousColors.wealth.join(' หรือ ')}</div>
+          </div>
+          <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-3.5">
+            <div class="text-[11px] font-semibold text-rose-400 mb-1">💖 สีเสริมเสน่ห์ / เมตตามหานิยม (มนตรี)</div>
+            <div class="text-xs font-bold text-white">${l.auspiciousColors.love.join(' หรือ ')}</div>
+          </div>
+        </div>
+
+        <!-- Key Lucky Stats -->
+        <div class="mt-3 p-3.5 bg-slate-950/50 border border-slate-800 rounded-2xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+          <div>
+            <span class="text-rose-400 font-bold block mb-0.5">⛔ สีกาลกิณีควรเลี่ยง</span>
+            <span class="text-slate-200 font-semibold">${l.inauspiciousColors.join(', ')}</span>
+          </div>
+          <div>
+            <span class="text-amber-400 font-bold block mb-0.5">🎯 เลขเด่นนำโชค</span>
+            <span class="text-white font-bold text-sm tracking-wider">${l.luckyNumbers.join(' - ')}</span>
+            <span class="text-[10px] text-slate-400 block">${l.luckyNumbersDesc || ''}</span>
+          </div>
+          <div>
+            <span class="text-amber-300 font-bold block mb-0.5">⏰ ฤกษ์มงคลประจำวัน</span>
+            <span class="text-slate-200 font-semibold leading-relaxed">${l.auspiciousTime}</span>
+          </div>
+          <div>
+            <span class="text-cyan-400 font-bold block mb-0.5">🧭 ทิศมงคลนำโชค</span>
+            <span class="text-slate-200 font-semibold leading-relaxed">${l.luckyDirection || '-'}</span>
+          </div>
+        </div>
+
+        <!-- Daily Sacred Chant & Merit (Golden Highlight Card) -->
+        ${l.dailyChant ? `
+          <div class="mt-4 bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-950 border border-amber-500/30 rounded-2xl p-4">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-lg">📿</span>
+              <h4 class="text-xs sm:text-sm font-bold text-amber-300">${l.dailyChant.title}</h4>
+            </div>
+            <div class="bg-slate-950/80 border border-amber-500/20 rounded-xl p-3 text-center my-2">
+              <p class="text-xs sm:text-sm font-bold text-yellow-300 tracking-wide font-mono">
+                "${l.dailyChant.mantra}"
+              </p>
+            </div>
+            <div class="text-[11px] text-amber-200/90 mb-3">
+              <strong>อานิสงส์:</strong> ${l.dailyChant.benefit}
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-slate-800/80 text-[11px]">
+              <div class="bg-slate-950/50 p-2.5 rounded-xl border border-slate-800">
+                <span class="text-amber-400 font-bold block mb-1">💎 ของมงคล / หินนำโชคเสริมราศี</span>
+                <span class="text-slate-300">${l.auspiciousAmulet || '-'}</span>
+              </div>
+              <div class="bg-slate-950/50 p-2.5 rounded-xl border border-slate-800">
+                <span class="text-emerald-400 font-bold block mb-1">🕊️ เคล็ดลับทำบุญสร้างบารมี</span>
+                <span class="text-slate-300">${l.goodDeedAdvice || '-'}</span>
+              </div>
+            </div>
+            ${l.meditationAdvice ? `
+              <div class="mt-2.5 text-[11px] text-slate-400 bg-slate-950/40 p-2 rounded-xl border border-slate-800/60">
+                <strong class="text-slate-300">เคล็ดลับตั้งจิตก่อนเริ่มวัน:</strong> ${l.meditationAdvice}
+              </div>
+            ` : ''}
+          </div>
+        ` : ''}
+      `;
+    }
+
+    function setCategoryTab(tab) {
+      state.activeTab = tab;
+      document.querySelectorAll('.cat-tab').forEach(b => {
+        b.className = "cat-tab px-4 py-2.5 rounded-xl font-medium text-xs sm:text-sm whitespace-nowrap bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400";
+      });
+      const activeBtn = document.getElementById('tab-' + tab);
+      if (activeBtn) {
+        activeBtn.className = "cat-tab px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap bg-amber-500/20 border border-amber-400 text-amber-300 shadow-md";
+      }
+      renderCards();
+    }
+
+    function toggleBirthForm() {
+      const f = document.getElementById('birthFormContainer');
+      f.classList.toggle('hidden');
+    }
+
+    function saveBirthDetails() {
+      state.birth.name = document.getElementById('inputName').value || 'เจ้าชะตา';
+      state.birth.birthDate = document.getElementById('inputBirthDate').value;
+      state.birth.birthTime = document.getElementById('inputBirthTime').value || '06:00';
+      state.birth.province = document.getElementById('selectProvince').value;
+      state.birth.district = document.getElementById('selectDistrict').value;
+      state.birth.calcMethod = document.getElementById('selectMethod').value;
+      
+      const isSame = document.getElementById('checkSameLocation').checked;
+      state.birth.isSameLocation = isSame;
+      if (isSame) {
+        state.birth.transitProvince = state.birth.province;
+        state.birth.transitDistrict = state.birth.district;
+      } else {
+        state.birth.transitProvince = document.getElementById('selectTransitProvince').value;
+        state.birth.transitDistrict = document.getElementById('selectTransitDistrict').value;
+      }
+      
+      try {
+        localStorage.setItem('plb_horo_birth_v4', JSON.stringify(state.birth));
+      } catch(e) {}
+      
+      toggleBirthForm();
+      loadHoroscope();
+    }
+
+    function setToday() {
+      state.targetDate = new Date().toISOString().split('T')[0];
+      document.getElementById('inputCustomDate').value = state.targetDate;
+      loadHoroscope();
+    }
+
+    function shiftDate(days) {
+      const [y, m, d] = state.targetDate.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      dt.setDate(dt.getDate() + days);
+      const newY = dt.getFullYear();
+      const newM = String(dt.getMonth() + 1).padStart(2, '0');
+      const newD = String(dt.getDate()).padStart(2, '0');
+      state.targetDate = `${newY}-${newM}-${newD}`;
+      document.getElementById('inputCustomDate').value = state.targetDate;
+      loadHoroscope();
+    }
+
+    function onCustomDateChange(val) {
+      if (!val) return;
+      state.targetDate = val;
+      loadHoroscope();
+    }
+
+    function copyShareText() {
+      if (!state.data) return;
+      const d = state.data;
+      const tLoc = d.transitLocation;
+      const isSame = !tLoc || tLoc.isSameLocation !== false;
+      const locText = isSame ? `${state.birth.province}` : `เกิด: ${state.birth.province} ➔ สถานที่จร: ${tLoc.province}`;
+      const text = `🔮 PLB โหราศาสตร์ - ดวงรายวันประจำวันที่ ${d.date}\n👤 สำหรับ: ${state.birth.name} (ลัคนาราศี${d.natalChart.ascendant.signName})\n📍 พิกัด: ${locText}\n⭐ คะแนนพลังดวงวันนี้: ${d.categories.overall.score}%\n\n🌟 ภาพรวม: ${d.categories.overall.summary}\n💼 การงาน: ${d.categories.career.summary}\n💰 การเงิน: ${d.categories.finance.summary}\n❤️ ความรัก: ${d.categories.love.summary}\n🛡️ สุขภาพ: ${d.categories.health.summary}\n\n⏰ ฤกษ์มงคลประจำถิ่น: ${d.luckyInfo.auspiciousTime}\n🎨 สีเสื้อมงคล:\n- เสริมงาน: ${d.luckyInfo.auspiciousColors.work.join(', ')}\n- เสริมเงิน: ${d.luckyInfo.auspiciousColors.wealth.join(', ')}\n- เลี่ยง: ${d.luckyInfo.inauspiciousColors.join(', ')}\n🔢 เลขเด่น: ${d.luckyInfo.luckyNumbers.join(' - ')}`;
+      navigator.clipboard.writeText(text);
+      document.getElementById('btnShareLabel').innerText = 'คัดลอกแล้ว!';
+      setTimeout(() => {
+        document.getElementById('btnShareLabel').innerText = 'แชร์สรุปดวง';
+      }, 2000);
+    }
+
+    function toggleAstroModal(show) {
+      const m = document.getElementById('astroModal');
+      if (show) {
+        m.classList.remove('hidden');
+        if (state.data) {
+          const asc = state.data.natalChart.ascendant;
+          const info = state.data.natalChart.birthInfo;
+          const tLoc = state.data.transitLocation || {
+            province: info.province,
+            district: info.district,
+            latitude: info.latitude,
+            longitude: info.longitude,
+            lmtOffsetMinutes: info.lmtOffset,
+            sunriseTime: '06:06',
+            sunsetTime: '18:13',
+            transitHorizon: null
+          };
+          const np = state.data.natalChart.planets;
+          const tp = state.data.transitChart.planets;
+          
+          let table = `
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+              <!-- Natal Location Card -->
+              <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-cyan-500/30 text-xs space-y-1.5 shadow-inner">
+                <div class="font-bold text-cyan-300 flex items-center gap-1.5 border-b border-slate-800 pb-1.5">
+                  <span>📍</span> ข้อมูลสถานที่เกิด (ดวงกำเนิด / ลัคนาเดิม)
+                </div>
+                <div><strong class="text-slate-400">จังหวัด/เขต:</strong> ${info.province} (${info.district || '-'})</div>
+                <div><strong class="text-slate-400">พิกัดภูมิศาสตร์:</strong> ละติจูด ${info.latitude ? info.latitude.toFixed(4) : '-'}°, ลองจิจูด ${info.longitude ? info.longitude.toFixed(4) : '-'}°</div>
+                <div><strong class="text-slate-400">ตัดเวลาท้องถิ่น LMT:</strong> ${asc.lmtTime || '-'} น. (ตัด ${info.lmtOffset ? info.lmtOffset.toFixed(1) : '-'} นาที)</div>
+                <div><strong class="text-slate-400">จุดสถิตลัคนาเดิม:</strong> <span class="text-amber-300 font-bold">ราศี${asc.signName} (${asc.signDegree}° ${asc.arcMinutes}')</span></div>
+                <div><strong class="text-slate-400">คัมภีร์ที่ใช้:</strong> ${asc.method || 'สุริยยาตร์'}</div>
+              </div>
+
+              <!-- Transit Location Card -->
+              <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 text-xs space-y-1.5 shadow-inner">
+                <div class="font-bold text-amber-300 flex items-center gap-1.5 border-b border-slate-800 pb-1.5">
+                  <span>🧭</span> ข้อมูลสถานที่จร (พิกัด & ดวงจรปัจจุบัน)
+                </div>
+                <div><strong class="text-slate-400">จังหวัด/เขต:</strong> ${tLoc.province} (${tLoc.district || '-'})</div>
+                <div><strong class="text-slate-400">พิกัดภูมิศาสตร์:</strong> ละติจูด ${tLoc.latitude ? tLoc.latitude.toFixed(4) : '-'}°, ลองจิจูด ${tLoc.longitude ? tLoc.longitude.toFixed(4) : '-'}°</div>
+                <div><strong class="text-slate-400">เวลาอาทิตย์อุทัย / ตก:</strong> <span class="text-yellow-300 font-bold">${tLoc.sunriseTime} น.</span> / ${tLoc.sunsetTime} น. (เที่ยงแท้: ${tLoc.solarNoonTime || '-'} น.)</div>
+                <div><strong class="text-slate-400">ลัคนาจรประจำถิ่น:</strong> <span class="text-amber-300 font-bold">ราศี${tLoc.transitHorizon ? tLoc.transitHorizon.signName : '-'} (${tLoc.transitHorizon ? tLoc.transitHorizon.houseName : '-'})</span></div>
+                <div><strong class="text-slate-400">สัมพันธ์ลัคนาเดิม:</strong> <span class="text-slate-200">${tLoc.transitHorizon ? tLoc.transitHorizon.relationshipNote : 'เกื้อหนุนดวงชะตา'}</span></div>
+              </div>
+            </div>
+
+            <table class="w-full text-left border border-slate-800 rounded-xl overflow-hidden text-xs">
+              <tr class="bg-slate-950 text-slate-400">
+                <th class="p-2.5">ดาว</th><th>ราศีเดิม</th><th>องศาเดิม</th><th>ภพเดิม</th><th>ราศีจร</th><th>องศาจร</th><th>ภพจร</th>
+              </tr>
+          `;
+          np.forEach(p => {
+            const t = tp.find(x => x.id === p.id);
+            table += `
+              <tr class="border-t border-slate-800 hover:bg-slate-850">
+                <td class="p-2.5 font-bold text-amber-400">${p.symbol} ${p.name}</td>
+                <td class="text-cyan-300">ราศี${p.signName}</td>
+                <td>${p.signDegree}°${p.arcMinutes}'</td>
+                <td>${p.houseName || '-'}</td>
+                <td class="text-amber-300">ราศี${t.signName}</td>
+                <td>${t.signDegree}°${t.arcMinutes}'</td>
+                <td class="text-amber-400 font-semibold">${t.houseName || '-'}</td>
+              </tr>
+            `;
+          });
+          table += `</table>`;
+          document.getElementById('modalContent').innerHTML = table;
+        }
+      } else {
+        m.classList.add('hidden');
+      }
+    }
+
+    // =========================================================================
+    // EXPORT IMAGE SYSTEM (Instagram Stories & TikTok / Square Feed)
+    // =========================================================================
+
+    function toggleExportModal(show) {
+      const m = document.getElementById('exportModal');
+      if (show) {
+        m.classList.remove('hidden');
+        if (state.data) {
+          renderExportCanvas();
+          if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(() => {
+              renderExportCanvas();
+            });
+          }
+        }
+      } else {
+        m.classList.add('hidden');
+      }
+    }
+
+    function setExportFormat(fmt) {
+      state.exportFormat = fmt;
+      document.querySelectorAll('.export-fmt-btn').forEach(b => {
+        b.className = "export-fmt-btn py-2.5 px-3 rounded-xl text-xs font-medium border transition-all flex flex-col items-center gap-1 bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700";
+      });
+      const active = document.getElementById(fmt === 'story' ? 'btnFormatStory' : 'btnFormatSquare');
+      if (active) {
+        active.className = "export-fmt-btn py-2.5 px-3 rounded-xl text-xs font-bold border transition-all flex flex-col items-center gap-1 bg-amber-500/20 border-amber-400 text-amber-300 shadow";
+      }
+      renderExportCanvas();
+    }
+
+    function setExportTheme(theme) {
+      state.exportTheme = theme;
+      document.querySelectorAll('.export-theme-btn').forEach(b => {
+        b.className = "export-theme-btn py-2.5 px-2 rounded-xl text-xs font-medium border transition-all flex flex-col items-center gap-1 bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700";
+      });
+      const btnMap = { cosmic: 'btnThemeCosmic', mystic: 'btnThemeMystic', midnight: 'btnThemeMidnight' };
+      const active = document.getElementById(btnMap[theme]);
+      if (active) {
+        active.className = "export-theme-btn py-2.5 px-2 rounded-xl text-xs font-bold border transition-all flex flex-col items-center gap-1 bg-amber-500/20 border-amber-400 text-amber-300";
+      }
+      renderExportCanvas();
+    }
+
+    function getThaiFullDateStr(dateStr) {
+      if (!dateStr) return '';
+      const months = [
+        'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+        'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+      ];
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      const dayNames = ['วันอาทิตย์', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์'];
+      return `${dayNames[dt.getDay()]}ที่ ${d} ${months[m - 1]} พ.ศ. ${y + 543}`;
+    }
+
+    function drawRoundedRect(ctx, x, y, width, height, radius, fillStyle, strokeStyle, lineWidth) {
+      ctx.save();
+      ctx.beginPath();
+      if (ctx.roundRect) {
+        ctx.roundRect(x, y, width, height, radius);
+      } else {
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+      }
+      if (fillStyle) {
+        ctx.fillStyle = fillStyle;
+        ctx.fill();
+      }
+      if (strokeStyle) {
+        ctx.strokeStyle = strokeStyle;
+        ctx.lineWidth = lineWidth || 1;
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function drawCanvasStars(ctx, width, height, count, theme) {
+      ctx.save();
+      let s = 42;
+      function rnd() {
+        s = (s * 9301 + 49297) % 233280;
+        return s / 233280;
+      }
+      for (let i = 0; i < count; i++) {
+        const x = rnd() * width;
+        const y = rnd() * height;
+        const r = 0.8 + rnd() * 2.2;
+        const alpha = 0.3 + rnd() * 0.65;
+        const colorType = Math.floor(rnd() * 3);
+        let fill = `rgba(255, 255, 255, ${alpha})`;
+        if (colorType === 1) fill = `rgba(253, 224, 71, ${alpha})`;
+        if (colorType === 2) fill = theme === 'mystic' ? `rgba(232, 121, 249, ${alpha})` : `rgba(125, 211, 252, ${alpha})`;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fillStyle = fill;
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function drawSacredMandala(ctx, cx, cy, radius, alpha) {
+      ctx.save();
+      ctx.strokeStyle = `rgba(250, 204, 21, ${alpha})`;
+      ctx.lineWidth = 1.5;
+      
+      // Outer circle
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Dashed circle
+      ctx.save();
+      ctx.setLineDash([6, 8]);
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * 0.82, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+
+      // Inner circles
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * 0.65, 0, Math.PI * 2);
+      ctx.arc(cx, cy, radius * 0.35, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // 12 Spokes
+      for (let i = 0; i < 12; i++) {
+        const angle = (i * Math.PI) / 6;
+        const x1 = cx + Math.cos(angle) * (radius * 0.35);
+        const y1 = cy + Math.sin(angle) * (radius * 0.35);
+        const x2 = cx + Math.cos(angle) * radius;
+        const y2 = cy + Math.sin(angle) * radius;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function wrapThaiText(ctx, text, maxWidth) {
+      if (!text) return [];
+      let words = [];
+      if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+        try {
+          const segmenter = new Intl.Segmenter('th', { granularity: 'word' });
+          words = Array.from(segmenter.segment(text)).map(s => s.segment);
+        } catch(e) {
+          words = text.split(/(\s+)/);
+        }
+      } else {
+        words = text.split(/(\s+)/);
+      }
+
+      const lines = [];
+      let currentLine = '';
+
+      for (let i = 0; i < words.length; i++) {
+        const word = words[i];
+        const testLine = currentLine + word;
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && currentLine !== '') {
+          lines.push(currentLine.trim());
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
+      }
+      if (currentLine.trim()) {
+        lines.push(currentLine.trim());
+      }
+      return lines;
+    }
+
+    let cachedLogoImg = null;
+    function getLogoImage() {
+      if (!cachedLogoImg) {
+        cachedLogoImg = new Image();
+        cachedLogoImg.src = '/logo.jpg';
+        cachedLogoImg.onload = () => {
+          const m = document.getElementById('exportModal');
+          if (m && !m.classList.contains('hidden')) {
+            renderExportCanvas();
+          }
+        };
+      }
+      return cachedLogoImg;
+    }
+
+    function renderExportCanvas() {
+      if (!state.data) return;
+      const canvas = document.getElementById('exportCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const isStory = (state.exportFormat || 'story') === 'story';
+      const theme = state.exportTheme || 'cosmic';
+
+      const W = 1080;
+      const H = isStory ? 1920 : 1080;
+      canvas.width = W;
+      canvas.height = H;
+
+      const d = state.data;
+      const asc = d.natalChart.ascendant;
+      const info = d.natalChart.birthInfo;
+      const tLoc = d.transitLocation || {
+        province: info.province,
+        district: info.district,
+        sunriseTime: "06:06",
+        sunsetTime: "18:13"
+      };
+      const overall = d.categories.overall;
+      const career = d.categories.career;
+      const finance = d.categories.finance;
+      const love = d.categories.love;
+      const health = d.categories.health;
+      const lucky = d.luckyInfo;
+
+      // 1. Background Fill & Gradients
+      if (theme === 'mystic') {
+        const bg = ctx.createLinearGradient(0, 0, W, H);
+        bg.addColorStop(0, '#2e1065');
+        bg.addColorStop(0.4, '#1e1b4b');
+        bg.addColorStop(1, '#030712');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, W, H);
+
+        const radial = ctx.createRadialGradient(W * 0.5, 300, 50, W * 0.5, 300, 600);
+        radial.addColorStop(0, 'rgba(217, 70, 239, 0.25)');
+        radial.addColorStop(1, 'transparent');
+        ctx.fillStyle = radial;
+        ctx.fillRect(0, 0, W, H);
+      } else if (theme === 'midnight') {
+        const bg = ctx.createLinearGradient(0, 0, W, H);
+        bg.addColorStop(0, '#082f49');
+        bg.addColorStop(0.4, '#0f172a');
+        bg.addColorStop(1, '#020617');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, W, H);
+
+        const radial = ctx.createRadialGradient(W * 0.5, 300, 50, W * 0.5, 300, 600);
+        radial.addColorStop(0, 'rgba(14, 165, 233, 0.25)');
+        radial.addColorStop(1, 'transparent');
+        ctx.fillStyle = radial;
+        ctx.fillRect(0, 0, W, H);
+      } else {
+        // cosmic (default)
+        const bg = ctx.createLinearGradient(0, 0, W, H);
+        bg.addColorStop(0, '#1a0d33');
+        bg.addColorStop(0.35, '#0b0f24');
+        bg.addColorStop(1, '#03050d');
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, W, H);
+
+        const radial = ctx.createRadialGradient(W * 0.5, 260, 40, W * 0.5, 260, 550);
+        radial.addColorStop(0, 'rgba(245, 158, 11, 0.22)');
+        radial.addColorStop(1, 'transparent');
+        ctx.fillStyle = radial;
+        ctx.fillRect(0, 0, W, H);
+
+        const radial2 = ctx.createRadialGradient(W * 0.85, H * 0.85, 50, W * 0.85, H * 0.85, 500);
+        radial2.addColorStop(0, 'rgba(124, 58, 237, 0.18)');
+        radial2.addColorStop(1, 'transparent');
+        ctx.fillStyle = radial2;
+        ctx.fillRect(0, 0, W, H);
+      }
+
+      // 2. Stars
+      drawCanvasStars(ctx, W, H, isStory ? 140 : 90, theme);
+
+      // 3. Sacred Mandala Watermark
+      const mandalaY = isStory ? 380 : 340;
+      drawSacredMandala(ctx, W * 0.5, mandalaY, isStory ? 340 : 280, 0.09);
+
+      // 4. Outer Gold Border
+      const margin = 26;
+      drawRoundedRect(ctx, margin, margin, W - margin * 2, H - margin * 2, 44, null, 'rgba(245, 158, 11, 0.45)', 2);
+      drawRoundedRect(ctx, margin + 6, margin + 6, W - (margin + 6) * 2, H - (margin + 6) * 2, 38, null, 'rgba(255, 255, 255, 0.06)', 1);
+
+      function centerText(text, y, font, color) {
+        ctx.save();
+        ctx.font = font;
+        ctx.fillStyle = color;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, W * 0.5, y);
+        ctx.restore();
+      }
+
+      const ZODIAC_SYMBOLS = {
+        "เมษ": "♈", "พฤษภ": "♉", "เมถุน": "♊", "กรกฎ": "♋",
+        "สิงห์": "♌", "กันย์": "♍", "ตุลย์": "♎", "พิจิก": "♏",
+        "ธนู": "♐", "มังกร": "♑", "กุมภ์": "♒", "มีน": "♓"
+      };
+      const zSymbol = ZODIAC_SYMBOLS[asc.signName] || "☸";
+      const thaiDate = getThaiFullDateStr(d.date);
+
+      if (isStory) {
+        // ==========================================
+        // 9:16 STORY / TIKTOK LAYOUT (1080 x 1920)
+        // ==========================================
+
+        // Header Logo
+        const logo = getLogoImage();
+        if (logo && logo.complete && logo.naturalWidth !== 0) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(W * 0.5, 78, 36, 0, Math.PI * 2);
+          ctx.clip();
+          ctx.drawImage(logo, W * 0.5 - 36, 78 - 36, 72, 72);
+          ctx.restore();
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(W * 0.5, 78, 36, 0, Math.PI * 2);
+          ctx.strokeStyle = '#F59E0B';
+          ctx.lineWidth = 2.5;
+          ctx.shadowColor = 'rgba(245, 158, 11, 0.6)';
+          ctx.shadowBlur = 10;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Brand Title with Gradient
+        ctx.save();
+        ctx.font = '800 40px "Prompt", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const titleGrad = ctx.createLinearGradient(W * 0.5 - 200, 0, W * 0.5 + 200, 0);
+        titleGrad.addColorStop(0, '#FEF08A');
+        titleGrad.addColorStop(0.5, '#F59E0B');
+        titleGrad.addColorStop(1, '#FDE047');
+        ctx.fillStyle = titleGrad;
+        ctx.shadowColor = 'rgba(245, 158, 11, 0.5)';
+        ctx.shadowBlur = 16;
+        ctx.fillText('PLB โหราศาสตร์', W * 0.5, 142);
+        ctx.restore();
+
+        centerText('✦  P L B   A S T R O L O G Y  ✦', 174, '600 14px "Prompt", sans-serif', '#F59E0B');
+        centerText(`ดวงรายวัน • ${thaiDate}`, 200, '500 17px "Prompt", sans-serif', '#E2E8F0');
+
+        // Persona Card (y: 232, h: 195)
+        drawRoundedRect(ctx, 60, 232, 960, 195, 28, 'rgba(15, 23, 42, 0.85)', 'rgba(245, 158, 11, 0.4)', 1.5);
+        
+        // Left Medallion
+        ctx.save();
+        const medGrad = ctx.createRadialGradient(155, 325, 10, 155, 325, 55);
+        medGrad.addColorStop(0, 'rgba(245, 158, 11, 0.35)');
+        medGrad.addColorStop(1, 'rgba(245, 158, 11, 0.08)');
+        ctx.fillStyle = medGrad;
+        ctx.beginPath();
+        ctx.arc(155, 325, 55, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(245, 158, 11, 0.6)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.font = '700 52px "Prompt", sans-serif';
+        ctx.fillStyle = '#FEF08A';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(zSymbol, 155, 323);
+        ctx.restore();
+
+        // Persona Info
+        ctx.save();
+        ctx.font = '700 30px "Prompt", sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(`คุณ${info.name || 'เจ้าชะตา'}`, 235, 290);
+
+        ctx.font = '700 25px "Prompt", sans-serif';
+        ctx.fillStyle = '#FDE047';
+        ctx.fillText(`ลัคนาราศี${asc.signName} (${asc.signDegree}° ${asc.arcMinutes}')`, 235, 330);
+
+        ctx.font = '400 17px "Prompt", sans-serif';
+        ctx.fillStyle = '#94A3B8';
+        ctx.fillText(`📍 สถานที่จร: ${tLoc.province}  •  ☀️ อาทิตย์อุทัย ${tLoc.sunriseTime} น.`, 235, 370);
+        ctx.restore();
+
+        // Right Score Box
+        drawRoundedRect(ctx, 810, 250, 185, 150, 22, 'rgba(3, 7, 18, 0.8)', 'rgba(245, 158, 11, 0.35)', 1);
+        centerText(`${overall.score}%`, 295, '800 42px "Prompt", sans-serif', '#FBBF24');
+        centerText('⭐'.repeat(overall.ratingStars), 340, '600 16px sans-serif', '#F59E0B');
+        centerText(overall.statusLabel, 375, '700 16px "Prompt", sans-serif', overall.score >= 85 ? '#34D399' : overall.score >= 70 ? '#FBBF24' : '#F87171');
+
+        // Theme Banner (y: 445, h: 70)
+        drawRoundedRect(ctx, 60, 445, 960, 70, 20, 'rgba(245, 158, 11, 0.12)', 'rgba(245, 158, 11, 0.3)', 1);
+        centerText(`🌟 ${overall.theme}`, 480, '700 22px "Prompt", sans-serif', '#FEF08A');
+
+        // Overall Summary Box (y: 535, h: 215)
+        drawRoundedRect(ctx, 60, 535, 960, 215, 24, 'rgba(15, 23, 42, 0.65)', 'rgba(255, 255, 255, 0.08)', 1);
+        ctx.save();
+        ctx.font = '500 19px "Prompt", sans-serif';
+        ctx.fillStyle = '#F1F5F9';
+        const sumLines = wrapThaiText(ctx, overall.summary, 900);
+        let curY = 575;
+        sumLines.slice(0, 5).forEach(line => {
+          ctx.fillText(line, 90, curY);
+          curY += 34;
+        });
+        ctx.restore();
+
+        // Daily Time Periods (y: 770, h: 245)
+        ctx.save();
+        ctx.font = '700 20px "Prompt", sans-serif';
+        ctx.fillStyle = '#FDE047';
+        ctx.fillText('⏱️ จังหวะดวง 3 ช่วงเวลาของวัน', 65, 795);
+        ctx.restore();
+
+        const periods = [
+          { icon: '🌅', label: 'ช่วงเช้า (06:00 - 12:00)', desc: overall.timePeriods ? overall.timePeriods.morning.desc : '' },
+          { icon: '☀️', label: 'ช่วงบ่าย (12:00 - 18:00)', desc: overall.timePeriods ? overall.timePeriods.afternoon.desc : '' },
+          { icon: '🌙', label: 'ช่วงค่ำ (18:00 เป็นต้นไป)', desc: overall.timePeriods ? overall.timePeriods.evening.desc : '' }
+        ];
+
+        const cardW = 304;
+        const gap = 24;
+        periods.forEach((p, idx) => {
+          const px = 60 + idx * (cardW + gap);
+          drawRoundedRect(ctx, px, 815, cardW, 195, 20, 'rgba(15, 23, 42, 0.75)', 'rgba(255, 255, 255, 0.08)', 1);
+          
+          ctx.save();
+          ctx.font = '700 16px "Prompt", sans-serif';
+          ctx.fillStyle = idx === 0 ? '#FBBF24' : idx === 1 ? '#FDE047' : '#A5B4FC';
+          ctx.fillText(`${p.icon} ${p.label}`, px + 16, 845);
+
+          ctx.font = '400 14px "Prompt", sans-serif';
+          ctx.fillStyle = '#CBD5E1';
+          const pLines = wrapThaiText(ctx, p.desc, cardW - 32);
+          let py = 878;
+          pLines.slice(0, 4).forEach(l => {
+            ctx.fillText(l, px + 16, py);
+            py += 24;
+          });
+          ctx.restore();
+        });
+
+        // 4 Categories Pulse (y: 1030, h: 185)
+        ctx.save();
+        ctx.font = '700 20px "Prompt", sans-serif';
+        ctx.fillStyle = '#FDE047';
+        ctx.fillText('📊 ดัชนีพลังดวง 4 ด้าน', 65, 1055);
+        ctx.restore();
+
+        const catCards = [
+          { icon: '💼', title: 'การงาน', score: career.score, status: career.statusLabel },
+          { icon: '💰', title: 'การเงิน', score: finance.score, status: finance.statusLabel },
+          { icon: '❤️', title: 'ความรัก', score: love.score, status: love.statusLabel },
+          { icon: '🛡️', title: 'สุขภาพ', score: health.score, status: health.statusLabel }
+        ];
+
+        const catW = 468;
+        const catH = 64;
+        catCards.forEach((c, idx) => {
+          const col = idx % 2;
+          const row = Math.floor(idx / 2);
+          const cx = 60 + col * (catW + gap);
+          const cy = 1075 + row * (catH + 14);
+
+          drawRoundedRect(ctx, cx, cy, catW, catH, 18, 'rgba(15, 23, 42, 0.75)', 'rgba(255, 255, 255, 0.08)', 1);
+          
+          ctx.save();
+          ctx.font = '700 18px "Prompt", sans-serif';
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillText(`${c.icon} ${c.title}`, cx + 20, cy + 39);
+
+          ctx.textAlign = 'right';
+          ctx.font = '800 20px "Prompt", sans-serif';
+          ctx.fillStyle = '#FBBF24';
+          ctx.fillText(`${c.score}%`, cx + catW - 110, cy + 39);
+
+          ctx.font = '700 14px "Prompt", sans-serif';
+          ctx.fillStyle = c.score >= 85 ? '#34D399' : c.score >= 70 ? '#FBBF24' : '#F87171';
+          ctx.fillText(c.status, cx + catW - 20, cy + 39);
+          ctx.restore();
+        });
+
+        // Lucky Boosters Section (y: 1245, h: 485)
+        drawRoundedRect(ctx, 60, 1245, 960, 485, 28, 'rgba(15, 23, 42, 0.85)', 'rgba(245, 158, 11, 0.45)', 1.5);
+        
+        ctx.save();
+        ctx.font = '700 22px "Prompt", sans-serif';
+        ctx.fillStyle = '#FEF08A';
+        ctx.fillText('🔮 เกร็ดมงคลเสริมดวงประจำวัน (มหาทักษาจร)', 90, 1285);
+        ctx.font = '400 16px "Prompt", sans-serif';
+        ctx.fillStyle = '#CBD5E1';
+        ctx.fillText(lucky.dailyDayLord ? lucky.dailyDayLord.split('(')[0] : '', 90, 1315);
+        ctx.restore();
+
+        // 3 Lucky Colors
+        const colorCards = [
+          { label: '👔 สีเสริมงาน / อำนาจ (เดช)', val: lucky.auspiciousColors.work[0], col: '#60A5FA' },
+          { label: '💰 สีเสริมเงิน / โชคลาภ (ศรี)', val: lucky.auspiciousColors.wealth[0], col: '#34D399' },
+          { label: '💖 สีเสริมเสน่ห์ / เมตตา (มนตรี)', val: lucky.auspiciousColors.love[0], col: '#F472B6' }
+        ];
+        colorCards.forEach((c, idx) => {
+          const cx = 90 + idx * (285 + 16);
+          drawRoundedRect(ctx, cx, 1335, 285, 80, 16, 'rgba(3, 7, 18, 0.6)', 'rgba(255, 255, 255, 0.08)', 1);
+          ctx.save();
+          ctx.font = '600 13px "Prompt", sans-serif';
+          ctx.fillStyle = c.col;
+          ctx.fillText(c.label, cx + 14, 1362);
+
+          ctx.font = '700 16px "Prompt", sans-serif';
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillText(c.val, cx + 14, 1392);
+          ctx.restore();
+        });
+
+        // 4 Stats (y: 1435, h: 80)
+        drawRoundedRect(ctx, 90, 1435, 900, 80, 18, 'rgba(3, 7, 18, 0.5)', 'rgba(255, 255, 255, 0.06)', 1);
+        ctx.save();
+        // Col 1: Inauspicious
+        ctx.font = '700 13px "Prompt", sans-serif';
+        ctx.fillStyle = '#F87171';
+        ctx.fillText('⛔ สีกาลกิณี', 110, 1462);
+        ctx.font = '700 16px "Prompt", sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(lucky.inauspiciousColors.join(', '), 110, 1492);
+
+        // Col 2: Lucky Numbers
+        ctx.font = '700 13px "Prompt", sans-serif';
+        ctx.fillStyle = '#FBBF24';
+        ctx.fillText('🎯 เลขเด่นนำโชค', 340, 1462);
+        ctx.font = '800 20px "Prompt", sans-serif';
+        ctx.fillStyle = '#FDE047';
+        ctx.fillText(lucky.luckyNumbers.join(' - '), 340, 1493);
+
+        // Col 3: Auspicious Time
+        ctx.font = '700 13px "Prompt", sans-serif';
+        ctx.fillStyle = '#38BDF8';
+        ctx.fillText('⏰ ฤกษ์มงคล', 550, 1462);
+        ctx.font = '600 15px "Prompt", sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(lucky.auspiciousTime.split('(')[0].trim(), 550, 1492);
+
+        // Col 4: Lucky Direction
+        ctx.font = '700 13px "Prompt", sans-serif';
+        ctx.fillStyle = '#A78BFA';
+        ctx.fillText('🧭 ทิศมงคล', 780, 1462);
+        ctx.font = '600 14px "Prompt", sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(lucky.luckyDirection ? lucky.luckyDirection.split('(')[0].trim() : 'ทิศเหนือ', 780, 1492);
+        ctx.restore();
+
+        // Sacred Chant Box (y: 1535, h: 170)
+        drawRoundedRect(ctx, 90, 1535, 900, 170, 20, 'rgba(245, 158, 11, 0.08)', 'rgba(245, 158, 11, 0.3)', 1);
+        if (lucky.dailyChant) {
+          ctx.save();
+          ctx.font = '700 16px "Prompt", sans-serif';
+          ctx.fillStyle = '#FDE047';
+          ctx.fillText(`📿 ${lucky.dailyChant.title}`, 115, 1568);
+
+          // Mantra
+          centerText(`"${lucky.dailyChant.mantra}"`, 1610, '800 24px "Prompt", monospace', '#FEF08A');
+
+          // Amulet & Merit
+          ctx.font = '400 14px "Prompt", sans-serif';
+          ctx.fillStyle = '#CBD5E1';
+          const amuletText = `💎 ของมงคล: ${lucky.auspiciousAmulet ? lucky.auspiciousAmulet.split(',')[0] : ''}   •   🕊️ เคล็ดลับทำบุญ: ${lucky.goodDeedAdvice ? lucky.goodDeedAdvice.split('หรือ')[0] : ''}`;
+          centerText(amuletText, 1665, '400 14px "Prompt", sans-serif', '#CBD5E1');
+          ctx.restore();
+        }
+
+        // Footer Bar (y: 1765)
+        centerText('✨ คำนวณตามคัมภีร์สุริยยาตร์ (มาตรฐานโหราศาสตร์ไทย) & พิกัดดาราศาสตร์จริง', 1780, '500 15px "Prompt", sans-serif', '#94A3B8');
+        centerText('🔮 PLB โหราศาสตร์  •  Instagram & TikTok: @PLB_Astrology', 1812, '700 17px "Prompt", sans-serif', '#FEF08A');
+
+      } else {
+        // ==========================================
+        // 1:1 SQUARE POST LAYOUT (1080 x 1080)
+        // ==========================================
+
+        // Header Logo
+        const logo = getLogoImage();
+        if (logo && logo.complete && logo.naturalWidth !== 0) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(W * 0.5, 52, 28, 0, Math.PI * 2);
+          ctx.clip();
+          ctx.drawImage(logo, W * 0.5 - 28, 52 - 28, 56, 56);
+          ctx.restore();
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(W * 0.5, 52, 28, 0, Math.PI * 2);
+          ctx.strokeStyle = '#F59E0B';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        ctx.save();
+        ctx.font = '800 34px "Prompt", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const titleGrad = ctx.createLinearGradient(W * 0.5 - 150, 0, W * 0.5 + 150, 0);
+        titleGrad.addColorStop(0, '#FEF08A');
+        titleGrad.addColorStop(0.5, '#F59E0B');
+        titleGrad.addColorStop(1, '#FDE047');
+        ctx.fillStyle = titleGrad;
+        ctx.fillText('PLB โหราศาสตร์', W * 0.5, 102);
+        ctx.restore();
+
+        centerText('✦  P L B   A S T R O L O G Y  ✦', 130, '600 13px "Prompt", sans-serif', '#F59E0B');
+        centerText(`ดวงรายวัน • ${thaiDate}`, 150, '500 15px "Prompt", sans-serif', '#E2E8F0');
+
+        // Persona Card (y: 175, h: 160)
+        drawRoundedRect(ctx, 60, 175, 960, 160, 24, 'rgba(15, 23, 42, 0.85)', 'rgba(245, 158, 11, 0.4)', 1.5);
+        
+        // Medallion
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(140, 255, 46, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.2)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(245, 158, 11, 0.5)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.font = '700 44px "Prompt", sans-serif';
+        ctx.fillStyle = '#FEF08A';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(zSymbol, 140, 253);
+        ctx.restore();
+
+        // Info
+        ctx.save();
+        ctx.font = '700 26px "Prompt", sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(`คุณ${info.name || 'เจ้าชะตา'}`, 210, 230);
+
+        ctx.font = '700 22px "Prompt", sans-serif';
+        ctx.fillStyle = '#FDE047';
+        ctx.fillText(`ลัคนาราศี${asc.signName} (${asc.signDegree}° ${asc.arcMinutes}')`, 210, 265);
+
+        ctx.font = '400 15px "Prompt", sans-serif';
+        ctx.fillStyle = '#94A3B8';
+        ctx.fillText(`📍 สถานที่จร: ${tLoc.province}  •  ☀️ ตะวันขึ้น ${tLoc.sunriseTime} น.`, 210, 298);
+        ctx.restore();
+
+        // Score Box
+        drawRoundedRect(ctx, 810, 195, 185, 120, 20, 'rgba(3, 7, 18, 0.8)', 'rgba(245, 158, 11, 0.35)', 1);
+        centerText(`${overall.score}%`, 235, '800 36px "Prompt", sans-serif', '#FBBF24');
+        centerText(`${'⭐'.repeat(overall.ratingStars)} ${overall.statusLabel}`, 285, '700 14px "Prompt", sans-serif', '#34D399');
+
+        // Theme Banner (y: 355, h: 58)
+        drawRoundedRect(ctx, 60, 355, 960, 58, 16, 'rgba(245, 158, 11, 0.12)', 'rgba(245, 158, 11, 0.3)', 1);
+        centerText(`🌟 ${overall.theme}`, 384, '700 19px "Prompt", sans-serif', '#FEF08A');
+
+        // Summary (y: 430, h: 140)
+        drawRoundedRect(ctx, 60, 430, 960, 140, 20, 'rgba(15, 23, 42, 0.65)', 'rgba(255, 255, 255, 0.08)', 1);
+        ctx.save();
+        ctx.font = '500 17px "Prompt", sans-serif';
+        ctx.fillStyle = '#F1F5F9';
+        const sumLines = wrapThaiText(ctx, overall.summary, 900);
+        let curY = 465;
+        sumLines.slice(0, 3).forEach(line => {
+          ctx.fillText(line, 90, curY);
+          curY += 30;
+        });
+        ctx.restore();
+
+        // 4 Categories Bar (y: 590, h: 72)
+        const catCols = [
+          { icon: '💼', title: 'การงาน', score: career.score, status: career.statusLabel },
+          { icon: '💰', title: 'การเงิน', score: finance.score, status: finance.statusLabel },
+          { icon: '❤️', title: 'ความรัก', score: love.score, status: love.statusLabel },
+          { icon: '🛡️', title: 'สุขภาพ', score: health.score, status: health.statusLabel }
+        ];
+        const barW = 226;
+        catCols.forEach((c, idx) => {
+          const bx = 60 + idx * (barW + 18);
+          drawRoundedRect(ctx, bx, 590, barW, 72, 16, 'rgba(15, 23, 42, 0.75)', 'rgba(255, 255, 255, 0.08)', 1);
+          ctx.save();
+          ctx.font = '700 14px "Prompt", sans-serif';
+          ctx.fillStyle = '#94A3B8';
+          ctx.fillText(`${c.icon} ${c.title}`, bx + 14, 618);
+
+          ctx.font = '800 18px "Prompt", sans-serif';
+          ctx.fillStyle = '#FBBF24';
+          ctx.fillText(`${c.score}%`, bx + 14, 646);
+
+          ctx.font = '600 12px "Prompt", sans-serif';
+          ctx.fillStyle = c.score >= 85 ? '#34D399' : '#FBBF24';
+          ctx.textAlign = 'right';
+          ctx.fillText(c.status, bx + barW - 14, 646);
+          ctx.restore();
+        });
+
+        // Lucky Boosters Box (y: 685, h: 300)
+        drawRoundedRect(ctx, 60, 685, 960, 300, 24, 'rgba(15, 23, 42, 0.85)', 'rgba(245, 158, 11, 0.45)', 1.5);
+        
+        ctx.save();
+        ctx.font = '700 18px "Prompt", sans-serif';
+        ctx.fillStyle = '#FEF08A';
+        ctx.fillText('🔮 เกร็ดมงคลเสริมดวงประจำวัน (มหาทักษาจร)', 90, 720);
+        ctx.restore();
+
+        // 4 Color pills
+        const sqColors = [
+          { label: 'งาน', val: lucky.auspiciousColors.work[0], col: '#60A5FA' },
+          { label: 'เงิน', val: lucky.auspiciousColors.wealth[0], col: '#34D399' },
+          { label: 'เสน่ห์', val: lucky.auspiciousColors.love[0], col: '#F472B6' },
+          { label: 'เลี่ยง', val: lucky.inauspiciousColors[0], col: '#F87171' }
+        ];
+        sqColors.forEach((c, idx) => {
+          const cx = 90 + idx * (212 + 16);
+          drawRoundedRect(ctx, cx, 740, 212, 60, 14, 'rgba(3, 7, 18, 0.6)', 'rgba(255, 255, 255, 0.08)', 1);
+          ctx.save();
+          ctx.font = '600 12px "Prompt", sans-serif';
+          ctx.fillStyle = c.col;
+          ctx.fillText(`สีเสริม${c.label}:`, cx + 12, 762);
+
+          ctx.font = '700 14px "Prompt", sans-serif';
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillText(c.val, cx + 12, 785);
+          ctx.restore();
+        });
+
+        // Numbers & Time (y: 818)
+        drawRoundedRect(ctx, 90, 818, 900, 56, 14, 'rgba(3, 7, 18, 0.5)', 'rgba(255, 255, 255, 0.06)', 1);
+        ctx.save();
+        ctx.font = '700 13px "Prompt", sans-serif';
+        ctx.fillStyle = '#FBBF24';
+        ctx.fillText('🎯 เลขเด่น:', 110, 852);
+        ctx.font = '800 18px "Prompt", sans-serif';
+        ctx.fillStyle = '#FDE047';
+        ctx.fillText(lucky.luckyNumbers.join(' - '), 195, 853);
+
+        ctx.font = '700 13px "Prompt", sans-serif';
+        ctx.fillStyle = '#38BDF8';
+        ctx.fillText('⏰ ฤกษ์มงคล:', 350, 852);
+        ctx.font = '600 14px "Prompt", sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(lucky.auspiciousTime.split('(')[0].trim(), 445, 852);
+
+        ctx.font = '700 13px "Prompt", sans-serif';
+        ctx.fillStyle = '#A78BFA';
+        ctx.fillText('🧭 ทิศมงคล:', 700, 852);
+        ctx.font = '600 14px "Prompt", sans-serif';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(lucky.luckyDirection ? lucky.luckyDirection.split('(')[0].trim() : 'ทิศเหนือ', 785, 852);
+        ctx.restore();
+
+        // Sacred Chant (y: 890)
+        if (lucky.dailyChant) {
+          drawRoundedRect(ctx, 90, 890, 900, 75, 16, 'rgba(245, 158, 11, 0.08)', 'rgba(245, 158, 11, 0.3)', 1);
+          centerText(`📿 ${lucky.dailyChant.title}: "${lucky.dailyChant.mantra}"`, 927, '700 15px "Prompt", sans-serif', '#FEF08A');
+        }
+
+        // Footer Bar (y: 1025)
+        centerText('🔮 PLB โหราศาสตร์  •  Instagram & TikTok: @PLB_Astrology', 1030, '700 16px "Prompt", sans-serif', '#FEF08A');
+      }
+    }
+
+    function downloadExportCanvasImage() {
+      const canvas = document.getElementById('exportCanvas');
+      if (!canvas) return;
+      const d = state.data;
+      const ascName = d ? d.natalChart.ascendant.signName : 'ราศี';
+      const date = d ? d.date : 'today';
+      const fmt = state.exportFormat || 'story';
+      
+      const link = document.createElement('a');
+      link.download = `PLB-Horoscope-${ascName}-${date}-${fmt}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    async function copyExportCanvasImage() {
+      const canvas = document.getElementById('exportCanvas');
+      if (!canvas) return;
+      const btnLabel = document.getElementById('btnCopyImgLabel');
+      try {
+        canvas.toBlob(async (blob) => {
+          if (!blob) return;
+          if (navigator.clipboard && navigator.clipboard.write) {
+            await navigator.clipboard.write([
+              new ClipboardItem({ 'image/png': blob })
+            ]);
+            btnLabel.innerText = 'คัดลอกรูปสำเร็จ!';
+            setTimeout(() => { btnLabel.innerText = 'คัดลอกรูปภาพ'; }, 2000);
+          } else {
+            downloadExportCanvasImage();
+          }
+        }, 'image/png');
+      } catch (e) {
+        console.warn('Clipboard write failed, downloading instead:', e);
+        downloadExportCanvasImage();
+      }
+    }
+
+    async function shareExportCanvasImage() {
+      const canvas = document.getElementById('exportCanvas');
+      if (!canvas) return;
+      try {
+        canvas.toBlob(async (blob) => {
+          if (!blob) return;
+          const d = state.data;
+          const ascName = d ? d.natalChart.ascendant.signName : 'ราศี';
+          const file = new File([blob], `PLB-Horoscope-${ascName}.png`, { type: 'image/png' });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              title: `ดวงรายวัน PLB โหราศาสตร์ - ลัคนาราศี${ascName}`,
+              text: `ดวงรายวันของฉันจาก PLB โหราศาสตร์ ✨`,
+              files: [file]
+            });
+          } else {
+            downloadExportCanvasImage();
+          }
+        }, 'image/png');
+      } catch(e) {
+        console.log('Share error or cancelled:', e);
+      }
+    }
+
+    // Start
+    initInputs();
+    getLogoImage();
+    loadHoroscope();
+  </script>
+</body>
+</html>
