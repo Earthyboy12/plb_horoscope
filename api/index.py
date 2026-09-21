@@ -29,17 +29,11 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        parsed = urllib.parse.urlparse(self.path)
-        path = parsed.path.lower()
-        if 'health' in path:
-            self.send_response(200)
-            self.send_header('Content-Type', 'application/json; charset=utf-8')
-            self.send_cors_headers()
-            self.end_headers()
-            resp = {'status': 'ok', 'service': 'PLB Thai Horoscope API', 'version': '2.0'}
-            self.wfile.write(json.dumps(resp, ensure_ascii=False).encode('utf-8'))
-            return
-        if 'provinces' in path:
+        matched = self.headers.get('x-matched-path', '')
+        forwarded = self.headers.get('x-forwarded-uri', '')
+        check_str = f"{self.path} {matched} {forwarded}".lower()
+
+        if 'province' in check_str:
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.send_cors_headers()
@@ -48,38 +42,38 @@ class handler(BaseHTTPRequestHandler):
             resp = {'success': True, 'data': provinces_list}
             self.wfile.write(json.dumps(resp, ensure_ascii=False).encode('utf-8'))
             return
-        self.send_response(404)
+
+        # Default GET response is Health Check
+        self.send_response(200)
         self.send_header('Content-Type', 'application/json; charset=utf-8')
         self.send_cors_headers()
         self.end_headers()
-        self.wfile.write(json.dumps({'error': 'Endpoint not found'}).encode('utf-8'))
+        resp = {
+            'status': 'ok',
+            'service': 'PLB Thai Horoscope API',
+            'version': '2.0',
+            'path': self.path
+        }
+        self.wfile.write(json.dumps(resp, ensure_ascii=False).encode('utf-8'))
 
     def do_POST(self):
-        parsed = urllib.parse.urlparse(self.path)
-        path = parsed.path.lower()
-        if 'daily' in path or 'astrology' in path:
-            content_length = int(self.headers.get('Content-Length', 0))
-            body_bytes = self.rfile.read(content_length)
-            try:
-                payload = json.loads(body_bytes.decode('utf-8'))
-                target_date = payload.get('targetDate', '')
-                result = get_horoscope(payload, target_date)
-                self.send_response(200)
-                self.send_header('Content-Type', 'application/json; charset=utf-8')
-                self.send_cors_headers()
-                self.end_headers()
-                resp = {'success': True, 'data': result}
-                self.wfile.write(json.dumps(resp, ensure_ascii=False).encode('utf-8'))
-            except Exception as e:
-                self.send_response(500)
-                self.send_header('Content-Type', 'application/json; charset=utf-8')
-                self.send_cors_headers()
-                self.end_headers()
-                resp = {'success': False, 'error': str(e)}
-                self.wfile.write(json.dumps(resp, ensure_ascii=False).encode('utf-8'))
-            return
-        self.send_response(404)
-        self.send_header('Content-Type', 'application/json; charset=utf-8')
-        self.send_cors_headers()
-        self.end_headers()
-        self.wfile.write(json.dumps({'error': 'Endpoint not found'}).encode('utf-8'))
+        # All POST requests compute the horoscope
+        content_length = int(self.headers.get('Content-Length', 0))
+        body_bytes = self.rfile.read(content_length)
+        try:
+            payload = json.loads(body_bytes.decode('utf-8'))
+            target_date = payload.get('targetDate', '')
+            result = get_horoscope(payload, target_date)
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_cors_headers()
+            self.end_headers()
+            resp = {'success': True, 'data': result}
+            self.wfile.write(json.dumps(resp, ensure_ascii=False).encode('utf-8'))
+        except Exception as e:
+            self.send_response(500)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_cors_headers()
+            self.end_headers()
+            resp = {'success': False, 'error': str(e)}
+            self.wfile.write(json.dumps(resp, ensure_ascii=False).encode('utf-8'))
