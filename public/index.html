@@ -343,7 +343,7 @@
             </button>
             <button onclick="copyShareText()" id="btnShare" class="flex items-center gap-1.5 px-4 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-amber-300 font-bold text-xs shadow-md transition-all active:scale-95 whitespace-nowrap">
               <span>📋</span>
-              <span id="btnShareLabel">คัดลอกข้อความ</span>
+              <span id="btnShareLabel">คัดลอกผลทำนายแบบละเอียด</span>
             </button>
           </div>
         </div>
@@ -520,7 +520,7 @@
       <div class="p-4 sm:p-5 border-t border-slate-800 bg-slate-950/60 flex flex-wrap items-center justify-between gap-3">
         <div class="text-xs text-slate-400 flex items-center gap-1.5">
           <span>✨</span>
-          <span>สร้างภาพความละเอียดสูง คมชัด รองรับทุกแพลตฟอร์ม</span>
+          <span>สร้างภาพความละเอียดสูง (HD) • 📱 iPhone: แตะปุ่ม "แชร์" หรือ "บันทึกรูป" เพื่อเซฟลงอัลบั้มรูปได้ทันที</span>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
           <button onclick="copyExportCanvasImage()" id="btnCopyImg" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95">
@@ -1182,15 +1182,142 @@
     function copyShareText() {
       if (!state.data) return;
       const d = state.data;
-      const tLoc = d.transitLocation;
+      const asc = d.natalChart.ascendant;
+      const info = d.natalChart.birthInfo;
+      const tLoc = d.transitLocation || {
+        province: info.province,
+        district: info.district,
+        sunriseTime: "06:06",
+        sunsetTime: "18:13"
+      };
+      const overall = d.categories.overall;
+      const career = d.categories.career;
+      const finance = d.categories.finance;
+      const love = d.categories.love;
+      const health = d.categories.health;
+      const lucky = d.luckyInfo;
+      const thaiDate = getThaiFullDateStr(d.date);
+
       const isSame = !tLoc || tLoc.isSameLocation !== false;
-      const locText = isSame ? `${state.birth.province}` : `เกิด: ${state.birth.province} ➔ สถานที่จร: ${tLoc.province}`;
-      const text = `🔮 PLB โหราศาสตร์ - ดวงรายวันประจำวันที่ ${d.date}\n👤 สำหรับ: ${state.birth.name} (ลัคนาราศี${d.natalChart.ascendant.signName})\n📍 พิกัด: ${locText}\n⭐ คะแนนพลังดวงวันนี้: ${d.categories.overall.score}%\n\n🌟 ภาพรวม: ${d.categories.overall.summary}\n💼 การงาน: ${d.categories.career.summary}\n💰 การเงิน: ${d.categories.finance.summary}\n❤️ ความรัก: ${d.categories.love.summary}\n🛡️ สุขภาพ: ${d.categories.health.summary}\n\n⏰ ฤกษ์มงคลประจำถิ่น: ${d.luckyInfo.auspiciousTime}\n🎨 สีเสื้อมงคล:\n- เสริมงาน: ${d.luckyInfo.auspiciousColors.work.join(', ')}\n- เสริมเงิน: ${d.luckyInfo.auspiciousColors.wealth.join(', ')}\n- เลี่ยง: ${d.luckyInfo.inauspiciousColors.join(', ')}\n🔢 เลขเด่น: ${d.luckyInfo.luckyNumbers.join(' - ')}`;
-      navigator.clipboard.writeText(text);
-      document.getElementById('btnShareLabel').innerText = 'คัดลอกแล้ว!';
-      setTimeout(() => {
-        document.getElementById('btnShareLabel').innerText = 'แชร์สรุปดวง';
-      }, 2000);
+      const locText = isSame 
+        ? `${info.province} (${info.district || '-'})` 
+        : `เกิด: ${info.province} (${info.district || '-'}) ➔ สถานที่จรปัจจุบัน: ${tLoc.province} (${tLoc.district || '-'})`;
+
+      let text = `🔮 PLB โหราศาสตร์ - ผลทำนายดวงชะตารายวันแบบละเอียด\n`;
+      text += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      text += `👤 เจ้าชะตา: คุณ${info.name || 'เจ้าชะตา'}\n`;
+      text += `📅 ประจำวันที่: ${thaiDate}\n`;
+      text += `🧭 ลัคนาสถิต: ราศี${asc.signName} (${asc.signDegree}° ${asc.arcMinutes}') • ${asc.nakshatra || ''}\n`;
+      text += `📍 พิกัดสถานที่: ${locText}\n`;
+      text += `☀️ อาทิตย์อุทัยเวลาจร: ${tLoc.sunriseTime} น. | อัสดง: ${tLoc.sunsetTime} น.\n`;
+      text += `⚡ คะแนนพลังดวงวันนี้: ${overall.score}% (${'⭐'.repeat(overall.ratingStars)} ${overall.statusLabel})\n\n`;
+
+      text += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      text += `🌟 【 ภาพรวมดวงวันนี้ 】\n`;
+      text += `• ธีมหลัก: ${overall.theme}\n`;
+      text += `• คำพยากรณ์: ${overall.summary}\n`;
+      if (overall.timePeriods) {
+        text += `\n⏱️ จังหวะดวง 3 ช่วงเวลาของวัน:\n`;
+        text += `🌅 ช่วงเช้า (06:00 - 12:00 น.): ${overall.timePeriods.morning.desc}\n`;
+        text += `☀️ ช่วงบ่าย (12:00 - 18:00 น.): ${overall.timePeriods.afternoon.desc}\n`;
+        text += `🌙 ช่วงค่ำ (18:00 น. เป็นต้นไป): ${overall.timePeriods.evening.desc}\n`;
+      }
+      if (overall.highlights && overall.highlights.length) {
+        text += `\n✨ ไฮไลต์ประจำวัน:\n`;
+        overall.highlights.forEach(h => { text += `• ${h}\n`; });
+      }
+
+      text += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      text += `💼 【 การงานและธุรกิจ 】 (พลังงาน ${career.score}% - ${career.statusLabel})\n`;
+      text += `• สรุป: ${career.summary}\n`;
+      if (career.subsections) {
+        if (career.subsections.regular) text += `- งานประจำ/องค์กร: ${career.subsections.regular.desc}\n`;
+        if (career.subsections.business) text += `- ธุรกิจส่วนตัว/ฟรีแลนซ์: ${career.subsections.business.desc}\n`;
+        if (career.subsections.strategy) text += `- กลยุทธ์ความสำเร็จ: ${career.subsections.strategy.desc}\n`;
+      }
+      if (career.advice) text += `💡 คำแนะนำ: ${career.advice}\n`;
+
+      text += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      text += `💰 【 การเงินและโชคลาภ 】 (พลังงาน ${finance.score}% - ${finance.statusLabel})\n`;
+      text += `• สรุป: ${finance.summary}\n`;
+      if (finance.subsections) {
+        if (finance.subsections.flow) text += `- สภาพคล่อง/รายรับ: ${finance.subsections.flow.desc}\n`;
+        if (finance.subsections.expense) text += `- รายจ่ายพึงระวัง: ${finance.subsections.expense.desc}\n`;
+        if (finance.subsections.windfall) text += `- เกณฑ์โชคลาภ: ${finance.subsections.windfall.desc}\n`;
+      }
+      if (finance.advice) text += `💡 คำแนะนำ: ${finance.advice}\n`;
+
+      text += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      text += `❤️ 【 ความรักและความสัมพันธ์ 】 (พลังงาน ${love.score}% - ${love.statusLabel})\n`;
+      text += `• สรุป: ${love.summary}\n`;
+      if (love.subsections) {
+        if (love.subsections.couple) text += `- คนมีคู่/ครอบครัว: ${love.subsections.couple.desc}\n`;
+        if (love.subsections.single) text += `- คนโสด: ${love.subsections.single.desc}\n`;
+        if (love.subsections.charm) text += `- พลังเสน่ห์เมตตา: ${love.subsections.charm.desc}\n`;
+      }
+      if (love.advice) text += `💡 คำแนะนำ: ${love.advice}\n`;
+
+      text += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      text += `🛡️ 【 สุขภาพและข้อควรระวัง 】 (พลังงาน ${health.score}% - ${health.statusLabel})\n`;
+      text += `• สรุป: ${health.summary}\n`;
+      if (health.subsections) {
+        if (health.subsections.vulnerability) text += `- จุดเปราะบางตามลัคนา: ${health.subsections.vulnerability.desc}\n`;
+        if (health.subsections.mental) text += `- สุขภาพจิต/ความเครียด: ${health.subsections.mental.desc}\n`;
+        if (health.subsections.travel) text += `- การเดินทาง/อุบัติเหตุ: ${health.subsections.travel.desc}\n`;
+      }
+      if (health.advice) text += `💡 คำแนะนำ: ${health.advice}\n`;
+
+      text += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      text += `🔮 【 เกร็ดมงคลเสริมดวงประจำวัน (มหาทักษาจร) 】\n`;
+      if (lucky.dailyDayLord) text += `👑 เทวดาครองวัน: ${lucky.dailyDayLord}\n`;
+      text += `👔 สีเสริมการงาน/อำนาจ (เดช): ${lucky.auspiciousColors.work.join(', ')}\n`;
+      text += `💰 สีเสริมการเงิน/โชคลาภ (ศรี): ${lucky.auspiciousColors.wealth.join(', ')}\n`;
+      text += `💖 สีเสริมเสน่ห์/เมตตา (มนตรี): ${lucky.auspiciousColors.love.join(', ')}\n`;
+      text += `⛔ สีกาลกิณี (ควรเลี่ยง): ${lucky.inauspiciousColors.join(', ')}\n`;
+      text += `🎯 เลขเด่นนำโชค: ${lucky.luckyNumbers.join(' - ')}\n`;
+      text += `⏰ ฤกษ์มงคลประจำวัน: ${lucky.auspiciousTime}\n`;
+      text += `🧭 ทิศมงคลนำโชค: ${lucky.luckyDirection || 'ทิศเหนือ'}\n`;
+      if (lucky.dailyChant) {
+        text += `\n📿 บทสวดมนต์บูชาเทวดานพเคราะห์: "${lucky.dailyChant.mantra}"\n`;
+        text += `   (${lucky.dailyChant.title} • อานิสงส์: ${lucky.dailyChant.benefit})\n`;
+      }
+      if (lucky.auspiciousAmulet) text += `💎 ของมงคล/หินนำโชค: ${lucky.auspiciousAmulet}\n`;
+      if (lucky.goodDeedAdvice) text += `🕊️ เคล็ดลับทำบุญสร้างบารมี: ${lucky.goodDeedAdvice}\n`;
+      if (lucky.morningAdvice) text += `🧘 เคล็ดลับตั้งจิตเริ่มวัน: ${lucky.morningAdvice}\n`;
+
+      text += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      text += `✨ คำนวณตามคัมภีร์สุริยยาตร์ (มาตรฐานโหราศาสตร์ไทย) & นิรายนะวิธี\n`;
+      text += `🔮 PLB โหราศาสตร์ • Instagram & TikTok: @Earthyboy12\n`;
+      text += `🌐 ผูกดวงและดูดวงของคุณได้ที่: https://plb-horoscope.vercel.app`;
+
+      const onCopySuccess = () => {
+        const btn = document.getElementById('btnShareLabel');
+        if (btn) btn.innerText = '✅ คัดลอกผลทำนายละเอียดสำเร็จ!';
+        setTimeout(() => {
+          if (btn) btn.innerText = 'คัดลอกผลทำนายแบบละเอียด';
+        }, 2500);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(onCopySuccess).catch(() => {
+          // Fallback
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          onCopySuccess();
+        });
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        onCopySuccess();
+      }
     }
 
     function toggleAstroModal(show) {
@@ -1271,24 +1398,42 @@
     // EXPORT IMAGE SYSTEM (Instagram Stories & TikTok / Square Feed)
     // =========================================================================
 
-    function toggleExportModal(show) {
+    const FONT_FAMILY = '"Prompt", "Sarabun", -apple-system, BlinkMacSystemFont, "Sukhumvit Set", "Thonburi", sans-serif';
+    function fontOf(weight, size) {
+      return `${weight} ${size}px ${FONT_FAMILY}`;
+    }
+
+    async function ensureFontsLoaded() {
+      if (document.fonts) {
+        try {
+          await document.fonts.ready;
+          await Promise.allSettled([
+            document.fonts.load('400 14px "Prompt"'),
+            document.fonts.load('500 16px "Prompt"'),
+            document.fonts.load('600 18px "Prompt"'),
+            document.fonts.load('700 24px "Prompt"'),
+            document.fonts.load('800 36px "Prompt"'),
+            document.fonts.load('400 14px "Sarabun"'),
+            document.fonts.load('700 16px "Sarabun"')
+          ]);
+        } catch(e) {}
+      }
+    }
+
+    async function toggleExportModal(show) {
       const m = document.getElementById('exportModal');
       if (show) {
         m.classList.remove('hidden');
         if (state.data) {
+          await ensureFontsLoaded();
           renderExportCanvas();
-          if (document.fonts && document.fonts.ready) {
-            document.fonts.ready.then(() => {
-              renderExportCanvas();
-            });
-          }
         }
       } else {
         m.classList.add('hidden');
       }
     }
 
-    function setExportFormat(fmt) {
+    async function setExportFormat(fmt) {
       state.exportFormat = fmt;
       document.querySelectorAll('.export-fmt-btn').forEach(b => {
         b.className = "export-fmt-btn py-2.5 px-3 rounded-xl text-xs font-medium border transition-all flex flex-col items-center gap-1 bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700";
@@ -1297,10 +1442,11 @@
       if (active) {
         active.className = "export-fmt-btn py-2.5 px-3 rounded-xl text-xs font-bold border transition-all flex flex-col items-center gap-1 bg-amber-500/20 border-amber-400 text-amber-300 shadow";
       }
+      await ensureFontsLoaded();
       renderExportCanvas();
     }
 
-    function setExportTheme(theme) {
+    async function setExportTheme(theme) {
       state.exportTheme = theme;
       document.querySelectorAll('.export-theme-btn').forEach(b => {
         b.className = "export-theme-btn py-2.5 px-2 rounded-xl text-xs font-medium border transition-all flex flex-col items-center gap-1 bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700";
@@ -1310,6 +1456,7 @@
       if (active) {
         active.className = "export-theme-btn py-2.5 px-2 rounded-xl text-xs font-bold border transition-all flex flex-col items-center gap-1 bg-amber-500/20 border-amber-400 text-amber-300";
       }
+      await ensureFontsLoaded();
       renderExportCanvas();
     }
 
@@ -1418,6 +1565,7 @@
       ctx.restore();
     }
 
+    // Bulletproof Thai word & syllable wrapping for iOS Safari, Android, and Desktop
     function wrapThaiText(ctx, text, maxWidth) {
       if (!text) return [];
       let words = [];
@@ -1426,10 +1574,23 @@
           const segmenter = new Intl.Segmenter('th', { granularity: 'word' });
           words = Array.from(segmenter.segment(text)).map(s => s.segment);
         } catch(e) {
-          words = text.split(/(\s+)/);
+          words = [];
         }
-      } else {
-        words = text.split(/(\s+)/);
+      }
+
+      // Robust fallback if Intl.Segmenter is unsupported (older Safari / in-app browsers)
+      if (!words || words.length <= 1) {
+        const parts = text.split(/(\s+)/);
+        words = [];
+        parts.forEach(p => {
+          if (p.length > 8) {
+            for (let i = 0; i < p.length; i += 5) {
+              words.push(p.slice(i, i + 5));
+            }
+          } else if (p.length > 0) {
+            words.push(p);
+          }
+        });
       }
 
       const lines = [];
@@ -1439,9 +1600,37 @@
         const word = words[i];
         const testLine = currentLine + word;
         const metrics = ctx.measureText(testLine);
-        if (metrics.width > maxWidth && currentLine !== '') {
-          lines.push(currentLine.trim());
-          currentLine = word;
+        if (metrics.width > maxWidth) {
+          if (currentLine !== '') {
+            lines.push(currentLine.trim());
+            // If word itself is wider than maxWidth, break character by character
+            if (ctx.measureText(word).width > maxWidth) {
+              let sub = '';
+              for (let ch of word) {
+                if (ctx.measureText(sub + ch).width > maxWidth) {
+                  lines.push(sub);
+                  sub = ch;
+                } else {
+                  sub += ch;
+                }
+              }
+              currentLine = sub;
+            } else {
+              currentLine = word;
+            }
+          } else {
+            // First word itself too wide
+            let sub = '';
+            for (let ch of word) {
+              if (ctx.measureText(sub + ch).width > maxWidth) {
+                lines.push(sub);
+                sub = ch;
+              } else {
+                sub += ch;
+              }
+            }
+            currentLine = sub;
+          }
         } else {
           currentLine = testLine;
         }
@@ -1450,6 +1639,27 @@
         lines.push(currentLine.trim());
       }
       return lines;
+    }
+
+    function drawTextCenteredAt(ctx, text, cx, cy, font, color, maxW = 0) {
+      ctx.save();
+      ctx.font = font;
+      ctx.fillStyle = color;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      if (maxW > 0) {
+        const measured = ctx.measureText(text).width;
+        if (measured > maxW) {
+          const match = font.match(/(\d+)px/);
+          if (match) {
+            const origSize = parseInt(match[1]);
+            const newSize = Math.max(11, Math.floor(origSize * (maxW / measured) * 0.96));
+            ctx.font = font.replace(`${origSize}px`, `${newSize}px`);
+          }
+        }
+      }
+      ctx.fillText(text, cx, cy);
+      ctx.restore();
     }
 
     let cachedLogoImg = null;
@@ -1557,14 +1767,8 @@
       drawRoundedRect(ctx, margin, margin, W - margin * 2, H - margin * 2, 44, null, 'rgba(245, 158, 11, 0.45)', 2);
       drawRoundedRect(ctx, margin + 6, margin + 6, W - (margin + 6) * 2, H - (margin + 6) * 2, 38, null, 'rgba(255, 255, 255, 0.06)', 1);
 
-      function centerText(text, y, font, color) {
-        ctx.save();
-        ctx.font = font;
-        ctx.fillStyle = color;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(text, W * 0.5, y);
-        ctx.restore();
+      function centerText(text, y, font, color, maxW = 960) {
+        drawTextCenteredAt(ctx, text, W * 0.5, y, font, color, maxW);
       }
 
       const ZODIAC_SYMBOLS = {
@@ -1644,36 +1848,38 @@
 
         // Persona Info
         ctx.save();
+        ctx.textBaseline = 'middle';
         ctx.font = '700 30px "Prompt", sans-serif';
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(`คุณ${info.name || 'เจ้าชะตา'}`, 235, 290);
+        ctx.fillText(`คุณ${info.name || 'เจ้าชะตา'}`, 235, 280);
 
-        ctx.font = '700 25px "Prompt", sans-serif';
+        ctx.font = '700 24px "Prompt", sans-serif';
         ctx.fillStyle = '#FDE047';
-        ctx.fillText(`ลัคนาราศี${asc.signName} (${asc.signDegree}° ${asc.arcMinutes}')`, 235, 330);
+        ctx.fillText(`ลัคนาราศี${asc.signName} (${asc.signDegree}° ${asc.arcMinutes}')`, 235, 325);
 
-        ctx.font = '400 17px "Prompt", sans-serif';
+        ctx.font = '400 16px "Prompt", sans-serif';
         ctx.fillStyle = '#94A3B8';
-        ctx.fillText(`📍 สถานที่จร: ${tLoc.province}  •  ☀️ อาทิตย์อุทัย ${tLoc.sunriseTime} น.`, 235, 370);
+        ctx.fillText(`📍 สถานที่จร: ${tLoc.province}  •  ☀️ อาทิตย์อุทัย ${tLoc.sunriseTime} น.`, 235, 368);
         ctx.restore();
 
-        // Right Score Box
+        // Right Score Box (x: 810, w: 185 -> center: 902.5)
         drawRoundedRect(ctx, 810, 250, 185, 150, 22, 'rgba(3, 7, 18, 0.8)', 'rgba(245, 158, 11, 0.35)', 1);
-        centerText(`${overall.score}%`, 295, '800 42px "Prompt", sans-serif', '#FBBF24');
-        centerText('⭐'.repeat(overall.ratingStars), 340, '600 16px sans-serif', '#F59E0B');
-        centerText(overall.statusLabel, 375, '700 16px "Prompt", sans-serif', overall.score >= 85 ? '#34D399' : overall.score >= 70 ? '#FBBF24' : '#F87171');
+        drawTextCenteredAt(ctx, `${overall.score}%`, 902.5, 292, '800 40px "Prompt", sans-serif', '#FBBF24', 165);
+        drawTextCenteredAt(ctx, '⭐'.repeat(overall.ratingStars), 902.5, 336, '600 16px sans-serif', '#F59E0B', 165);
+        drawTextCenteredAt(ctx, overall.statusLabel, 902.5, 370, '700 16px "Prompt", sans-serif', overall.score >= 85 ? '#34D399' : overall.score >= 70 ? '#FBBF24' : '#F87171', 165);
 
         // Theme Banner (y: 445, h: 70)
         drawRoundedRect(ctx, 60, 445, 960, 70, 20, 'rgba(245, 158, 11, 0.12)', 'rgba(245, 158, 11, 0.3)', 1);
-        centerText(`🌟 ${overall.theme}`, 480, '700 22px "Prompt", sans-serif', '#FEF08A');
+        centerText(`🌟 ${overall.theme}`, 480, '700 22px "Prompt", sans-serif', '#FEF08A', 900);
 
         // Overall Summary Box (y: 535, h: 215)
         drawRoundedRect(ctx, 60, 535, 960, 215, 24, 'rgba(15, 23, 42, 0.65)', 'rgba(255, 255, 255, 0.08)', 1);
         ctx.save();
         ctx.font = '500 19px "Prompt", sans-serif';
         ctx.fillStyle = '#F1F5F9';
+        ctx.textBaseline = 'alphabetic';
         const sumLines = wrapThaiText(ctx, overall.summary, 900);
-        let curY = 575;
+        let curY = 578;
         sumLines.slice(0, 5).forEach(line => {
           ctx.fillText(line, 90, curY);
           curY += 34;
@@ -1740,18 +1946,19 @@
           drawRoundedRect(ctx, cx, cy, catW, catH, 18, 'rgba(15, 23, 42, 0.75)', 'rgba(255, 255, 255, 0.08)', 1);
           
           ctx.save();
+          ctx.textBaseline = 'middle';
           ctx.font = '700 18px "Prompt", sans-serif';
           ctx.fillStyle = '#FFFFFF';
-          ctx.fillText(`${c.icon} ${c.title}`, cx + 20, cy + 39);
+          ctx.fillText(`${c.icon} ${c.title}`, cx + 20, cy + 32);
 
           ctx.textAlign = 'right';
           ctx.font = '800 20px "Prompt", sans-serif';
           ctx.fillStyle = '#FBBF24';
-          ctx.fillText(`${c.score}%`, cx + catW - 110, cy + 39);
+          ctx.fillText(`${c.score}%`, cx + catW - 110, cy + 32);
 
           ctx.font = '700 14px "Prompt", sans-serif';
           ctx.fillStyle = c.score >= 85 ? '#34D399' : c.score >= 70 ? '#FBBF24' : '#F87171';
-          ctx.fillText(c.status, cx + catW - 20, cy + 39);
+          ctx.fillText(c.status, cx + catW - 20, cy + 32);
           ctx.restore();
         });
 
@@ -1787,41 +1994,24 @@
           ctx.restore();
         });
 
-        // 4 Stats (y: 1435, h: 80)
+        // 4 Stats (y: 1435, h: 80, 4 columns: 225px each)
         drawRoundedRect(ctx, 90, 1435, 900, 80, 18, 'rgba(3, 7, 18, 0.5)', 'rgba(255, 255, 255, 0.06)', 1);
-        ctx.save();
+        
         // Col 1: Inauspicious
-        ctx.font = '700 13px "Prompt", sans-serif';
-        ctx.fillStyle = '#F87171';
-        ctx.fillText('⛔ สีกาลกิณี', 110, 1462);
-        ctx.font = '700 16px "Prompt", sans-serif';
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(lucky.inauspiciousColors.join(', '), 110, 1492);
+        drawTextCenteredAt(ctx, '⛔ สีกาลกิณี', 202.5, 1458, '700 13px "Prompt", sans-serif', '#F87171', 210);
+        drawTextCenteredAt(ctx, lucky.inauspiciousColors.join(', '), 202.5, 1488, '700 15px "Prompt", sans-serif', '#FFFFFF', 210);
 
         // Col 2: Lucky Numbers
-        ctx.font = '700 13px "Prompt", sans-serif';
-        ctx.fillStyle = '#FBBF24';
-        ctx.fillText('🎯 เลขเด่นนำโชค', 340, 1462);
-        ctx.font = '800 20px "Prompt", sans-serif';
-        ctx.fillStyle = '#FDE047';
-        ctx.fillText(lucky.luckyNumbers.join(' - '), 340, 1493);
+        drawTextCenteredAt(ctx, '🎯 เลขเด่นนำโชค', 427.5, 1458, '700 13px "Prompt", sans-serif', '#FBBF24', 210);
+        drawTextCenteredAt(ctx, lucky.luckyNumbers.join(' - '), 427.5, 1488, '800 19px "Prompt", sans-serif', '#FDE047', 210);
 
         // Col 3: Auspicious Time
-        ctx.font = '700 13px "Prompt", sans-serif';
-        ctx.fillStyle = '#38BDF8';
-        ctx.fillText('⏰ ฤกษ์มงคล', 550, 1462);
-        ctx.font = '600 15px "Prompt", sans-serif';
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(lucky.auspiciousTime.split('(')[0].trim(), 550, 1492);
+        drawTextCenteredAt(ctx, '⏰ ฤกษ์มงคล', 652.5, 1458, '700 13px "Prompt", sans-serif', '#38BDF8', 210);
+        drawTextCenteredAt(ctx, lucky.auspiciousTime.split('(')[0].trim(), 652.5, 1488, '600 14px "Prompt", sans-serif', '#FFFFFF', 210);
 
         // Col 4: Lucky Direction
-        ctx.font = '700 13px "Prompt", sans-serif';
-        ctx.fillStyle = '#A78BFA';
-        ctx.fillText('🧭 ทิศมงคล', 780, 1462);
-        ctx.font = '600 14px "Prompt", sans-serif';
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(lucky.luckyDirection ? lucky.luckyDirection.split('(')[0].trim() : 'ทิศเหนือ', 780, 1492);
-        ctx.restore();
+        drawTextCenteredAt(ctx, '🧭 ทิศมงคล', 877.5, 1458, '700 13px "Prompt", sans-serif', '#A78BFA', 210);
+        drawTextCenteredAt(ctx, lucky.luckyDirection ? lucky.luckyDirection.split('(')[0].trim() : 'ทิศเหนือ', 877.5, 1488, '600 14px "Prompt", sans-serif', '#FFFFFF', 210);
 
         // Sacred Chant Box (y: 1535, h: 170)
         drawRoundedRect(ctx, 90, 1535, 900, 170, 20, 'rgba(245, 158, 11, 0.08)', 'rgba(245, 158, 11, 0.3)', 1);
@@ -1830,16 +2020,14 @@
           ctx.font = '700 16px "Prompt", sans-serif';
           ctx.fillStyle = '#FDE047';
           ctx.fillText(`📿 ${lucky.dailyChant.title}`, 115, 1568);
+          ctx.restore();
 
           // Mantra
-          centerText(`"${lucky.dailyChant.mantra}"`, 1610, '800 24px "Prompt", monospace', '#FEF08A');
+          centerText(`"${lucky.dailyChant.mantra}"`, 1610, '800 24px "Prompt", monospace', '#FEF08A', 840);
 
           // Amulet & Merit
-          ctx.font = '400 14px "Prompt", sans-serif';
-          ctx.fillStyle = '#CBD5E1';
           const amuletText = `💎 ของมงคล: ${lucky.auspiciousAmulet ? lucky.auspiciousAmulet.split(',')[0] : ''}   •   🕊️ เคล็ดลับทำบุญ: ${lucky.goodDeedAdvice ? lucky.goodDeedAdvice.split('หรือ')[0] : ''}`;
-          centerText(amuletText, 1665, '400 14px "Prompt", sans-serif', '#CBD5E1');
-          ctx.restore();
+          centerText(amuletText, 1665, '400 14px "Prompt", sans-serif', '#CBD5E1', 840);
         }
 
         // Footer Bar (y: 1765)
@@ -1907,35 +2095,37 @@
 
         // Info
         ctx.save();
+        ctx.textBaseline = 'middle';
         ctx.font = '700 26px "Prompt", sans-serif';
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(`คุณ${info.name || 'เจ้าชะตา'}`, 210, 230);
+        ctx.fillText(`คุณ${info.name || 'เจ้าชะตา'}`, 210, 225);
 
-        ctx.font = '700 22px "Prompt", sans-serif';
+        ctx.font = '700 21px "Prompt", sans-serif';
         ctx.fillStyle = '#FDE047';
-        ctx.fillText(`ลัคนาราศี${asc.signName} (${asc.signDegree}° ${asc.arcMinutes}')`, 210, 265);
+        ctx.fillText(`ลัคนาราศี${asc.signName} (${asc.signDegree}° ${asc.arcMinutes}')`, 210, 260);
 
         ctx.font = '400 15px "Prompt", sans-serif';
         ctx.fillStyle = '#94A3B8';
-        ctx.fillText(`📍 สถานที่จร: ${tLoc.province}  •  ☀️ ตะวันขึ้น ${tLoc.sunriseTime} น.`, 210, 298);
+        ctx.fillText(`📍 สถานที่จร: ${tLoc.province}  •  ☀️ ตะวันขึ้น ${tLoc.sunriseTime} น.`, 210, 292);
         ctx.restore();
 
-        // Score Box
+        // Score Box (x: 810, w: 185 -> center: 902.5)
         drawRoundedRect(ctx, 810, 195, 185, 120, 20, 'rgba(3, 7, 18, 0.8)', 'rgba(245, 158, 11, 0.35)', 1);
-        centerText(`${overall.score}%`, 235, '800 36px "Prompt", sans-serif', '#FBBF24');
-        centerText(`${'⭐'.repeat(overall.ratingStars)} ${overall.statusLabel}`, 285, '700 14px "Prompt", sans-serif', '#34D399');
+        drawTextCenteredAt(ctx, `${overall.score}%`, 902.5, 235, '800 36px "Prompt", sans-serif', '#FBBF24', 165);
+        drawTextCenteredAt(ctx, `${'⭐'.repeat(overall.ratingStars)} ${overall.statusLabel}`, 902.5, 282, '700 14px "Prompt", sans-serif', overall.score >= 85 ? '#34D399' : overall.score >= 70 ? '#FBBF24' : '#F87171', 165);
 
         // Theme Banner (y: 355, h: 58)
         drawRoundedRect(ctx, 60, 355, 960, 58, 16, 'rgba(245, 158, 11, 0.12)', 'rgba(245, 158, 11, 0.3)', 1);
-        centerText(`🌟 ${overall.theme}`, 384, '700 19px "Prompt", sans-serif', '#FEF08A');
+        centerText(`🌟 ${overall.theme}`, 384, '700 19px "Prompt", sans-serif', '#FEF08A', 900);
 
         // Summary (y: 430, h: 140)
         drawRoundedRect(ctx, 60, 430, 960, 140, 20, 'rgba(15, 23, 42, 0.65)', 'rgba(255, 255, 255, 0.08)', 1);
         ctx.save();
         ctx.font = '500 17px "Prompt", sans-serif';
         ctx.fillStyle = '#F1F5F9';
+        ctx.textBaseline = 'alphabetic';
         const sumLines = wrapThaiText(ctx, overall.summary, 900);
-        let curY = 465;
+        let curY = 468;
         sumLines.slice(0, 3).forEach(line => {
           ctx.fillText(line, 90, curY);
           curY += 30;
@@ -1999,40 +2189,26 @@
           ctx.restore();
         });
 
-        // Numbers & Time (y: 818)
+        // Numbers & Time (y: 818, h: 56, 3 equal columns centered at 240, 540, 840)
         drawRoundedRect(ctx, 90, 818, 900, 56, 14, 'rgba(3, 7, 18, 0.5)', 'rgba(255, 255, 255, 0.06)', 1);
-        ctx.save();
-        ctx.font = '700 13px "Prompt", sans-serif';
-        ctx.fillStyle = '#FBBF24';
-        ctx.fillText('🎯 เลขเด่น:', 110, 852);
-        ctx.font = '800 18px "Prompt", sans-serif';
-        ctx.fillStyle = '#FDE047';
-        ctx.fillText(lucky.luckyNumbers.join(' - '), 195, 853);
-
-        ctx.font = '700 13px "Prompt", sans-serif';
-        ctx.fillStyle = '#38BDF8';
-        ctx.fillText('⏰ ฤกษ์มงคล:', 350, 852);
-        ctx.font = '600 14px "Prompt", sans-serif';
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(lucky.auspiciousTime.split('(')[0].trim(), 445, 852);
-
-        ctx.font = '700 13px "Prompt", sans-serif';
-        ctx.fillStyle = '#A78BFA';
-        ctx.fillText('🧭 ทิศมงคล:', 700, 852);
-        ctx.font = '600 14px "Prompt", sans-serif';
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(lucky.luckyDirection ? lucky.luckyDirection.split('(')[0].trim() : 'ทิศเหนือ', 785, 852);
-        ctx.restore();
+        drawTextCenteredAt(ctx, `🎯 เลขเด่น: ${lucky.luckyNumbers.join(' - ')}`, 240, 846, '700 15px "Prompt", sans-serif', '#FDE047', 280);
+        drawTextCenteredAt(ctx, `⏰ ฤกษ์มงคล: ${lucky.auspiciousTime.split('(')[0].trim()}`, 540, 846, '600 14px "Prompt", sans-serif', '#FFFFFF', 280);
+        drawTextCenteredAt(ctx, `🧭 ทิศมงคล: ${lucky.luckyDirection ? lucky.luckyDirection.split('(')[0].trim() : 'ทิศเหนือ'}`, 840, 846, '600 14px "Prompt", sans-serif', '#CBD5E1', 280);
 
         // Sacred Chant (y: 890)
         if (lucky.dailyChant) {
           drawRoundedRect(ctx, 90, 890, 900, 75, 16, 'rgba(245, 158, 11, 0.08)', 'rgba(245, 158, 11, 0.3)', 1);
-          centerText(`📿 ${lucky.dailyChant.title}: "${lucky.dailyChant.mantra}"`, 927, '700 15px "Prompt", sans-serif', '#FEF08A');
+          centerText(`📿 ${lucky.dailyChant.title}: "${lucky.dailyChant.mantra}"`, 927, '700 15px "Prompt", sans-serif', '#FEF08A', 860);
         }
 
         // Footer Bar (y: 1025)
         centerText('🔮 PLB โหราศาสตร์  •  Instagram & TikTok: @Earthyboy12', 1030, '700 16px "Prompt", sans-serif', '#FEF08A');
       }
+    }
+
+    function isIOSDevice() {
+      return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     }
 
     function downloadExportCanvasImage() {
@@ -2042,11 +2218,36 @@
       const ascName = d ? d.natalChart.ascendant.signName : 'ราศี';
       const date = d ? d.date : 'today';
       const fmt = state.exportFormat || 'story';
-      
-      const link = document.createElement('a');
-      link.download = `PLB-Horoscope-${ascName}-${date}-${fmt}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+      const fileName = `PLB-Horoscope-${ascName}-${date}-${fmt}.png`;
+
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+
+        // On iOS Safari, triggering navigator.share lets user tap "Save Image" directly into Camera Roll / Photos
+        const file = new File([blob], fileName, { type: 'image/png' });
+        if (isIOSDevice() && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: `PLB โหราศาสตร์ - ลัคนาราศี${ascName}`,
+              text: 'บันทึกรูปดวงชะตาลงเครื่อง'
+            });
+            return;
+          } catch (e) {
+            if (e.name === 'AbortError') return;
+          }
+        }
+
+        // Standard blob download for Android, Chrome, Edge, PC, Mac
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = blobUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
+      }, 'image/png');
     }
 
     async function copyExportCanvasImage() {
@@ -2060,8 +2261,8 @@
             await navigator.clipboard.write([
               new ClipboardItem({ 'image/png': blob })
             ]);
-            btnLabel.innerText = 'คัดลอกรูปสำเร็จ!';
-            setTimeout(() => { btnLabel.innerText = 'คัดลอกรูปภาพ'; }, 2000);
+            if (btnLabel) btnLabel.innerText = 'คัดลอกรูปสำเร็จ!';
+            setTimeout(() => { if (btnLabel) btnLabel.innerText = 'คัดลอกรูปภาพ'; }, 2000);
           } else {
             downloadExportCanvasImage();
           }
@@ -2080,7 +2281,11 @@
           if (!blob) return;
           const d = state.data;
           const ascName = d ? d.natalChart.ascendant.signName : 'ราศี';
-          const file = new File([blob], `PLB-Horoscope-${ascName}.png`, { type: 'image/png' });
+          const date = d ? d.date : 'today';
+          const fmt = state.exportFormat || 'story';
+          const fileName = `PLB-Horoscope-${ascName}-${date}-${fmt}.png`;
+          const file = new File([blob], fileName, { type: 'image/png' });
+
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             await navigator.share({
               title: `ดวงรายวัน PLB โหราศาสตร์ - ลัคนาราศี${ascName}`,
@@ -2092,7 +2297,9 @@
           }
         }, 'image/png');
       } catch(e) {
-        console.log('Share error or cancelled:', e);
+        if (e.name !== 'AbortError') {
+          console.log('Share error or cancelled:', e);
+        }
       }
     }
 
