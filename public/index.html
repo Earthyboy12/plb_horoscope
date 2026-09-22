@@ -79,6 +79,18 @@
 </head>
 <body class="min-h-screen astrology-bg flex flex-col selection:bg-amber-500 selection:text-black">
 
+  <!-- Hidden Font Preload Container to force iOS WebKit / Safari to load Thai font subsets immediately -->
+  <div id="fontPreloadContainer" aria-hidden="true" style="position: absolute; left: -9999px; top: -9999px; visibility: hidden; pointer-events: none;">
+    <span style="font-family: 'Prompt'; font-weight: 300;">คุณเจ้าชะตาลัคนาราศีเมษดวงรายวัน ๐๑๒๓๔๕๖๗๘๙</span>
+    <span style="font-family: 'Prompt'; font-weight: 400;">คุณเจ้าชะตาลัคนาราศีเมษดวงรายวัน ๐๑๒๓๔๕๖๗๘๙</span>
+    <span style="font-family: 'Prompt'; font-weight: 500;">คุณเจ้าชะตาลัคนาราศีเมษดวงรายวัน ๐๑๒๓๔๕๖๗๘๙</span>
+    <span style="font-family: 'Prompt'; font-weight: 600;">คุณเจ้าชะตาลัคนาราศีเมษดวงรายวัน ๐๑๒๓๔๕๖๗๘๙</span>
+    <span style="font-family: 'Prompt'; font-weight: 700;">คุณเจ้าชะตาลัคนาราศีเมษดวงรายวัน ๐๑๒๓๔๕๖๗๘๙</span>
+    <span style="font-family: 'Prompt'; font-weight: 800;">คุณเจ้าชะตาลัคนาราศีเมษดวงรายวัน ๐๑๒๓๔๕๖๗๘๙</span>
+    <span style="font-family: 'Sarabun'; font-weight: 400;">คุณเจ้าชะตาลัคนาราศีเมษดวงรายวัน ๐๑๒๓๔๕๖๗๘๙</span>
+    <span style="font-family: 'Sarabun'; font-weight: 700;">คุณเจ้าชะตาลัคนาราศีเมษดวงรายวัน ๐๑๒๓๔๕๖๗๘๙</span>
+  </div>
+
   <!-- Fixed Astrological Star and Sacred Mandala Layers -->
   <div class="stars-layer"></div>
 
@@ -511,8 +523,12 @@
             <span>👁️ ตัวอย่างการ์ดความละเอียดสูง (HD Preview)</span>
           </div>
           <div id="canvasWrapper" class="relative max-h-[55vh] overflow-hidden rounded-2xl shadow-2xl border border-amber-500/30 flex items-center justify-center bg-slate-950">
-            <canvas id="exportCanvas" class="max-h-[55vh] w-auto object-contain rounded-2xl shadow-2xl"></canvas>
+            <canvas id="exportCanvas" class="hidden"></canvas>
+            <img id="exportPreviewImg" class="max-h-[55vh] w-auto object-contain rounded-2xl shadow-2xl cursor-pointer" alt="ดวงรายวัน PLB โหราศาสตร์" title="แตะค้างที่รูปภาพเพื่อบันทึกภาพลงเครื่อง">
           </div>
+          <p class="text-[11px] text-amber-300/80 mt-2 flex items-center gap-1.5 text-center">
+            <span>💡</span> <span>สำหรับผู้ใช้ iPhone: สามารถ <strong>แตะค้างที่รูปภาพ</strong> แล้วเลือก <em>"บันทึกภาพ (Save to Photos)"</em> ลงเครื่องได้ทันที</span>
+          </p>
         </div>
       </div>
 
@@ -520,7 +536,7 @@
       <div class="p-4 sm:p-5 border-t border-slate-800 bg-slate-950/60 flex flex-wrap items-center justify-between gap-3">
         <div class="text-xs text-slate-400 flex items-center gap-1.5">
           <span>✨</span>
-          <span>สร้างภาพความละเอียดสูง (HD) • 📱 iPhone: แตะปุ่ม "แชร์" หรือ "บันทึกรูป" เพื่อเซฟลงอัลบั้มรูปได้ทันที</span>
+          <span>สร้างภาพความละเอียดสูง (HD) • 📱 iPhone: แตะค้างที่รูปภาพ หรือกดปุ่ม "บันทึกรูปลงเครื่อง"</span>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
           <button onclick="copyExportCanvasImage()" id="btnCopyImg" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold text-xs flex items-center gap-1.5 transition-all active:scale-95">
@@ -1398,7 +1414,7 @@
     // EXPORT IMAGE SYSTEM (Instagram Stories & TikTok / Square Feed)
     // =========================================================================
 
-    const FONT_FAMILY = '"Prompt", "Sarabun", -apple-system, BlinkMacSystemFont, "Sukhumvit Set", "Thonburi", sans-serif';
+    const FONT_FAMILY = '"Prompt", "Sarabun", "Thonburi", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
     function fontOf(weight, size) {
       return `${weight} ${size}px ${FONT_FAMILY}`;
     }
@@ -1406,15 +1422,17 @@
     async function ensureFontsLoaded() {
       if (document.fonts) {
         try {
+          const THAI_SAMPLE = 'กขคงจฉชซดตถทนบปผฝพฟภมยรลวศษสหฬอฮะาำิีึืุูเแโใไ็่้๊๋์ฤ0123456789';
           await document.fonts.ready;
           await Promise.allSettled([
-            document.fonts.load('400 14px "Prompt"'),
-            document.fonts.load('500 16px "Prompt"'),
-            document.fonts.load('600 18px "Prompt"'),
-            document.fonts.load('700 24px "Prompt"'),
-            document.fonts.load('800 36px "Prompt"'),
-            document.fonts.load('400 14px "Sarabun"'),
-            document.fonts.load('700 16px "Sarabun"')
+            document.fonts.load('300 14px "Prompt"', THAI_SAMPLE),
+            document.fonts.load('400 14px "Prompt"', THAI_SAMPLE),
+            document.fonts.load('500 16px "Prompt"', THAI_SAMPLE),
+            document.fonts.load('600 18px "Prompt"', THAI_SAMPLE),
+            document.fonts.load('700 24px "Prompt"', THAI_SAMPLE),
+            document.fonts.load('800 36px "Prompt"', THAI_SAMPLE),
+            document.fonts.load('400 14px "Sarabun"', THAI_SAMPLE),
+            document.fonts.load('700 16px "Sarabun"', THAI_SAMPLE)
           ]);
         } catch(e) {}
       }
@@ -1565,6 +1583,19 @@
       ctx.restore();
     }
 
+    // Robust Thai Grapheme Cluster splitter (prevents tone marks and vowels from ever detaching)
+    function splitThaiGraphemes(text) {
+      if (!text) return [];
+      if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+        try {
+          const seg = new Intl.Segmenter('th', { granularity: 'grapheme' });
+          return Array.from(seg.segment(text)).map(s => s.segment);
+        } catch(e) {}
+      }
+      const matches = text.match(/[\u0E00-\u0E7F][\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]*|[^\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]/g);
+      return matches || text.split('');
+    }
+
     // Bulletproof Thai word & syllable wrapping for iOS Safari, Android, and Desktop
     function wrapThaiText(ctx, text, maxWidth) {
       if (!text) return [];
@@ -1603,15 +1634,16 @@
         if (metrics.width > maxWidth) {
           if (currentLine !== '') {
             lines.push(currentLine.trim());
-            // If word itself is wider than maxWidth, break character by character
+            // If word itself is wider than maxWidth, break by grapheme cluster (never break tone marks)
             if (ctx.measureText(word).width > maxWidth) {
+              const graphemes = splitThaiGraphemes(word);
               let sub = '';
-              for (let ch of word) {
-                if (ctx.measureText(sub + ch).width > maxWidth) {
+              for (let g of graphemes) {
+                if (ctx.measureText(sub + g).width > maxWidth) {
                   lines.push(sub);
-                  sub = ch;
+                  sub = g;
                 } else {
-                  sub += ch;
+                  sub += g;
                 }
               }
               currentLine = sub;
@@ -1620,13 +1652,14 @@
             }
           } else {
             // First word itself too wide
+            const graphemes = splitThaiGraphemes(word);
             let sub = '';
-            for (let ch of word) {
-              if (ctx.measureText(sub + ch).width > maxWidth) {
+            for (let g of graphemes) {
+              if (ctx.measureText(sub + g).width > maxWidth) {
                 lines.push(sub);
-                sub = ch;
+                sub = g;
               } else {
-                sub += ch;
+                sub += g;
               }
             }
             currentLine = sub;
@@ -1659,6 +1692,27 @@
         }
       }
       ctx.fillText(text, cx, cy);
+      ctx.restore();
+    }
+
+    function drawTextLeftAt(ctx, text, x, y, font, color, maxW = 0) {
+      ctx.save();
+      ctx.font = font;
+      ctx.fillStyle = color;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      if (maxW > 0) {
+        const measured = ctx.measureText(text).width;
+        if (measured > maxW) {
+          const match = font.match(/(\d+)px/);
+          if (match) {
+            const origSize = parseInt(match[1]);
+            const newSize = Math.max(11, Math.floor(origSize * (maxW / measured) * 0.96));
+            ctx.font = font.replace(`${origSize}px`, `${newSize}px`);
+          }
+        }
+      }
+      ctx.fillText(text, x, y);
       ctx.restore();
     }
 
@@ -1807,7 +1861,7 @@
 
         // Brand Title with Gradient
         ctx.save();
-        ctx.font = '800 40px "Prompt", sans-serif';
+        ctx.font = fontOf('800', 40);
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         const titleGrad = ctx.createLinearGradient(W * 0.5 - 200, 0, W * 0.5 + 200, 0);
@@ -1820,8 +1874,8 @@
         ctx.fillText('PLB โหราศาสตร์', W * 0.5, 142);
         ctx.restore();
 
-        centerText('✦  P L B   A S T R O L O G Y  ✦', 174, '600 14px "Prompt", sans-serif', '#F59E0B');
-        centerText(`ดวงรายวัน • ${thaiDate}`, 200, '500 17px "Prompt", sans-serif', '#E2E8F0');
+        centerText('✦  P L B   A S T R O L O G Y  ✦', 174, fontOf('600', 14), '#F59E0B');
+        centerText(`ดวงรายวัน • ${thaiDate}`, 200, fontOf('500', 17), '#E2E8F0');
 
         // Persona Card (y: 232, h: 195)
         drawRoundedRect(ctx, 60, 232, 960, 195, 28, 'rgba(15, 23, 42, 0.85)', 'rgba(245, 158, 11, 0.4)', 1.5);
@@ -1839,43 +1893,32 @@
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        ctx.font = '700 52px "Prompt", sans-serif';
+        ctx.font = fontOf('700', 52);
         ctx.fillStyle = '#FEF08A';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(zSymbol, 155, 323);
         ctx.restore();
 
-        // Persona Info
-        ctx.save();
-        ctx.textBaseline = 'middle';
-        ctx.font = '700 30px "Prompt", sans-serif';
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(`คุณ${info.name || 'เจ้าชะตา'}`, 235, 280);
-
-        ctx.font = '700 24px "Prompt", sans-serif';
-        ctx.fillStyle = '#FDE047';
-        ctx.fillText(`ลัคนาราศี${asc.signName} (${asc.signDegree}° ${asc.arcMinutes}')`, 235, 325);
-
-        ctx.font = '400 16px "Prompt", sans-serif';
-        ctx.fillStyle = '#94A3B8';
-        ctx.fillText(`📍 สถานที่จร: ${tLoc.province}  •  ☀️ อาทิตย์อุทัย ${tLoc.sunriseTime} น.`, 235, 368);
-        ctx.restore();
+        // Persona Info (auto-clamped to prevent overlapping the score box)
+        drawTextLeftAt(ctx, `คุณ${info.name || 'เจ้าชะตา'}`, 235, 280, fontOf('700', 30), '#FFFFFF', 550);
+        drawTextLeftAt(ctx, `ลัคนาราศี${asc.signName} (${asc.signDegree}° ${asc.arcMinutes}')`, 235, 325, fontOf('700', 24), '#FDE047', 550);
+        drawTextLeftAt(ctx, `📍 สถานที่จร: ${tLoc.province}  •  ☀️ อาทิตย์อุทัย ${tLoc.sunriseTime} น.`, 235, 368, fontOf('400', 16), '#94A3B8', 550);
 
         // Right Score Box (x: 810, w: 185 -> center: 902.5)
         drawRoundedRect(ctx, 810, 250, 185, 150, 22, 'rgba(3, 7, 18, 0.8)', 'rgba(245, 158, 11, 0.35)', 1);
-        drawTextCenteredAt(ctx, `${overall.score}%`, 902.5, 292, '800 40px "Prompt", sans-serif', '#FBBF24', 165);
+        drawTextCenteredAt(ctx, `${overall.score}%`, 902.5, 292, fontOf('800', 40), '#FBBF24', 165);
         drawTextCenteredAt(ctx, '⭐'.repeat(overall.ratingStars), 902.5, 336, '600 16px sans-serif', '#F59E0B', 165);
-        drawTextCenteredAt(ctx, overall.statusLabel, 902.5, 370, '700 16px "Prompt", sans-serif', overall.score >= 85 ? '#34D399' : overall.score >= 70 ? '#FBBF24' : '#F87171', 165);
+        drawTextCenteredAt(ctx, overall.statusLabel, 902.5, 370, fontOf('700', 16), overall.score >= 85 ? '#34D399' : overall.score >= 70 ? '#FBBF24' : '#F87171', 165);
 
         // Theme Banner (y: 445, h: 70)
         drawRoundedRect(ctx, 60, 445, 960, 70, 20, 'rgba(245, 158, 11, 0.12)', 'rgba(245, 158, 11, 0.3)', 1);
-        centerText(`🌟 ${overall.theme}`, 480, '700 22px "Prompt", sans-serif', '#FEF08A', 900);
+        centerText(`🌟 ${overall.theme}`, 480, fontOf('700', 22), '#FEF08A', 900);
 
         // Overall Summary Box (y: 535, h: 215)
         drawRoundedRect(ctx, 60, 535, 960, 215, 24, 'rgba(15, 23, 42, 0.65)', 'rgba(255, 255, 255, 0.08)', 1);
         ctx.save();
-        ctx.font = '500 19px "Prompt", sans-serif';
+        ctx.font = fontOf('500', 19);
         ctx.fillStyle = '#F1F5F9';
         ctx.textBaseline = 'alphabetic';
         const sumLines = wrapThaiText(ctx, overall.summary, 900);
@@ -1888,7 +1931,7 @@
 
         // Daily Time Periods (y: 770, h: 245)
         ctx.save();
-        ctx.font = '700 20px "Prompt", sans-serif';
+        ctx.font = fontOf('700', 20);
         ctx.fillStyle = '#FDE047';
         ctx.fillText('⏱️ จังหวะดวง 3 ช่วงเวลาของวัน', 65, 795);
         ctx.restore();
@@ -1905,15 +1948,14 @@
           const px = 60 + idx * (cardW + gap);
           drawRoundedRect(ctx, px, 815, cardW, 195, 20, 'rgba(15, 23, 42, 0.75)', 'rgba(255, 255, 255, 0.08)', 1);
           
-          ctx.save();
-          ctx.font = '700 16px "Prompt", sans-serif';
-          ctx.fillStyle = idx === 0 ? '#FBBF24' : idx === 1 ? '#FDE047' : '#A5B4FC';
-          ctx.fillText(`${p.icon} ${p.label}`, px + 16, 845);
+          drawTextLeftAt(ctx, `${p.icon} ${p.label}`, px + 16, 845, fontOf('700', 16), idx === 0 ? '#FBBF24' : idx === 1 ? '#FDE047' : '#A5B4FC', cardW - 32);
 
-          ctx.font = '400 14px "Prompt", sans-serif';
+          ctx.save();
+          ctx.font = fontOf('400', 14);
           ctx.fillStyle = '#CBD5E1';
+          ctx.textBaseline = 'alphabetic';
           const pLines = wrapThaiText(ctx, p.desc, cardW - 32);
-          let py = 878;
+          let py = 882;
           pLines.slice(0, 4).forEach(l => {
             ctx.fillText(l, px + 16, py);
             py += 24;
@@ -1923,7 +1965,7 @@
 
         // 4 Categories Pulse (y: 1030, h: 185)
         ctx.save();
-        ctx.font = '700 20px "Prompt", sans-serif';
+        ctx.font = fontOf('700', 20);
         ctx.fillStyle = '#FDE047';
         ctx.fillText('📊 ดัชนีพลังดวง 4 ด้าน', 65, 1055);
         ctx.restore();
@@ -1945,18 +1987,16 @@
 
           drawRoundedRect(ctx, cx, cy, catW, catH, 18, 'rgba(15, 23, 42, 0.75)', 'rgba(255, 255, 255, 0.08)', 1);
           
-          ctx.save();
-          ctx.textBaseline = 'middle';
-          ctx.font = '700 18px "Prompt", sans-serif';
-          ctx.fillStyle = '#FFFFFF';
-          ctx.fillText(`${c.icon} ${c.title}`, cx + 20, cy + 32);
+          drawTextLeftAt(ctx, `${c.icon} ${c.title}`, cx + 20, cy + 32, fontOf('700', 18), '#FFFFFF', 240);
 
+          ctx.save();
           ctx.textAlign = 'right';
-          ctx.font = '800 20px "Prompt", sans-serif';
+          ctx.textBaseline = 'middle';
+          ctx.font = fontOf('800', 20);
           ctx.fillStyle = '#FBBF24';
           ctx.fillText(`${c.score}%`, cx + catW - 110, cy + 32);
 
-          ctx.font = '700 14px "Prompt", sans-serif';
+          ctx.font = fontOf('700', 14);
           ctx.fillStyle = c.score >= 85 ? '#34D399' : c.score >= 70 ? '#FBBF24' : '#F87171';
           ctx.fillText(c.status, cx + catW - 20, cy + 32);
           ctx.restore();
@@ -1966,10 +2006,10 @@
         drawRoundedRect(ctx, 60, 1245, 960, 485, 28, 'rgba(15, 23, 42, 0.85)', 'rgba(245, 158, 11, 0.45)', 1.5);
         
         ctx.save();
-        ctx.font = '700 22px "Prompt", sans-serif';
+        ctx.font = fontOf('700', 22);
         ctx.fillStyle = '#FEF08A';
         ctx.fillText('🔮 เกร็ดมงคลเสริมดวงประจำวัน (มหาทักษาจร)', 90, 1285);
-        ctx.font = '400 16px "Prompt", sans-serif';
+        ctx.font = fontOf('400', 16);
         ctx.fillStyle = '#CBD5E1';
         ctx.fillText(lucky.dailyDayLord ? lucky.dailyDayLord.split('(')[0] : '', 90, 1315);
         ctx.restore();
@@ -1983,56 +2023,49 @@
         colorCards.forEach((c, idx) => {
           const cx = 90 + idx * (285 + 16);
           drawRoundedRect(ctx, cx, 1335, 285, 80, 16, 'rgba(3, 7, 18, 0.6)', 'rgba(255, 255, 255, 0.08)', 1);
-          ctx.save();
-          ctx.font = '600 13px "Prompt", sans-serif';
-          ctx.fillStyle = c.col;
-          ctx.fillText(c.label, cx + 14, 1362);
-
-          ctx.font = '700 16px "Prompt", sans-serif';
-          ctx.fillStyle = '#FFFFFF';
-          ctx.fillText(c.val, cx + 14, 1392);
-          ctx.restore();
+          drawTextLeftAt(ctx, c.label, cx + 14, 1362, fontOf('600', 13), c.col, 255);
+          drawTextLeftAt(ctx, c.val, cx + 14, 1392, fontOf('700', 16), '#FFFFFF', 255);
         });
 
         // 4 Stats (y: 1435, h: 80, 4 columns: 225px each)
         drawRoundedRect(ctx, 90, 1435, 900, 80, 18, 'rgba(3, 7, 18, 0.5)', 'rgba(255, 255, 255, 0.06)', 1);
         
         // Col 1: Inauspicious
-        drawTextCenteredAt(ctx, '⛔ สีกาลกิณี', 202.5, 1458, '700 13px "Prompt", sans-serif', '#F87171', 210);
-        drawTextCenteredAt(ctx, lucky.inauspiciousColors.join(', '), 202.5, 1488, '700 15px "Prompt", sans-serif', '#FFFFFF', 210);
+        drawTextCenteredAt(ctx, '⛔ สีกาลกิณี', 202.5, 1458, fontOf('700', 13), '#F87171', 210);
+        drawTextCenteredAt(ctx, lucky.inauspiciousColors.join(', '), 202.5, 1488, fontOf('700', 15), '#FFFFFF', 210);
 
         // Col 2: Lucky Numbers
-        drawTextCenteredAt(ctx, '🎯 เลขเด่นนำโชค', 427.5, 1458, '700 13px "Prompt", sans-serif', '#FBBF24', 210);
-        drawTextCenteredAt(ctx, lucky.luckyNumbers.join(' - '), 427.5, 1488, '800 19px "Prompt", sans-serif', '#FDE047', 210);
+        drawTextCenteredAt(ctx, '🎯 เลขเด่นนำโชค', 427.5, 1458, fontOf('700', 13), '#FBBF24', 210);
+        drawTextCenteredAt(ctx, lucky.luckyNumbers.join(' - '), 427.5, 1488, fontOf('800', 19), '#FDE047', 210);
 
         // Col 3: Auspicious Time
-        drawTextCenteredAt(ctx, '⏰ ฤกษ์มงคล', 652.5, 1458, '700 13px "Prompt", sans-serif', '#38BDF8', 210);
-        drawTextCenteredAt(ctx, lucky.auspiciousTime.split('(')[0].trim(), 652.5, 1488, '600 14px "Prompt", sans-serif', '#FFFFFF', 210);
+        drawTextCenteredAt(ctx, '⏰ ฤกษ์มงคล', 652.5, 1458, fontOf('700', 13), '#38BDF8', 210);
+        drawTextCenteredAt(ctx, lucky.auspiciousTime.split('(')[0].trim(), 652.5, 1488, fontOf('600', 14), '#FFFFFF', 210);
 
         // Col 4: Lucky Direction
-        drawTextCenteredAt(ctx, '🧭 ทิศมงคล', 877.5, 1458, '700 13px "Prompt", sans-serif', '#A78BFA', 210);
-        drawTextCenteredAt(ctx, lucky.luckyDirection ? lucky.luckyDirection.split('(')[0].trim() : 'ทิศเหนือ', 877.5, 1488, '600 14px "Prompt", sans-serif', '#FFFFFF', 210);
+        drawTextCenteredAt(ctx, '🧭 ทิศมงคล', 877.5, 1458, fontOf('700', 13), '#A78BFA', 210);
+        drawTextCenteredAt(ctx, lucky.luckyDirection ? lucky.luckyDirection.split('(')[0].trim() : 'ทิศเหนือ', 877.5, 1488, fontOf('600', 14), '#FFFFFF', 210);
 
         // Sacred Chant Box (y: 1535, h: 170)
         drawRoundedRect(ctx, 90, 1535, 900, 170, 20, 'rgba(245, 158, 11, 0.08)', 'rgba(245, 158, 11, 0.3)', 1);
         if (lucky.dailyChant) {
           ctx.save();
-          ctx.font = '700 16px "Prompt", sans-serif';
+          ctx.font = fontOf('700', 16);
           ctx.fillStyle = '#FDE047';
           ctx.fillText(`📿 ${lucky.dailyChant.title}`, 115, 1568);
           ctx.restore();
 
           // Mantra
-          centerText(`"${lucky.dailyChant.mantra}"`, 1610, '800 24px "Prompt", monospace', '#FEF08A', 840);
+          centerText(`"${lucky.dailyChant.mantra}"`, 1610, fontOf('800', 24), '#FEF08A', 840);
 
           // Amulet & Merit
           const amuletText = `💎 ของมงคล: ${lucky.auspiciousAmulet ? lucky.auspiciousAmulet.split(',')[0] : ''}   •   🕊️ เคล็ดลับทำบุญ: ${lucky.goodDeedAdvice ? lucky.goodDeedAdvice.split('หรือ')[0] : ''}`;
-          centerText(amuletText, 1665, '400 14px "Prompt", sans-serif', '#CBD5E1', 840);
+          centerText(amuletText, 1665, fontOf('400', 14), '#CBD5E1', 840);
         }
 
         // Footer Bar (y: 1765)
-        centerText('✨ คำนวณตามคัมภีร์สุริยยาตร์ (มาตรฐานโหราศาสตร์ไทย) & พิกัดดาราศาสตร์จริง', 1780, '500 15px "Prompt", sans-serif', '#94A3B8');
-        centerText('🔮 PLB โหราศาสตร์  •  Instagram & TikTok: @Earthyboy12', 1812, '700 17px "Prompt", sans-serif', '#FEF08A');
+        centerText('✨ คำนวณตามคัมภีร์สุริยยาตร์ (มาตรฐานโหราศาสตร์ไทย) & พิกัดดาราศาสตร์จริง', 1780, fontOf('500', 15), '#94A3B8', 960);
+        centerText('🔮 PLB โหราศาสตร์  •  Instagram & TikTok: @Earthyboy12', 1812, fontOf('700', 17), '#FEF08A', 960);
 
       } else {
         // ==========================================
@@ -2059,7 +2092,7 @@
         }
 
         ctx.save();
-        ctx.font = '800 34px "Prompt", sans-serif';
+        ctx.font = fontOf('800', 34);
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         const titleGrad = ctx.createLinearGradient(W * 0.5 - 150, 0, W * 0.5 + 150, 0);
@@ -2070,8 +2103,8 @@
         ctx.fillText('PLB โหราศาสตร์', W * 0.5, 102);
         ctx.restore();
 
-        centerText('✦  P L B   A S T R O L O G Y  ✦', 130, '600 13px "Prompt", sans-serif', '#F59E0B');
-        centerText(`ดวงรายวัน • ${thaiDate}`, 150, '500 15px "Prompt", sans-serif', '#E2E8F0');
+        centerText('✦  P L B   A S T R O L O G Y  ✦', 130, fontOf('600', 13), '#F59E0B');
+        centerText(`ดวงรายวัน • ${thaiDate}`, 150, fontOf('500', 15), '#E2E8F0');
 
         // Persona Card (y: 175, h: 160)
         drawRoundedRect(ctx, 60, 175, 960, 160, 24, 'rgba(15, 23, 42, 0.85)', 'rgba(245, 158, 11, 0.4)', 1.5);
@@ -2086,42 +2119,31 @@
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        ctx.font = '700 44px "Prompt", sans-serif';
+        ctx.font = fontOf('700', 44);
         ctx.fillStyle = '#FEF08A';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(zSymbol, 140, 253);
         ctx.restore();
 
-        // Info
-        ctx.save();
-        ctx.textBaseline = 'middle';
-        ctx.font = '700 26px "Prompt", sans-serif';
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillText(`คุณ${info.name || 'เจ้าชะตา'}`, 210, 225);
-
-        ctx.font = '700 21px "Prompt", sans-serif';
-        ctx.fillStyle = '#FDE047';
-        ctx.fillText(`ลัคนาราศี${asc.signName} (${asc.signDegree}° ${asc.arcMinutes}')`, 210, 260);
-
-        ctx.font = '400 15px "Prompt", sans-serif';
-        ctx.fillStyle = '#94A3B8';
-        ctx.fillText(`📍 สถานที่จร: ${tLoc.province}  •  ☀️ ตะวันขึ้น ${tLoc.sunriseTime} น.`, 210, 292);
-        ctx.restore();
+        // Persona Info (auto-clamped)
+        drawTextLeftAt(ctx, `คุณ${info.name || 'เจ้าชะตา'}`, 210, 225, fontOf('700', 26), '#FFFFFF', 570);
+        drawTextLeftAt(ctx, `ลัคนาราศี${asc.signName} (${asc.signDegree}° ${asc.arcMinutes}')`, 210, 260, fontOf('700', 21), '#FDE047', 570);
+        drawTextLeftAt(ctx, `📍 สถานที่จร: ${tLoc.province}  •  ☀️ ตะวันขึ้น ${tLoc.sunriseTime} น.`, 210, 292, fontOf('400', 15), '#94A3B8', 570);
 
         // Score Box (x: 810, w: 185 -> center: 902.5)
         drawRoundedRect(ctx, 810, 195, 185, 120, 20, 'rgba(3, 7, 18, 0.8)', 'rgba(245, 158, 11, 0.35)', 1);
-        drawTextCenteredAt(ctx, `${overall.score}%`, 902.5, 235, '800 36px "Prompt", sans-serif', '#FBBF24', 165);
-        drawTextCenteredAt(ctx, `${'⭐'.repeat(overall.ratingStars)} ${overall.statusLabel}`, 902.5, 282, '700 14px "Prompt", sans-serif', overall.score >= 85 ? '#34D399' : overall.score >= 70 ? '#FBBF24' : '#F87171', 165);
+        drawTextCenteredAt(ctx, `${overall.score}%`, 902.5, 235, fontOf('800', 36), '#FBBF24', 165);
+        drawTextCenteredAt(ctx, `${'⭐'.repeat(overall.ratingStars)} ${overall.statusLabel}`, 902.5, 282, fontOf('700', 14), overall.score >= 85 ? '#34D399' : overall.score >= 70 ? '#FBBF24' : '#F87171', 165);
 
         // Theme Banner (y: 355, h: 58)
         drawRoundedRect(ctx, 60, 355, 960, 58, 16, 'rgba(245, 158, 11, 0.12)', 'rgba(245, 158, 11, 0.3)', 1);
-        centerText(`🌟 ${overall.theme}`, 384, '700 19px "Prompt", sans-serif', '#FEF08A', 900);
+        centerText(`🌟 ${overall.theme}`, 384, fontOf('700', 19), '#FEF08A', 900);
 
         // Summary (y: 430, h: 140)
         drawRoundedRect(ctx, 60, 430, 960, 140, 20, 'rgba(15, 23, 42, 0.65)', 'rgba(255, 255, 255, 0.08)', 1);
         ctx.save();
-        ctx.font = '500 17px "Prompt", sans-serif';
+        ctx.font = fontOf('500', 17);
         ctx.fillStyle = '#F1F5F9';
         ctx.textBaseline = 'alphabetic';
         const sumLines = wrapThaiText(ctx, overall.summary, 900);
@@ -2143,16 +2165,16 @@
         catCols.forEach((c, idx) => {
           const bx = 60 + idx * (barW + 18);
           drawRoundedRect(ctx, bx, 590, barW, 72, 16, 'rgba(15, 23, 42, 0.75)', 'rgba(255, 255, 255, 0.08)', 1);
-          ctx.save();
-          ctx.font = '700 14px "Prompt", sans-serif';
-          ctx.fillStyle = '#94A3B8';
-          ctx.fillText(`${c.icon} ${c.title}`, bx + 14, 618);
+          drawTextLeftAt(ctx, `${c.icon} ${c.title}`, bx + 14, 618, fontOf('700', 14), '#94A3B8', barW - 28);
 
-          ctx.font = '800 18px "Prompt", sans-serif';
+          ctx.save();
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          ctx.font = fontOf('800', 18);
           ctx.fillStyle = '#FBBF24';
           ctx.fillText(`${c.score}%`, bx + 14, 646);
 
-          ctx.font = '600 12px "Prompt", sans-serif';
+          ctx.font = fontOf('600', 12);
           ctx.fillStyle = c.score >= 85 ? '#34D399' : '#FBBF24';
           ctx.textAlign = 'right';
           ctx.fillText(c.status, bx + barW - 14, 646);
@@ -2163,7 +2185,7 @@
         drawRoundedRect(ctx, 60, 685, 960, 300, 24, 'rgba(15, 23, 42, 0.85)', 'rgba(245, 158, 11, 0.45)', 1.5);
         
         ctx.save();
-        ctx.font = '700 18px "Prompt", sans-serif';
+        ctx.font = fontOf('700', 18);
         ctx.fillStyle = '#FEF08A';
         ctx.fillText('🔮 เกร็ดมงคลเสริมดวงประจำวัน (มหาทักษาจร)', 90, 720);
         ctx.restore();
@@ -2178,31 +2200,30 @@
         sqColors.forEach((c, idx) => {
           const cx = 90 + idx * (212 + 16);
           drawRoundedRect(ctx, cx, 740, 212, 60, 14, 'rgba(3, 7, 18, 0.6)', 'rgba(255, 255, 255, 0.08)', 1);
-          ctx.save();
-          ctx.font = '600 12px "Prompt", sans-serif';
-          ctx.fillStyle = c.col;
-          ctx.fillText(`สีเสริม${c.label}:`, cx + 12, 762);
-
-          ctx.font = '700 14px "Prompt", sans-serif';
-          ctx.fillStyle = '#FFFFFF';
-          ctx.fillText(c.val, cx + 12, 785);
-          ctx.restore();
+          drawTextLeftAt(ctx, `สีเสริม${c.label}:`, cx + 12, 762, fontOf('600', 12), c.col, 188);
+          drawTextLeftAt(ctx, c.val, cx + 12, 785, fontOf('700', 14), '#FFFFFF', 188);
         });
 
         // Numbers & Time (y: 818, h: 56, 3 equal columns centered at 240, 540, 840)
         drawRoundedRect(ctx, 90, 818, 900, 56, 14, 'rgba(3, 7, 18, 0.5)', 'rgba(255, 255, 255, 0.06)', 1);
-        drawTextCenteredAt(ctx, `🎯 เลขเด่น: ${lucky.luckyNumbers.join(' - ')}`, 240, 846, '700 15px "Prompt", sans-serif', '#FDE047', 280);
-        drawTextCenteredAt(ctx, `⏰ ฤกษ์มงคล: ${lucky.auspiciousTime.split('(')[0].trim()}`, 540, 846, '600 14px "Prompt", sans-serif', '#FFFFFF', 280);
-        drawTextCenteredAt(ctx, `🧭 ทิศมงคล: ${lucky.luckyDirection ? lucky.luckyDirection.split('(')[0].trim() : 'ทิศเหนือ'}`, 840, 846, '600 14px "Prompt", sans-serif', '#CBD5E1', 280);
+        drawTextCenteredAt(ctx, `🎯 เลขเด่น: ${lucky.luckyNumbers.join(' - ')}`, 240, 846, fontOf('700', 15), '#FDE047', 280);
+        drawTextCenteredAt(ctx, `⏰ ฤกษ์มงคล: ${lucky.auspiciousTime.split('(')[0].trim()}`, 540, 846, fontOf('600', 14), '#FFFFFF', 280);
+        drawTextCenteredAt(ctx, `🧭 ทิศมงคล: ${lucky.luckyDirection ? lucky.luckyDirection.split('(')[0].trim() : 'ทิศเหนือ'}`, 840, 846, fontOf('600', 14), '#CBD5E1', 280);
 
         // Sacred Chant (y: 890)
         if (lucky.dailyChant) {
           drawRoundedRect(ctx, 90, 890, 900, 75, 16, 'rgba(245, 158, 11, 0.08)', 'rgba(245, 158, 11, 0.3)', 1);
-          centerText(`📿 ${lucky.dailyChant.title}: "${lucky.dailyChant.mantra}"`, 927, '700 15px "Prompt", sans-serif', '#FEF08A', 860);
+          centerText(`📿 ${lucky.dailyChant.title}: "${lucky.dailyChant.mantra}"`, 927, fontOf('700', 15), '#FEF08A', 860);
         }
 
         // Footer Bar (y: 1025)
-        centerText('🔮 PLB โหราศาสตร์  •  Instagram & TikTok: @Earthyboy12', 1030, '700 16px "Prompt", sans-serif', '#FEF08A');
+        centerText('🔮 PLB โหราศาสตร์  •  Instagram & TikTok: @Earthyboy12', 1030, fontOf('700', 16), '#FEF08A');
+      }
+
+      // Update preview image element for crisp Retina display & iOS touch-to-save
+      const previewImg = document.getElementById('exportPreviewImg');
+      if (previewImg) {
+        previewImg.src = canvas.toDataURL('image/png');
       }
     }
 
