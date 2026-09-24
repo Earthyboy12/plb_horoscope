@@ -35,14 +35,69 @@
       color: #f8fafc;
       font-family: 'Sarabun', sans-serif;
     }
+
+    /* Cute Mascot & Menu Shimmer Animations */
+    @keyframes mascot-float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-7px) rotate(2.5deg); }
+    }
+    .animate-float-mascot {
+      animation: mascot-float 3.2s ease-in-out infinite;
+    }
+    @keyframes mascot-wiggle {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      20% { transform: rotate(-14deg) scale(1.18); }
+      40% { transform: rotate(14deg) scale(1.18); }
+      60% { transform: rotate(-8deg) scale(1.1); }
+      80% { transform: rotate(8deg) scale(1.05); }
+    }
+    .animate-wiggle {
+      animation: mascot-wiggle 0.65s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+    }
+    @keyframes shimmer-sweep {
+      0% { transform: translateX(-160%) skewX(-25deg); }
+      100% { transform: translateX(260%) skewX(-25deg); }
+    }
+    .shimmer-active {
+      position: relative;
+      overflow: hidden;
+    }
+    .shimmer-active::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+      animation: shimmer-sweep 2.8s infinite;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-[#070a13] text-slate-100 p-4 pb-12 flex flex-col items-center">
 
   <div class="w-full max-w-md mx-auto">
-    <!-- Header -->
-    <div class="text-center my-4">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold mb-2">
+    <!-- Header with 3D Polar Bear Wizard Mascot -->
+    <div class="text-center my-4 flex flex-col items-center">
+      <!-- Mascot Avatar with Floating Animation & Sparkle -->
+      <div onclick="wiggleMascot()" class="relative cursor-pointer group mb-3" title="แตะน้องหมีหมอดู PLB เพื่อรับความสดใส ✨">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-amber-400 ring-4 ring-amber-400/40 shadow-xl shadow-amber-500/40 animate-float-mascot group-hover:scale-110 transition-transform">
+          <img src="/bear_wizard.jpg" alt="น้องหมีหมอดู PLB" class="w-full h-full object-cover" />
+        </div>
+        <span class="absolute -top-1 -right-1 flex h-5 w-5">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-5 w-5 bg-amber-400 text-[11px] items-center justify-center font-bold text-slate-950">✨</span>
+        </span>
+      </div>
+
+      <!-- Mascot Speech Bubble -->
+      <div id="mascotBubble" onclick="wiggleMascot()" class="cursor-pointer text-xs text-amber-200 font-extrabold inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-950/90 via-slate-900/90 to-amber-950/80 px-3.5 py-1.5 rounded-full border border-amber-400/40 shadow-sm active:scale-95 transition-all hover:border-amber-400 mb-2.5">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
+        </span>
+        <span id="mascotSpeechText">ยินดีต้อนรับครับ! บันทึกข้อมูลเพียงครั้งเดียว ระบบจะจำไว้ตลอดไปน้า 🐻‍❄️💖</span>
+      </div>
+
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold mb-1">
         <span>🔮</span> PLB โหราศาสตร์ • LINE Official
       </div>
       <h1 class="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-200 to-yellow-400">
@@ -55,7 +110,7 @@
 
     <!-- Tab Buttons -->
     <div class="grid grid-cols-2 gap-2 p-1 bg-slate-900/80 border border-slate-800 rounded-xl mb-4 text-xs font-bold">
-      <button id="tabNatalBtn" onclick="switchTab('natal')" class="py-2.5 px-3 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md transition-all text-center">
+      <button id="tabNatalBtn" onclick="switchTab('natal')" class="shimmer-active py-2.5 px-3 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md transition-all text-center">
         🌟 ข้อมูลดวงกำเนิด
       </button>
       <button id="tabTransitBtn" onclick="switchTab('transit')" class="py-2.5 px-3 rounded-lg text-slate-300 hover:text-white transition-all text-center">
@@ -258,6 +313,40 @@
       "ทวีวัฒนา", "ทุ่งครุ", "บางบอน"
     ];
 
+    const MASCOT_CHEERS = [
+      "ยินดีต้อนรับครับ! บันทึกข้อมูลเพียงครั้งเดียว ระบบจะจำไว้ตลอดไปน้า 🐻‍❄️💖",
+      "กรอกเวลาเกิดตามสูติบัตร จะทำให้ลัคนาแม่นยำระดับนาทีเลยครับ! 🌟",
+      "หากย้ายที่อยู่หรือเดินทาง แวะมาอัปเดตสถานที่จรได้ตลอดน้า 🧭",
+      "น้องหมีพร้อมคำนวณตำแหน่งดาวจริง 10 ดวงให้คุณแล้วครับ! ✨",
+      "ขอให้วันนี้เป็นวันที่ราบรื่นและมีโชคลาภเฮงๆ ปังๆ ครับผม! 🍯"
+    ];
+    let cheerIdx = 0;
+
+    function wiggleMascot() {
+      const mascot = document.querySelector('.animate-float-mascot');
+      const speech = document.getElementById('mascotSpeechText');
+      if (mascot) {
+        mascot.classList.remove('animate-wiggle');
+        void mascot.offsetWidth;
+        mascot.classList.add('animate-wiggle');
+      }
+      if (speech) {
+        cheerIdx = (cheerIdx + 1) % MASCOT_CHEERS.length;
+        speech.textContent = MASCOT_CHEERS[cheerIdx];
+      }
+    }
+
+    function setMascotQuote(text) {
+      const speech = document.getElementById('mascotSpeechText');
+      if (speech) speech.textContent = text;
+      const mascot = document.querySelector('.animate-float-mascot');
+      if (mascot) {
+        mascot.classList.remove('animate-wiggle');
+        void mascot.offsetWidth;
+        mascot.classList.add('animate-wiggle');
+      }
+    }
+
     let PROVINCES = [];
     let latestLineChatMsg = "สรุปดวงประจำวัน";
 
@@ -269,15 +358,17 @@
       const transitCard = document.getElementById('transitCard');
 
       if (tab === 'natal') {
-        natalBtn.className = "py-2.5 px-3 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md transition-all text-center";
+        natalBtn.className = "shimmer-active py-2.5 px-3 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md transition-all text-center";
         transitBtn.className = "py-2.5 px-3 rounded-lg text-slate-300 hover:text-white transition-all text-center";
         natalCard.classList.remove('hidden');
         transitCard.classList.add('hidden');
+        setMascotQuote("🌟 ข้อมูลดวงกำเนิด กรอกวันเวลาเกิดเพื่อผูกดวงแท้จริงครับ 🐻‍❄️✨");
       } else {
-        transitBtn.className = "py-2.5 px-3 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-md transition-all text-center";
+        transitBtn.className = "shimmer-active py-2.5 px-3 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-md transition-all text-center";
         natalBtn.className = "py-2.5 px-3 rounded-lg text-slate-300 hover:text-white transition-all text-center";
         transitCard.classList.remove('hidden');
         natalCard.classList.add('hidden');
+        setMascotQuote("📍 สถานที่จร เปลี่ยนพิกัดรับพลังงานดวงดาว ณ ที่อยู่ปัจจุบันครับ 🧭");
       }
     }
 

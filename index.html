@@ -189,6 +189,41 @@
     .animate-golden-glow {
       animation: golden-glow 2s ease-in-out infinite;
     }
+
+    /* Cute Polar Bear Mascot & Menu Animations */
+    @keyframes mascot-float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-7px) rotate(2.5deg); }
+    }
+    .animate-float-mascot {
+      animation: mascot-float 3.2s ease-in-out infinite;
+    }
+    @keyframes mascot-wiggle {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      20% { transform: rotate(-14deg) scale(1.18); }
+      40% { transform: rotate(14deg) scale(1.18); }
+      60% { transform: rotate(-8deg) scale(1.1); }
+      80% { transform: rotate(8deg) scale(1.05); }
+    }
+    .animate-wiggle {
+      animation: mascot-wiggle 0.65s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+    }
+    @keyframes shimmer-sweep {
+      0% { transform: translateX(-160%) skewX(-25deg); }
+      100% { transform: translateX(260%) skewX(-25deg); }
+    }
+    .shimmer-active {
+      position: relative;
+      overflow: hidden;
+    }
+    .shimmer-active::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+      animation: shimmer-sweep 2.8s infinite;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body class="min-h-screen astrology-bg flex flex-col selection:bg-amber-500 selection:text-black">
@@ -436,39 +471,57 @@
     <div id="categoryNavWrapper" class="sticky top-[52px] sm:top-[60px] z-30 -mx-3.5 sm:-mx-4 px-3.5 sm:px-4 py-2.5 sm:py-3 bg-[#030611]/98 backdrop-blur-md border-y-2 border-amber-500/50 shadow-2xl shadow-amber-500/20">
       <div class="max-w-6xl mx-auto flex flex-col gap-2">
         <div class="flex items-center justify-between gap-2 flex-wrap">
-          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 text-slate-950 font-black text-xs sm:text-sm border-2 border-yellow-200 ring-2 ring-amber-400/50 animate-golden-glow shadow-lg">
-            <span class="text-lg sm:text-xl drop-shadow">🔮🧙‍♀️</span>
-            <span class="text-xs sm:text-sm font-black text-slate-950 tracking-wide uppercase drop-shadow-sm">
-              เลือกหมวดดูดวง:
-            </span>
-            <span class="text-lg sm:text-xl animate-point-y drop-shadow">👇</span>
+          <!-- Cute Mascot & Category Title -->
+          <div class="flex items-center gap-2.5">
+            <!-- Animated 3D Polar Bear Wizard Mascot -->
+            <div onclick="wiggleMascot()" class="relative cursor-pointer group flex-shrink-0" title="แตะน้องหมีขั้วโลกเพื่อรับพรนำโชค ✨">
+              <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-amber-400 ring-2 ring-amber-400/50 shadow-lg shadow-amber-500/40 animate-float-mascot group-hover:scale-110 transition-transform">
+                <img src="/bear_wizard.jpg" alt="น้องหมีหมอดู PLB" class="w-full h-full object-cover" />
+              </div>
+              <span class="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-amber-400 text-[9px] items-center justify-center font-bold text-slate-950">✨</span>
+              </span>
+            </div>
+
+            <!-- Banner Pill -->
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 text-slate-950 font-black text-xs sm:text-sm border-2 border-yellow-200 ring-2 ring-amber-400/50 animate-golden-glow shadow-lg">
+              <span class="text-lg sm:text-xl drop-shadow">🔮🧙‍♀️</span>
+              <span class="text-xs sm:text-sm font-black text-slate-950 tracking-wide uppercase drop-shadow-sm">
+                เลือกหมวดดูดวง:
+              </span>
+              <span class="text-lg sm:text-xl animate-point-y drop-shadow">👇</span>
+            </div>
           </div>
-          <span class="text-[11px] sm:text-xs text-amber-300 font-extrabold flex items-center gap-1.5 bg-amber-500/20 px-3 py-1.5 rounded-full border border-amber-400/40 shadow-sm">
+
+          <!-- Cute Interactive Mascot Speech Bubble -->
+          <div id="mascotBubble" onclick="wiggleMascot()" class="cursor-pointer text-[11px] sm:text-xs text-amber-200 font-extrabold flex items-center gap-1.5 bg-gradient-to-r from-amber-950/80 via-slate-900/90 to-amber-950/80 px-3 py-1.5 rounded-full border border-amber-400/40 shadow-sm active:scale-95 transition-all hover:border-amber-400">
             <span class="relative flex h-2 w-2">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
               <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
             </span>
-            <span>แตะเปลี่ยนหมวดทันที ⚡</span>
-          </span>
+            <span id="mascotSpeechText">น้องหมีชวนดูดวง แตะเลือกหมวดได้เลยน้าา 🐻‍❄️✨</span>
+          </div>
         </div>
+
         <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none pt-0.5">
-          <button onclick="setCategoryTab('all')" id="tab-all" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap bg-amber-500 text-slate-950 border border-amber-400 shadow-md shadow-amber-500/25 transition-all active:scale-95">
-            🌟 สรุปรวม
+          <button onclick="setCategoryTab('all')" id="tab-all" class="cat-tab shimmer-active px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap bg-amber-500 text-slate-950 border border-amber-400 shadow-md shadow-amber-500/25 transition-all active:scale-95 flex items-center gap-1.5">
+            <span class="animate-pulse">🌟</span> <span>สรุปรวม</span>
           </button>
-          <button onclick="setCategoryTab('career')" id="tab-career" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 transition-all active:scale-95">
-            💼 การงาน
+          <button onclick="setCategoryTab('career')" id="tab-career" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 transition-all active:scale-95 flex items-center gap-1.5 hover:text-white">
+            <span>🐻‍❄️💼</span> <span>การงาน</span>
           </button>
-          <button onclick="setCategoryTab('finance')" id="tab-finance" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 transition-all active:scale-95">
-            💰 การเงิน
+          <button onclick="setCategoryTab('finance')" id="tab-finance" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 transition-all active:scale-95 flex items-center gap-1.5 hover:text-white">
+            <span>🐻‍❄️💰</span> <span>การเงิน</span>
           </button>
-          <button onclick="setCategoryTab('love')" id="tab-love" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 transition-all active:scale-95">
-            ❤️ ความรัก
+          <button onclick="setCategoryTab('love')" id="tab-love" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 transition-all active:scale-95 flex items-center gap-1.5 hover:text-white">
+            <span>🐻‍❄️❤️</span> <span>ความรัก</span>
           </button>
-          <button onclick="setCategoryTab('health')" id="tab-health" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 transition-all active:scale-95">
-            🛡️ สุขภาพ
+          <button onclick="setCategoryTab('health')" id="tab-health" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 transition-all active:scale-95 flex items-center gap-1.5 hover:text-white">
+            <span>🐻‍❄️🩺</span> <span>สุขภาพ</span>
           </button>
-          <button onclick="setCategoryTab('lucky')" id="tab-lucky" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 transition-all active:scale-95">
-            🔮 เกร็ดมงคล
+          <button onclick="setCategoryTab('lucky')" id="tab-lucky" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 transition-all active:scale-95 flex items-center gap-1.5 hover:text-white">
+            <span>🐻‍❄️🔮</span> <span>เกร็ดมงคล</span>
           </button>
         </div>
       </div>
@@ -1354,14 +1407,57 @@
       `;
     }
 
+    const MASCOT_TAB_QUOTES = {
+      all: "🌟 สรุปรวม 4 มิติชีวิต ขอให้เป็นวันที่ยอดเยี่ยมของคุณน้า 🐻‍❄️✨",
+      career: "💼 หมวดการงาน ผู้ใหญ่เมตตา งานสำเร็จลุล่วงแน่นอนครับ! 🌟",
+      finance: "💰 หมวดการเงิน กระเป๋าตุง รับทรัพย์เฮงๆ ปังๆ ครับ! 💵",
+      love: "❤️ หมวดความรัก เสน่ห์แพรวพราว ใครเห็นก็หลงรักครับ 💕",
+      health: "🩺 หมวดสุขภาพ พลังกายพลังใจสดใส ร่างกายแข็งแรงครับ! 🛡️",
+      lucky: "🔮 เกร็ดมงคล เลขเด็ด สีนำโชค เสริมดวงพุ่งแรงครับ ✨"
+    };
+
+    const MASCOT_RANDOM_CHEERS = [
+      "🎉 วันนี้ลัคนาเปิดเต็มที่ รับโชคลาภเฮงๆ ปังๆ ครับ! 🐻‍❄️✨",
+      "💼 การงานราบรื่น มีผู้ใหญ่คอยหนุนหลังน้าา 🌟",
+      "💰 กระเป๋าตุง เงินทองไหลมาเทมาตลอดวันครับ! 💵",
+      "❤️ เสน่ห์แรงเกินต้าน ใครเห็นก็รักใคร่เอ็นดูครับผม 💕",
+      "🩺 สุขภาพแข็งแรง พลังกายใจเต็มเปี่ยม 100% ครับ! 🛡️",
+      "🔮 ลัคนาราศีมีเกณฑ์ดาวเด่น หนุนนำวาสนาสูงสุดครับ ✨"
+    ];
+    let mascotCheerIdx = 0;
+
+    function wiggleMascot() {
+      const mascot = document.querySelector('.animate-float-mascot');
+      const speech = document.getElementById('mascotSpeechText');
+      if (mascot) {
+        mascot.classList.remove('animate-wiggle');
+        void mascot.offsetWidth;
+        mascot.classList.add('animate-wiggle');
+      }
+      if (speech) {
+        mascotCheerIdx = (mascotCheerIdx + 1) % MASCOT_RANDOM_CHEERS.length;
+        speech.textContent = MASCOT_RANDOM_CHEERS[mascotCheerIdx];
+      }
+    }
+
     function setCategoryTab(tab) {
       state.activeTab = tab;
       document.querySelectorAll('.cat-tab').forEach(b => {
-        b.className = "cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 transition-all active:scale-95";
+        b.className = "cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 transition-all active:scale-95 flex items-center gap-1.5 hover:text-white";
       });
       const activeBtn = document.getElementById('tab-' + tab);
       if (activeBtn) {
-        activeBtn.className = "cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap bg-amber-500 text-slate-950 border border-amber-400 shadow-md shadow-amber-500/25 transition-all active:scale-95";
+        activeBtn.className = "cat-tab shimmer-active px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap bg-amber-500 text-slate-950 border-2 border-amber-300 ring-2 ring-amber-400/50 shadow-lg shadow-amber-500/30 transition-all active:scale-95 flex items-center gap-1.5";
+      }
+      const speech = document.getElementById('mascotSpeechText');
+      if (speech && MASCOT_TAB_QUOTES[tab]) {
+        speech.textContent = MASCOT_TAB_QUOTES[tab];
+        const mascot = document.querySelector('.animate-float-mascot');
+        if (mascot) {
+          mascot.classList.remove('animate-wiggle');
+          void mascot.offsetWidth;
+          mascot.classList.add('animate-wiggle');
+        }
       }
       renderCards();
 

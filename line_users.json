@@ -82,7 +82,7 @@
     "transit_province": "กรุงเทพมหานคร",
     "transit_district": "พระนคร",
     "registered": true,
-    "check_count": 2,
+    "check_count": 4,
     "streak": 1,
     "last_check_date": "2026-09-24",
     "created_at": "2026-09-24T16:19:40.008518",
@@ -97,6 +97,16 @@
         "date": "2026-09-24",
         "score": 82,
         "time": "16:22"
+      },
+      {
+        "date": "2026-09-24",
+        "score": 85,
+        "time": "16:32"
+      },
+      {
+        "date": "2026-09-24",
+        "score": 82,
+        "time": "16:33"
       }
     ]
   },

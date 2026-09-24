@@ -160,6 +160,13 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
         "contents": {
             "type": "bubble",
             "size": "mega",
+            "hero": {
+                "type": "image",
+                "url": f"{web_url}/bear_wizard.jpg",
+                "size": "full",
+                "aspectRatio": "20:13",
+                "aspectMode": "cover"
+            },
             "header": {
                 "type": "box",
                 "layout": "vertical",
@@ -561,6 +568,13 @@ def build_stats_flex(user: dict, horoscope: dict, days_history: list = None) -> 
         "contents": {
             "type": "bubble",
             "size": "mega",
+            "hero": {
+                "type": "image",
+                "url": "https://plb-horoscope.vercel.app/bear_explorer.jpg",
+                "size": "full",
+                "aspectRatio": "20:13",
+                "aspectMode": "cover"
+            },
             "header": {
                 "type": "box",
                 "layout": "vertical",
@@ -752,14 +766,22 @@ def build_stats_flex(user: dict, horoscope: dict, days_history: list = None) -> 
         }
     }
 
-def build_category_menu_flex() -> dict:
+def build_category_menu_flex(web_url: str = "https://plb-horoscope.vercel.app") -> dict:
     """Build an interactive luxury card to choose horoscope categories."""
+    web_url = web_url or "https://plb-horoscope.vercel.app"
     return {
         "type": "flex",
         "altText": "🔮 เลือกหมวดดูดวงเจาะลึก (การงาน, การเงิน, ความรัก, สุขภาพ)",
         "contents": {
             "type": "bubble",
             "size": "mega",
+            "hero": {
+                "type": "image",
+                "url": f"{web_url}/bear_wizard.jpg",
+                "size": "full",
+                "aspectRatio": "20:13",
+                "aspectMode": "cover"
+            },
             "header": {
                 "type": "box",
                 "layout": "vertical",
@@ -953,12 +975,28 @@ def build_category_flex(category_key: str, category_data: dict, asc_name: str, d
             "margin": "xs"
         })
 
+    HERO_URLS = {
+        "career": "https://plb-horoscope.vercel.app/bear_explorer.jpg",
+        "finance": "https://plb-horoscope.vercel.app/bear_fortune.jpg",
+        "love": "https://plb-horoscope.vercel.app/bear_love.jpg",
+        "health": "https://plb-horoscope.vercel.app/bear_wizard.jpg",
+        "zodiac": "https://plb-horoscope.vercel.app/bear_explorer.jpg"
+    }
+    cat_hero = HERO_URLS.get(category_key, "https://plb-horoscope.vercel.app/bear_wizard.jpg")
+
     return {
         "type": "flex",
         "altText": f"{title} (ลัคนาราศี{asc_name}): {score}%",
         "contents": {
             "type": "bubble",
             "size": "mega",
+            "hero": {
+                "type": "image",
+                "url": cat_hero,
+                "size": "full",
+                "aspectRatio": "20:13",
+                "aspectMode": "cover"
+            },
             "header": {
                 "type": "box",
                 "layout": "vertical",
@@ -1314,14 +1352,22 @@ def get_category_quick_reply() -> dict:
         ]
     }
 
-def build_share_flex() -> dict:
+def build_share_flex(web_url: str = "https://plb-horoscope.vercel.app") -> dict:
     """Build a cute share invitation card for LINE OA."""
+    web_url = web_url or "https://plb-horoscope.vercel.app"
     return {
         "type": "flex",
         "altText": "ชวนเพื่อนมาดูดวงกับน้องหมี PLB โหราศาสตร์ 🐻‍❄️✨",
         "contents": {
             "type": "bubble",
             "size": "mega",
+            "hero": {
+                "type": "image",
+                "url": f"{web_url}/bear_love.jpg",
+                "size": "full",
+                "aspectRatio": "20:13",
+                "aspectMode": "cover"
+            },
             "header": {
                 "type": "box",
                 "layout": "vertical",
