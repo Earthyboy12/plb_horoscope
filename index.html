@@ -538,23 +538,27 @@
       <!-- Injected via JS -->
     </div>
 
-    <!-- Accuracy Rating & Feedback Card -->
-    <div id="ratingFeedbackSection" class="bg-gradient-to-br from-slate-900/95 via-slate-900 to-amber-950/30 border border-amber-500/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 backdrop-blur-md shadow-2xl relative overflow-hidden">
-      <!-- Ambient Glow -->
-      <div class="absolute -top-12 -right-12 w-44 h-44 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <!-- Accuracy Rating & Feedback Card (Distinct Deep Violet / Amethyst Theme) -->
+    <div id="ratingFeedbackSection" class="bg-gradient-to-br from-[#1a0f3c] via-[#140a30] to-[#0d0620] border-2 border-purple-500/60 rounded-2xl sm:rounded-3xl p-4 sm:p-6 backdrop-blur-md shadow-2xl shadow-purple-950/60 relative overflow-hidden ring-1 ring-purple-400/30">
+      <!-- Ambient Purple Glow -->
+      <div class="absolute -top-16 -right-16 w-56 h-56 bg-purple-600/25 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-16 -left-16 w-56 h-56 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div class="flex items-center justify-between gap-3 mb-3.5 border-b border-slate-800/80 pb-3">
+      <div class="flex items-center justify-between gap-3 mb-3.5 border-b border-purple-500/30 pb-3 flex-wrap">
         <div class="flex items-center gap-2.5">
-          <span class="text-2xl sm:text-3xl">🔮🧙‍♀️</span>
+          <span class="text-3xl sm:text-4xl drop-shadow">🔮🧙‍♀️</span>
           <div>
-            <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
-              ประเมินความแม่นยำดวงวันนี้
-              <span class="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40 font-bold">
-                บอกแม่หมอ ✨
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="text-base sm:text-lg font-black text-white">
+                ประเมินความแม่นยำดวงวันนี้
+              </h3>
+              <span class="text-[11px] sm:text-xs px-2.5 py-0.5 rounded-full bg-purple-500/30 text-purple-200 border border-purple-400/50 font-bold flex items-center gap-1 shadow-sm">
+                <span class="w-1.5 h-1.5 rounded-full bg-purple-300 animate-pulse"></span>
+                <span>แบบประเมินผล • Feedback</span>
               </span>
-            </h3>
-            <p class="text-xs sm:text-sm text-slate-300 mt-0.5">
-              คำพยากรณ์ตรงกับเรื่องราวของคุณในวันนี้แค่ไหน? ร่วมให้คะแนนดาวและแนะนำแม่หมอได้เลยนะคะ
+            </div>
+            <p class="text-xs sm:text-sm text-purple-200/90 mt-0.5">
+              📌 ส่วนนี้สำหรับส่งคะแนนและข้อเสนอแนะให้แม่หมอ <span class="text-purple-300 font-semibold">(ไม่ใช่คำทำนายดวงชะตา)</span>
             </p>
           </div>
         </div>
@@ -563,14 +567,14 @@
       <!-- Rating Form -->
       <div id="ratingFormContainer">
         <!-- Interactive 5 Stars -->
-        <div class="my-3.5 text-center bg-slate-950/70 border border-slate-800/90 rounded-2xl p-4">
-          <div class="text-xs sm:text-sm font-semibold text-slate-300 mb-2">แตะที่ดาวเพื่อให้คะแนน (1 - 5 ดาว)</div>
+        <div class="my-3.5 text-center bg-[#0d0620]/90 border border-purple-500/40 rounded-2xl p-4 shadow-inner">
+          <div class="text-xs sm:text-sm font-semibold text-purple-200 mb-1.5">แตะที่ดาวเพื่อให้คะแนนความแม่นยำ (1 - 5 ดาว)</div>
           <div class="flex items-center justify-center gap-2 sm:gap-3 py-1" id="starRatingGroup">
-            <button type="button" onclick="setRating(1)" onmouseover="hoverRating(1)" onmouseout="resetHoverRating()" class="star-btn text-3xl sm:text-4xl transition-all transform active:scale-125 focus:outline-none text-slate-700 hover:text-amber-400">★</button>
-            <button type="button" onclick="setRating(2)" onmouseover="hoverRating(2)" onmouseout="resetHoverRating()" class="star-btn text-3xl sm:text-4xl transition-all transform active:scale-125 focus:outline-none text-slate-700 hover:text-amber-400">★</button>
-            <button type="button" onclick="setRating(3)" onmouseover="hoverRating(3)" onmouseout="resetHoverRating()" class="star-btn text-3xl sm:text-4xl transition-all transform active:scale-125 focus:outline-none text-slate-700 hover:text-amber-400">★</button>
-            <button type="button" onclick="setRating(4)" onmouseover="hoverRating(4)" onmouseout="resetHoverRating()" class="star-btn text-3xl sm:text-4xl transition-all transform active:scale-125 focus:outline-none text-slate-700 hover:text-amber-400">★</button>
-            <button type="button" onclick="setRating(5)" onmouseover="hoverRating(5)" onmouseout="resetHoverRating()" class="star-btn text-3xl sm:text-4xl transition-all transform active:scale-125 focus:outline-none text-slate-700 hover:text-amber-400">★</button>
+            <button type="button" onclick="setRating(1)" onmouseover="hoverRating(1)" onmouseout="resetHoverRating()" class="star-btn text-3xl sm:text-4xl transition-all transform active:scale-125 focus:outline-none text-purple-400/30 hover:text-amber-400">★</button>
+            <button type="button" onclick="setRating(2)" onmouseover="hoverRating(2)" onmouseout="resetHoverRating()" class="star-btn text-3xl sm:text-4xl transition-all transform active:scale-125 focus:outline-none text-purple-400/30 hover:text-amber-400">★</button>
+            <button type="button" onclick="setRating(3)" onmouseover="hoverRating(3)" onmouseout="resetHoverRating()" class="star-btn text-3xl sm:text-4xl transition-all transform active:scale-125 focus:outline-none text-purple-400/30 hover:text-amber-400">★</button>
+            <button type="button" onclick="setRating(4)" onmouseover="hoverRating(4)" onmouseout="resetHoverRating()" class="star-btn text-3xl sm:text-4xl transition-all transform active:scale-125 focus:outline-none text-purple-400/30 hover:text-amber-400">★</button>
+            <button type="button" onclick="setRating(5)" onmouseover="hoverRating(5)" onmouseout="resetHoverRating()" class="star-btn text-3xl sm:text-4xl transition-all transform active:scale-125 focus:outline-none text-purple-400/30 hover:text-amber-400">★</button>
           </div>
           <div id="ratingLabelText" class="text-xs sm:text-sm font-bold text-amber-300 min-h-[22px] mt-2 transition-all">
             แตะเลือกดาวด้านบนเพื่อประเมิน
@@ -579,21 +583,21 @@
 
         <!-- Comment / Suggestion Textarea -->
         <div class="mb-3.5">
-          <label class="block text-xs sm:text-sm font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
-            <span>💬 เขียนคอมเมนต์สั้นๆ หรือข้อเสนอแนะ (ไม่บังคับ):</span>
-            <span id="commentCharCount" class="text-[11px] text-slate-500">0/300</span>
+          <label class="block text-xs sm:text-sm font-semibold text-purple-200 mb-1.5 flex items-center justify-between">
+            <span>💬 เขียนคอมเมนต์สั้นๆ หรือข้อเสนอแนะถึงแม่หมอ (ไม่บังคับ):</span>
+            <span id="commentCharCount" class="text-[11px] text-purple-300/70">0/300</span>
           </label>
-          <textarea id="feedbackComment" maxlength="300" oninput="updateCharCount()" rows="2" placeholder="เช่น เรื่องงานตรงมากค่ะ, อยากให้เพิ่มฤกษ์เจรจาธุรกิจ, แม่นจนขนลุก ฯลฯ" class="w-full bg-slate-950/80 border border-slate-700/80 rounded-xl p-3 text-xs sm:text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all resize-none"></textarea>
+          <textarea id="feedbackComment" maxlength="300" oninput="updateCharCount()" rows="2" placeholder="เช่น เรื่องงานตรงมากค่ะ, อยากให้เพิ่มฤกษ์เจรจาธุรกิจ, แม่นจนขนลุก ฯลฯ" class="w-full bg-[#0d0620]/90 border border-purple-500/40 rounded-xl p-3 text-xs sm:text-sm text-purple-100 placeholder-purple-300/40 focus:outline-none focus:border-purple-300 focus:ring-1 focus:ring-purple-400 transition-all resize-none"></textarea>
         </div>
 
         <!-- Meta Info & Submit Button -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
-          <div class="text-[11px] sm:text-xs text-slate-400 flex items-center gap-1.5 self-start sm:self-auto">
-            <span>ℹ️ ข้อมูลที่จะบันทึก:</span>
-            <span id="feedbackMetaBadge" class="text-amber-300/90 font-medium">ลัคนา... • วันที่...</span>
+          <div class="text-[11px] sm:text-xs text-purple-300/90 flex items-center gap-1.5 self-start sm:self-auto">
+            <span>ℹ️ ข้อมูลที่จะส่งบันทึก:</span>
+            <span id="feedbackMetaBadge" class="text-amber-300 font-medium">ลัคนา... • วันที่...</span>
           </div>
 
-          <button id="btnSubmitFeedback" onclick="submitFeedback()" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-xs sm:text-sm shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2 active:scale-95 transition-all">
+          <button id="btnSubmitFeedback" onclick="submitFeedback()" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-300 hover:from-amber-300 hover:to-yellow-200 text-slate-950 font-black text-xs sm:text-sm shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2 active:scale-95 transition-all">
             <span>💌</span>
             <span id="btnSubmitFeedbackText">ส่งคะแนน & บันทึกความคิดเห็น</span>
           </button>
@@ -601,15 +605,15 @@
       </div>
 
       <!-- Success Thank You Container (Hidden by default) -->
-      <div id="ratingSuccessContainer" class="hidden text-center py-5 px-4 bg-slate-950/70 border border-emerald-500/40 rounded-2xl">
+      <div id="ratingSuccessContainer" class="hidden text-center py-5 px-4 bg-[#0d0620]/90 border border-emerald-400/50 rounded-2xl">
         <span class="text-3xl sm:text-4xl block mb-2">🎉💖</span>
         <h4 class="text-base sm:text-lg font-black text-emerald-400 mb-1">
           ขอบคุณสำหรับคะแนนและข้อเสนอแนะนะคะ!
         </h4>
-        <p id="ratingSuccessDetail" class="text-xs sm:text-sm text-slate-300 max-w-md mx-auto leading-relaxed mb-3">
+        <p id="ratingSuccessDetail" class="text-xs sm:text-sm text-purple-200/90 max-w-md mx-auto leading-relaxed mb-3">
           แม่หมอได้รับข้อมูลเรียบร้อยแล้ว ทุกคำติชมและคะแนนของคุณคือพลังใจสำคัญที่จะนำไปพัฒนาความแม่นยำให้ดียิ่งขึ้นค่ะ 🙏
         </p>
-        <button onclick="editFeedback()" class="text-xs text-amber-400 hover:text-amber-300 underline font-semibold transition-all">
+        <button onclick="editFeedback()" class="text-xs text-amber-300 hover:text-amber-200 underline font-semibold transition-all">
           ✏️ แตะตรงนี้หากต้องการแก้ไขคะแนนหรือเขียนข้อความใหม่
         </button>
       </div>
@@ -1421,7 +1425,7 @@
         if (idx < activeCount) {
           btn.className = "star-btn text-3xl sm:text-4xl transition-all transform scale-110 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.7)]";
         } else {
-          btn.className = "star-btn text-3xl sm:text-4xl transition-all transform text-slate-700 hover:text-amber-400/60";
+          btn.className = "star-btn text-3xl sm:text-4xl transition-all transform text-purple-400/30 hover:text-amber-400/60";
         }
       });
     }
