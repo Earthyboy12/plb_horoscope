@@ -287,8 +287,14 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
 
         # Check Donation
         if any(k in text_lower for k in ["donate", "สนับสนุน", "บริจาค", "ทำบุญ", "4"]):
-            donation_flex = build_donation_flex()
-            reply_line_message(reply_token, [donation_flex], channel_access_token)
+            qr_url = "https://plb-horoscope.vercel.app/qr_donate.jpg"
+            image_msg = {
+                "type": "image",
+                "originalContentUrl": qr_url,
+                "previewImageUrl": qr_url
+            }
+            donation_flex = build_donation_flex(qr_url=qr_url)
+            reply_line_message(reply_token, [image_msg, donation_flex], channel_access_token)
             return
 
         # Check Category selection
@@ -433,8 +439,14 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             }], channel_access_token)
             
         elif action == "donate":
-            donation_flex = build_donation_flex()
-            reply_line_message(reply_token, [donation_flex], channel_access_token)
+            qr_url = "https://plb-horoscope.vercel.app/qr_donate.jpg"
+            image_msg = {
+                "type": "image",
+                "originalContentUrl": qr_url,
+                "previewImageUrl": qr_url
+            }
+            donation_flex = build_donation_flex(qr_url=qr_url)
+            reply_line_message(reply_token, [image_msg, donation_flex], channel_access_token)
 
 def _record_star_rating(user_id: str, stars: int, user: dict):
     """Forward star rating to Google Sheets Webhook."""

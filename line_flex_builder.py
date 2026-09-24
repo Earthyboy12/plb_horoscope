@@ -534,11 +534,16 @@ def build_feedback_flex() -> dict:
         }
     }
 
-def build_donation_flex(promptpay_no: str = "08X-XXX-XXXX", bank_info: str = "PromptPay พร้อมเพย์") -> dict:
+def build_donation_flex(
+    account_name: str = "นาย เสฏฐพงศ์ เลิศสกุลบรรลือ",
+    bank_info: str = "พร้อมเพย์ (PromptPay) • ttb touch",
+    qr_url: str = "https://plb-horoscope.vercel.app/qr_donate.jpg",
+    account_en: str = "MR SETHAPONG LERTSAKULBUNLUE"
+) -> dict:
     """Build the donation / support flex card."""
     return {
         "type": "flex",
-        "altText": "☕ ร่วมสนับสนุนแม่หมอ PLB โหราศาสตร์",
+        "altText": f"☕ ข้อมูลสนับสนุนแม่หมอ PLB ({account_name})",
         "contents": {
             "type": "bubble",
             "size": "mega",
@@ -548,8 +553,8 @@ def build_donation_flex(promptpay_no: str = "08X-XXX-XXXX", bank_info: str = "Pr
                 "backgroundColor": "#0b0f19",
                 "paddingAll": "16px",
                 "contents": [
-                    {"type": "text", "text": "☕ สนับสนุนแม่หมอ PLB", "weight": "bold", "color": "#f59e0b", "size": "md"},
-                    {"type": "text", "text": "ร่วมสมทบทุนค่าเซิร์ฟเวอร์ & พัฒนาระบบ", "color": "#94a3b8", "size": "xxs"}
+                    {"type": "text", "text": "☕ ร่วมสนับสนุนแม่หมอ PLB", "weight": "bold", "color": "#f59e0b", "size": "md"},
+                    {"type": "text", "text": "สมทบทุนค่าเซิร์ฟเวอร์ & พัฒนาระบบดูดวงฟรี ✨", "color": "#94a3b8", "size": "xxs", "margin": "xs"}
                 ]
             },
             "body": {
@@ -559,7 +564,7 @@ def build_donation_flex(promptpay_no: str = "08X-XXX-XXXX", bank_info: str = "Pr
                 "paddingAll": "16px",
                 "contents": [
                     {"type": "text", "text": "ขอบพระคุณทุกท่านจากใจจริงครับ 🙏", "weight": "bold", "size": "sm", "color": "#f8fafc"},
-                    {"type": "text", "text": "เงินสนับสนุนของคุณช่วยให้ระบบคำนวณโหราศาสตร์ไทยชั้นสูง สามารถเปิดให้บริการดูดวงฟรีแก่ทุกคนได้อย่างต่อเนื่องและแม่นยำยิ่งขึ้นครับ ✨", "size": "xs", "color": "#cbd5e1", "wrap": True, "margin": "xs"},
+                    {"type": "text", "text": "เงินสนับสนุนของคุณช่วยเป็นค่าน้ำชา กาแฟ และค่าเซิร์ฟเวอร์พัฒนาระบบคำนวณโหราศาสตร์ไทยชั้นสูง เพื่อเปิดบริการฟรีแก่ทุกคนอย่างต่อเนื่องครับ ✨", "size": "xs", "color": "#cbd5e1", "wrap": True, "margin": "xs"},
                     {
                         "type": "box",
                         "layout": "vertical",
@@ -568,9 +573,12 @@ def build_donation_flex(promptpay_no: str = "08X-XXX-XXXX", bank_info: str = "Pr
                         "cornerRadius": "12px",
                         "paddingAll": "14px",
                         "contents": [
-                            {"type": "text", "text": "📱 ช่องทางพร้อมเพย์ (PromptPay):", "size": "xs", "weight": "bold", "color": "#38bdf8"},
-                            {"type": "text", "text": promptpay_no, "size": "lg", "weight": "bold", "color": "#fbbf24", "margin": "xs"},
-                            {"type": "text", "text": bank_info, "size": "xxs", "color": "#94a3b8", "margin": "xxs"}
+                            {"type": "text", "text": "💳 บัญชีพร้อมเพย์ (PromptPay):", "size": "xs", "weight": "bold", "color": "#38bdf8"},
+                            {"type": "text", "text": account_name, "size": "md", "weight": "bold", "color": "#fbbf24", "margin": "xs"},
+                            {"type": "text", "text": account_en, "size": "xxs", "color": "#94a3b8", "margin": "xxs"},
+                            {"type": "text", "text": f"🏦 {bank_info}", "size": "xs", "color": "#38bdf8", "weight": "bold", "margin": "xs"},
+                            {"type": "separator", "margin": "sm", "color": "#334155"},
+                            {"type": "text", "text": "💡 แตะที่รูปภาพ QR Code ด้านบน เพื่อเปิดเต็มจอ บันทึกภาพลงมือถือ หรือสแกนผ่านแอปธนาคารได้ทันทีครับ", "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "sm"}
                         ]
                     }
                 ]
@@ -580,16 +588,40 @@ def build_donation_flex(promptpay_no: str = "08X-XXX-XXXX", bank_info: str = "Pr
                 "layout": "vertical",
                 "backgroundColor": "#0b0f19",
                 "paddingAll": "12px",
+                "spacing": "xs",
                 "contents": [
                     {
                         "type": "button",
+                        "style": "primary",
+                        "color": "#f59e0b",
+                        "height": "sm",
+                        "action": {
+                            "type": "uri",
+                            "label": "🔍 เปิดรูป QR Code เต็มจอ",
+                            "uri": qr_url
+                        }
+                    },
+                    {
+                        "type": "button",
                         "style": "secondary",
-                        "color": "#334155",
+                        "color": "#1e293b",
+                        "height": "sm",
                         "action": {
                             "type": "postback",
-                            "label": "🌟 กลับไปดูสรุปดวงวันนี้",
+                            "label": "🌟 ดูสรุปดวงประจำวัน",
                             "data": "action=daily_summary",
                             "displayText": "สรุปดวงประจำวัน"
+                        }
+                    },
+                    {
+                        "type": "button",
+                        "style": "secondary",
+                        "color": "#1e293b",
+                        "height": "sm",
+                        "action": {
+                            "type": "uri",
+                            "label": "👥 ชวนเพื่อนดูดวง",
+                            "uri": "https://line.me/R/nv/recommendOA/@374xcoto"
                         }
                     }
                 ]
