@@ -8,5 +8,6 @@ venv/
 .venv/
 .vercel/
 legacy-vite/
-*.log
 feedback.jsonl
+line_users.json
+

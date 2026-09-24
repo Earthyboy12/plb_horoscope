@@ -20,6 +20,14 @@ if hasattr(sys.stderr, 'reconfigure'):
     sys.stderr.reconfigure(encoding='utf-8')
 
 from thai_astrology import get_horoscope, PROVINCES_DICT
+from user_store import get_user, save_user, update_transit_location
+from line_bot_engine import (
+    verify_signature,
+    handle_line_event,
+    push_line_message,
+    compute_user_horoscope
+)
+from line_flex_builder import build_daily_summary_flex
 
 PORT = 5173
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -34,6 +42,9 @@ class HoroscopeHandler(http.server.SimpleHTTPRequestHandler):
         if parsed.path == "/" or parsed.path == "/index.html":
             self.path = "/index.html"
             return super().do_GET()
+        elif parsed.path == "/liff-register.html" or parsed.path == "/liff":
+            self.path = "/liff-register.html"
+            return super().do_GET()
         elif parsed.path == "/api/health":
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -43,9 +54,20 @@ class HoroscopeHandler(http.server.SimpleHTTPRequestHandler):
         elif parsed.path == "/api/astrology/provinces":
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
             provinces_list = [{"name": k, "lat": v["lat"], "lng": v["lng"]} for k, v in PROVINCES_DICT.items()]
             self.wfile.write(json.dumps({"success": True, "data": provinces_list}).encode("utf-8"))
+            return
+        elif parsed.path == "/api/line/user":
+            query = urllib.parse.parse_qs(parsed.query)
+            user_id = query.get("userId", [""])[0]
+            user_data = get_user(user_id)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+            self.wfile.write(json.dumps({"success": True, "data": user_data}, ensure_ascii=False).encode("utf-8"))
             return
         else:
             return super().do_GET()
@@ -102,6 +124,79 @@ class HoroscopeHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(json.dumps({"success": True, "message": "Feedback recorded successfully"}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}, ensure_ascii=False).encode("utf-8"))
+            return
+        elif parsed.path == "/api/line/webhook":
+            signature = self.headers.get("X-Line-Signature", "")
+            content_length = int(self.headers.get("Content-Length", 0))
+            body_bytes = self.rfile.read(content_length)
+            channel_secret = os.environ.get("LINE_CHANNEL_SECRET", "")
+            channel_access_token = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN", "")
+            liff_id = os.environ.get("LIFF_ID", "")
+            web_url = os.environ.get("APP_URL", "https://plb-horoscope.vercel.app")
+
+            if channel_secret and not verify_signature(body_bytes, signature, channel_secret):
+                self.send_response(403)
+                self.end_headers()
+                return
+
+            try:
+                payload = json.loads(body_bytes.decode("utf-8")) if body_bytes else {}
+                events = payload.get("events", [])
+                for ev in events:
+                    handle_line_event(ev, channel_access_token, liff_id, web_url)
+
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(b'{"status":"ok"}')
+            except Exception as e:
+                print(f"Error handling LINE webhook: {e}")
+                self.send_response(500)
+                self.end_headers()
+            return
+        elif parsed.path == "/api/line/register":
+            content_length = int(self.headers.get("Content-Length", 0))
+            body_bytes = self.rfile.read(content_length)
+            try:
+                payload = json.loads(body_bytes.decode("utf-8")) if body_bytes else {}
+                action = payload.get("action", "register_natal")
+                user_id = payload.get("line_user_id", "")
+
+                if action == "update_transit":
+                    prov = payload.get("transit_province", "กรุงเทพมหานคร")
+                    dist = payload.get("transit_district", "")
+                    user = update_transit_location(user_id, prov, dist)
+                else:
+                    user = save_user(user_id, payload)
+
+                # Push celebration or updated summary to LINE chat if valid LINE user ID
+                channel_access_token = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN", "")
+                liff_id = os.environ.get("LIFF_ID", "")
+                web_url = os.environ.get("APP_URL", "https://plb-horoscope.vercel.app")
+                if channel_access_token and user_id.startswith("U"):
+                    try:
+                        horoscope = compute_user_horoscope(user)
+                        summary_flex = build_daily_summary_flex(
+                            user, horoscope,
+                            f"https://liff.line.me/{liff_id}" if liff_id else f"{web_url}/liff-register.html",
+                            web_url
+                        )
+                        msg_text = "🎉 ยินดีด้วยครับ! บันทึกข้อมูลและผูกดวงชะตาสำเร็จแล้ว นี่คือดวงประจำวันของคุณครับ ✨" if action != "update_transit" else f"📍 อัปเดตสถานที่จรเป็น '{payload.get('transit_province')}' เรียบร้อยแล้วครับ!"
+                        push_line_message(user_id, [{"type": "text", "text": msg_text}, summary_flex], channel_access_token)
+                    except Exception as pe:
+                        print(f"Push to LINE warning: {pe}")
+
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "data": user}, ensure_ascii=False).encode("utf-8"))
             except Exception as e:
                 self.send_response(500)
                 self.send_header("Content-Type", "application/json; charset=utf-8")

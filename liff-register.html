@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ลงทะเบียนดวงชะตา - PLB โหราศาสตร์</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Sarabun', 'sans-serif'],
+          },
+          colors: {
+            cosmic: {
+              950: '#070a13',
+              900: '#0b0f19',
+              800: '#111827',
+              700: '#1e293b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #070a13;
+      color: #f8fafc;
+      font-family: 'Sarabun', sans-serif;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-[#070a13] text-slate-100 p-4 pb-12 flex flex-col items-center">
+
+  <div class="w-full max-w-md mx-auto">
+    <!-- Header -->
+    <div class="text-center my-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold mb-2">
+        <span>🔮</span> PLB โหราศาสตร์ • LINE Official
+      </div>
+      <h1 class="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-200 to-yellow-400">
+        ตั้งค่าดวงชะตา & สถานที่จร
+      </h1>
+      <p class="text-xs text-slate-400 mt-1">
+        คำนวณตำแหน่งดาวจริงและอันโตนาทีสามัญระดับเขต/อำเภอ
+      </p>
+    </div>
+
+    <!-- Tab Buttons -->
+    <div class="grid grid-cols-2 gap-2 p-1 bg-slate-900/80 border border-slate-800 rounded-xl mb-4 text-xs font-bold">
+      <button id="tabNatalBtn" onclick="switchTab('natal')" class="py-2.5 px-3 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md transition-all text-center">
+        🌟 ข้อมูลดวงกำเนิด
+      </button>
+      <button id="tabTransitBtn" onclick="switchTab('transit')" class="py-2.5 px-3 rounded-lg text-slate-300 hover:text-white transition-all text-center">
+        📍 เปลี่ยนสถานที่จร
+      </button>
+    </div>
+
+    <!-- Alert / User Greeting Banner -->
+    <div id="userBadge" class="hidden mb-4 p-3 bg-slate-800/80 border border-slate-700 rounded-xl flex items-center gap-3">
+      <img id="userAvatar" src="" class="w-10 h-10 rounded-full border border-amber-400/50 hidden" alt="Avatar">
+      <div class="flex-1 min-w-0">
+        <p class="text-xs text-slate-400">เข้าสู่ระบบ LINE สำเร็จ</p>
+        <p id="userNameDisplay" class="text-sm font-bold text-amber-300 truncate">กำลังโหลดโปรไฟล์...</p>
+      </div>
+    </div>
+
+    <!-- FORM 1: Natal Chart Registration -->
+    <div id="natalCard" class="bg-gradient-to-b from-[#111827] to-[#0b0f19] border border-amber-500/30 rounded-2xl p-5 shadow-2xl">
+      <form id="natalForm" onsubmit="handleNatalSubmit(event)">
+        <input type="hidden" id="lineUserId" name="lineUserId" value="">
+        
+        <div class="space-y-4">
+          <!-- Name -->
+          <div>
+            <label class="block text-xs font-bold text-amber-300 mb-1">ชื่อเจ้าชะตา / ชื่อเล่น</label>
+            <input type="text" id="nameInput" required placeholder="เช่น น้องเอิร์ธ" 
+              class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400">
+          </div>
+
+          <!-- Date of Birth -->
+          <div>
+            <label class="block text-xs font-bold text-amber-300 mb-1">วัน/เดือน/ปี เกิด (ค.ศ.)</label>
+            <input type="date" id="birthDateInput" required
+              class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400">
+          </div>
+
+          <!-- Time of Birth -->
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="text-xs font-bold text-amber-300">เวลาเกิด (ตามสูติบัตร)</label>
+              <span class="text-[10px] text-slate-400">*สำคัญมากต่อการหาลัคนา</span>
+            </div>
+            <input type="time" id="birthTimeInput" required value="08:30"
+              class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400">
+          </div>
+
+          <!-- Province of Birth -->
+          <div>
+            <label class="block text-xs font-bold text-amber-300 mb-1">จังหวัดที่เกิด</label>
+            <select id="birthProvinceSelect" required onchange="onBirthProvinceChange()"
+              class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400">
+              <option value="กรุงเทพมหานคร">กรุงเทพมหานคร</option>
+            </select>
+          </div>
+
+          <!-- District of Birth -->
+          <div id="districtWrapper">
+            <label class="block text-xs font-bold text-amber-300 mb-1">เขต/อำเภอที่เกิด</label>
+            <select id="birthDistrictSelect"
+              class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400">
+              <option value="พระนคร">พระนคร</option>
+            </select>
+            <input type="text" id="birthDistrictCustom" placeholder="ระบุอำเภอเกิด" class="hidden w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400 mt-1">
+          </div>
+
+          <!-- Calculation Method -->
+          <div class="pt-2 border-t border-slate-800">
+            <label class="block text-xs font-bold text-slate-300 mb-2">วิธีคำนวณตำแหน่งดาว</label>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <label class="flex items-center gap-2 p-2 bg-slate-900 border border-slate-700 rounded-lg cursor-pointer">
+                <input type="radio" name="calcMethod" value="suriyayatra" checked class="text-amber-500 focus:ring-0">
+                <span class="text-slate-200">สุริยยาตร์ (ไทยเดิม)</span>
+              </label>
+              <label class="flex items-center gap-2 p-2 bg-slate-900 border border-slate-700 rounded-lg cursor-pointer">
+                <input type="radio" name="calcMethod" value="lahiri" class="text-amber-500 focus:ring-0">
+                <span class="text-slate-200">นิรายนะ (ลาหิรี)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-4">
+            <button type="submit" id="saveNatalBtn"
+              class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/20 active:scale-95 transition-all">
+              🌟 บันทึกข้อมูลดวงชะตา
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- FORM 2: Transit Location Switcher -->
+    <div id="transitCard" class="hidden bg-gradient-to-b from-[#111827] to-[#0b0f19] border border-cyan-500/30 rounded-2xl p-5 shadow-2xl">
+      <div class="mb-4">
+        <h2 class="text-base font-bold text-cyan-300 flex items-center gap-2">
+          <span>📍</span> เปลี่ยนสถานที่จร (Transit Location)
+        </h2>
+        <p class="text-xs text-slate-400 mt-1">
+          เมื่อคุณเดินทางไปต่างจังหวัด ดวงดาวจรจะคำนวณตามเวลาอาทิตย์อุทัยและองศาของจังหวัดที่คุณพำนักอยู่จริง
+        </p>
+      </div>
+
+      <form id="transitForm" onsubmit="handleTransitSubmit(event)">
+        <div class="space-y-4">
+          <!-- Province -->
+          <div>
+            <label class="block text-xs font-bold text-cyan-300 mb-1">จังหวัดที่คุณพำนักอยู่วันนี้</label>
+            <select id="transitProvinceSelect" required onchange="onTransitProvinceChange()"
+              class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+              <option value="กรุงเทพมหานคร">กรุงเทพมหานคร</option>
+            </select>
+          </div>
+
+          <!-- District -->
+          <div>
+            <label class="block text-xs font-bold text-cyan-300 mb-1">เขต/อำเภอ (ถ้ามี)</label>
+            <select id="transitDistrictSelect"
+              class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400">
+              <option value="พระนคร">พระนคร</option>
+            </select>
+            <input type="text" id="transitDistrictCustom" placeholder="ระบุอำเภอพำนัก" class="hidden w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-400 mt-1">
+          </div>
+
+          <div class="pt-4">
+            <button type="submit" id="saveTransitBtn"
+              class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-400 via-sky-300 to-blue-500 text-slate-950 font-black text-sm shadow-lg shadow-cyan-500/20 active:scale-95 transition-all">
+              📍 บันทึกสถานที่จรทันที
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Success Modal / Toast -->
+    <div id="successCard" class="hidden my-4 p-5 bg-emerald-950/80 border border-emerald-500/50 rounded-2xl text-center">
+      <div class="text-3xl mb-2">🎉</div>
+      <h3 class="text-base font-bold text-emerald-300">บันทึกข้อมูลเรียบร้อยแล้ว!</h3>
+      <p class="text-xs text-slate-300 mt-1" id="successMsg">
+        บอท PLB โหราศาสตร์ กำลังส่งดวงชะตาส่วนบุคคลของคุณไปใน LINE แชต...
+      </p>
+      <div class="mt-4">
+        <button onclick="closeLiffWindow()" class="px-4 py-2 bg-emerald-500 text-slate-950 font-bold text-xs rounded-lg">
+          กลับสู่ห้องแชต LINE
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BANGKOK_DISTRICTS = [
+      "พระนคร", "ดุสิต", "หนองจอก", "บางรัก", "บางเขน", "บางกะปิ", "ปทุมวัน", "ป้อมปราบศัตรูพ่าย",
+      "พระโขนง", "มีนบุรี", "ลาดกระบัง", "ยานนาวา", "สัมพันธวงศ์", "พญาไท", "ธนบุรี", "บางกอกใหญ่",
+      "ห้วยขวาง", "คลองสาน", "ตลิ่งชัน", "บางกอกน้อย", "บางขุนเทียน", "ภาษีเจริญ", "หนองแขม",
+      "ราษฎร์บูรณะ", "บางพลัด", "ดินแดง", "บึงกุ่ม", "สาทร", "บางซื่อ", "จตุจักร", "บางคอแหลม",
+      "ประเวศ", "คลองเตย", "สวนหลวง", "จอมทอง", "ดอนเมือง", "ราชเทวี", "ลาดพร้าว", "วัฒนา",
+      "บางแค", "หลักสี่", "สายไหม", "คันนายาว", "สะพานสูง", "วังทองหลาง", "คลองสามวา", "บางนา",
+      "ทวีวัฒนา", "ทุ่งครุ", "บางบอน"
+    ];
+
+    let PROVINCES = [];
+
+    // Switch between Natal & Transit tabs
+    function switchTab(tab) {
+      const natalBtn = document.getElementById('tabNatalBtn');
+      const transitBtn = document.getElementById('tabTransitBtn');
+      const natalCard = document.getElementById('natalCard');
+      const transitCard = document.getElementById('transitCard');
+
+      if (tab === 'natal') {
+        natalBtn.className = "py-2.5 px-3 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 shadow-md transition-all text-center";
+        transitBtn.className = "py-2.5 px-3 rounded-lg text-slate-300 hover:text-white transition-all text-center";
+        natalCard.classList.remove('hidden');
+        transitCard.classList.add('hidden');
+      } else {
+        transitBtn.className = "py-2.5 px-3 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-md transition-all text-center";
+        natalBtn.className = "py-2.5 px-3 rounded-lg text-slate-300 hover:text-white transition-all text-center";
+        transitCard.classList.remove('hidden');
+        natalCard.classList.add('hidden');
+      }
+    }
+
+    // Populate Provinces
+    async function loadProvinces() {
+      try {
+        const res = await fetch('/api/astrology/provinces');
+        const json = await res.json();
+        if (json.success && json.data) {
+          PROVINCES = json.data;
+          renderProvinceDropdowns();
+        }
+      } catch (e) {
+        console.warn("Falling back to local provinces list", e);
+      }
+    }
+
+    function renderProvinceDropdowns() {
+      const bpSelect = document.getElementById('birthProvinceSelect');
+      const tpSelect = document.getElementById('transitProvinceSelect');
+      
+      let html = "";
+      PROVINCES.forEach(p => {
+        html += `<option value="${p.name}">${p.name}</option>`;
+      });
+
+      if (html) {
+        bpSelect.innerHTML = html;
+        tpSelect.innerHTML = html;
+      }
+      onBirthProvinceChange();
+      onTransitProvinceChange();
+    }
+
+    function onBirthProvinceChange() {
+      const prov = document.getElementById('birthProvinceSelect').value;
+      const select = document.getElementById('birthDistrictSelect');
+      const custom = document.getElementById('birthDistrictCustom');
+
+      if (prov === "กรุงเทพมหานคร") {
+        select.classList.remove('hidden');
+        custom.classList.add('hidden');
+        select.innerHTML = BANGKOK_DISTRICTS.map(d => `<option value="${d}">${d}</option>`).join('');
+      } else {
+        select.classList.remove('hidden');
+        custom.classList.remove('hidden');
+        select.innerHTML = `<option value="อำเภอเมือง${prov}">อำเภอเมือง${prov}</option><option value="other">ระบุอำเภออื่น...</option>`;
+      }
+    }
+
+    function onTransitProvinceChange() {
+      const prov = document.getElementById('transitProvinceSelect').value;
+      const select = document.getElementById('transitDistrictSelect');
+      const custom = document.getElementById('transitDistrictCustom');
+
+      if (prov === "กรุงเทพมหานคร") {
+        select.classList.remove('hidden');
+        custom.classList.add('hidden');
+        select.innerHTML = BANGKOK_DISTRICTS.map(d => `<option value="${d}">${d}</option>`).join('');
+      } else {
+        select.classList.remove('hidden');
+        custom.classList.remove('hidden');
+        select.innerHTML = `<option value="อำเภอเมือง${prov}">อำเภอเมือง${prov}</option><option value="other">ระบุอำเภออื่น...</option>`;
+      }
+    }
+
+    // Init LIFF
+    async function initLiff() {
+      const urlParams = new URLSearchParams(window.location.search);
+      let userId = urlParams.get('userId') || localStorage.getItem('plb_line_user_id') || "";
+
+      // Check URL hash for direct tab navigation e.g. #transit
+      if (window.location.hash === '#transit') {
+        switchTab('transit');
+      }
+
+      // Check LIFF ID from meta or env
+      const liffId = urlParams.get('liffId') || "";
+      if (typeof liff !== 'undefined' && liffId) {
+        try {
+          await liff.init({ liffId: liffId });
+          if (liff.isLoggedIn()) {
+            const profile = await liff.getProfile();
+            userId = profile.userId;
+            document.getElementById('userNameDisplay').textContent = profile.displayName;
+            document.getElementById('nameInput').value = profile.displayName;
+            if (profile.pictureUrl) {
+              const avatar = document.getElementById('userAvatar');
+              avatar.src = profile.pictureUrl;
+              avatar.classList.remove('hidden');
+            }
+            document.getElementById('userBadge').classList.remove('hidden');
+          }
+        } catch (err) {
+          console.log("LIFF Init error:", err);
+        }
+      }
+
+      if (userId) {
+        document.getElementById('lineUserId').value = userId;
+        localStorage.setItem('plb_line_user_id', userId);
+        loadExistingUser(userId);
+      }
+    }
+
+    async function loadExistingUser(userId) {
+      try {
+        const res = await fetch(`/api/line/user?userId=${encodeURIComponent(userId)}`);
+        const json = await res.json();
+        if (json.success && json.data) {
+          const u = json.data;
+          document.getElementById('nameInput').value = u.name || "";
+          document.getElementById('birthDateInput').value = u.birth_date || "";
+          document.getElementById('birthTimeInput').value = u.birth_time || "08:30";
+          if (u.birth_province) {
+            document.getElementById('birthProvinceSelect').value = u.birth_province;
+            onBirthProvinceChange();
+          }
+          if (u.transit_province) {
+            document.getElementById('transitProvinceSelect').value = u.transit_province;
+            onTransitProvinceChange();
+          }
+        }
+      } catch (e) {
+        console.log("Load user error:", e);
+      }
+    }
+
+    async function handleNatalSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('saveNatalBtn');
+      btn.disabled = true;
+      btn.textContent = "กำลังบันทึกข้อมูล...";
+
+      const prov = document.getElementById('birthProvinceSelect').value;
+      let dist = document.getElementById('birthDistrictSelect').value;
+      if (dist === 'other') {
+        dist = document.getElementById('birthDistrictCustom').value.trim() || `อำเภอเมือง${prov}`;
+      }
+
+      const payload = {
+        action: "register_natal",
+        line_user_id: document.getElementById('lineUserId').value || localStorage.getItem('plb_line_user_id') || `guest_${Date.now()}`,
+        name: document.getElementById('nameInput').value.trim(),
+        birth_date: document.getElementById('birthDateInput').value,
+        birth_time: document.getElementById('birthTimeInput').value,
+        birth_province: prov,
+        birth_district: dist,
+        calc_method: document.querySelector('input[name="calcMethod"]:checked').value,
+        transit_province: prov,
+        transit_district: dist
+      };
+
+      try {
+        const res = await fetch('/api/line/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const resData = await res.json();
+        if (resData.success) {
+          showSuccess("บันทึกข้อมูลดวงกำเนิดสำเร็จแล้ว! บอท PLB โหราศาสตร์ กำลังส่งสรุปดวงและลัคนาไปในแชตของคุณ...");
+        } else {
+          alert("เกิดข้อผิดพลาด: " + (resData.error || "ไม่สามารถบันทึกได้"));
+          btn.disabled = false;
+          btn.textContent = "🌟 บันทึกข้อมูลดวงชะตา";
+        }
+      } catch (err) {
+        alert("เชื่อมต่อเซิร์ฟเวอร์ขัดข้อง: " + err.message);
+        btn.disabled = false;
+        btn.textContent = "🌟 บันทึกข้อมูลดวงชะตา";
+      }
+    }
+
+    async function handleTransitSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('saveTransitBtn');
+      btn.disabled = true;
+      btn.textContent = "กำลังอัปเดตสถานที่จร...";
+
+      const prov = document.getElementById('transitProvinceSelect').value;
+      let dist = document.getElementById('transitDistrictSelect').value;
+      if (dist === 'other') {
+        dist = document.getElementById('transitDistrictCustom').value.trim() || `อำเภอเมือง${prov}`;
+      }
+
+      const payload = {
+        action: "update_transit",
+        line_user_id: document.getElementById('lineUserId').value || localStorage.getItem('plb_line_user_id'),
+        transit_province: prov,
+        transit_district: dist
+      };
+
+      try {
+        const res = await fetch('/api/line/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const resData = await res.json();
+        if (resData.success) {
+          showSuccess(`อัปเดตสถานที่จรเป็น '${prov}' สำเร็จ! บอทกำลังส่งดวงชะตาตามพิกัดใหม่ไปในแชตของคุณ...`);
+        } else {
+          alert("เกิดข้อผิดพลาด: " + (resData.error || "ไม่สามารถอัปเดตได้"));
+          btn.disabled = false;
+          btn.textContent = "📍 บันทึกสถานที่จรทันที";
+        }
+      } catch (err) {
+        alert("เชื่อมต่อขัดข้อง: " + err.message);
+        btn.disabled = false;
+        btn.textContent = "📍 บันทึกสถานที่จรทันที";
+      }
+    }
+
+    function showSuccess(msg) {
+      document.getElementById('natalCard').classList.add('hidden');
+      document.getElementById('transitCard').classList.add('hidden');
+      document.getElementById('successMsg').textContent = msg;
+      document.getElementById('successCard').classList.remove('hidden');
+
+      setTimeout(() => {
+        closeLiffWindow();
+      }, 2000);
+    }
+
+    function closeLiffWindow() {
+      if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
+        liff.closeWindow();
+      } else {
+        window.location.href = "https://line.me/R/nv/chat";
+      }
+    }
+
+    // Auto initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      loadProvinces();
+      initLiff();
+    });
+  </script>
+</body>
+</html>

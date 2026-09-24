@@ -3,8 +3,10 @@
 from http.server import BaseHTTPRequestHandler
 import json
 import urllib.parse
+import urllib.request
 import os
 import sys
+import datetime
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(base_dir)
@@ -14,14 +16,30 @@ for p in [base_dir, parent_dir]:
 
 try:
     from thai_astrology import get_horoscope, PROVINCES_DICT
+    from user_store import get_user, save_user, update_transit_location
+    from line_bot_engine import (
+        verify_signature,
+        handle_line_event,
+        push_line_message,
+        compute_user_horoscope
+    )
+    from line_flex_builder import build_daily_summary_flex
 except ImportError:
-    from .thai_astrology import get_horoscope, PROVINCES_DICT
+    from api.thai_astrology import get_horoscope, PROVINCES_DICT
+    from api.user_store import get_user, save_user, update_transit_location
+    from api.line_bot_engine import (
+        verify_signature,
+        handle_line_event,
+        push_line_message,
+        compute_user_horoscope
+    )
+    from api.line_flex_builder import build_daily_summary_flex
 
 class handler(BaseHTTPRequestHandler):
     def send_cors_headers(self):
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Line-Signature')
 
     def do_OPTIONS(self):
         self.send_response(200)
@@ -32,6 +50,18 @@ class handler(BaseHTTPRequestHandler):
         matched = self.headers.get('x-matched-path', '')
         forwarded = self.headers.get('x-forwarded-uri', '')
         check_str = f"{self.path} {matched} {forwarded}".lower()
+
+        if 'line/user' in check_str or 'user' in check_str:
+            parsed = urllib.parse.urlparse(self.path)
+            query = urllib.parse.parse_qs(parsed.query)
+            user_id = query.get("userId", [""])[0]
+            user_data = get_user(user_id)
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_cors_headers()
+            self.end_headers()
+            self.wfile.write(json.dumps({'success': True, 'data': user_data}, ensure_ascii=False).encode('utf-8'))
+            return
 
         if 'province' in check_str:
             self.send_response(200)
@@ -50,18 +80,124 @@ class handler(BaseHTTPRequestHandler):
         self.end_headers()
         resp = {
             'status': 'ok',
-            'service': 'PLB Thai Horoscope API',
-            'version': '2.0',
+            'service': 'PLB Thai Horoscope API & LINE OA Engine',
+            'version': '3.0',
             'path': self.path
         }
         self.wfile.write(json.dumps(resp, ensure_ascii=False).encode('utf-8'))
 
     def do_POST(self):
-        # All POST requests compute the horoscope
+        matched = self.headers.get('x-matched-path', '')
+        forwarded = self.headers.get('x-forwarded-uri', '')
+        check_str = f"{self.path} {matched} {forwarded}".lower()
         content_length = int(self.headers.get('Content-Length', 0))
         body_bytes = self.rfile.read(content_length)
+
+        # 1. LINE Webhook
+        if 'line/webhook' in check_str or 'x-line-signature' in self.headers:
+            signature = self.headers.get("X-Line-Signature", "")
+            channel_secret = os.environ.get("LINE_CHANNEL_SECRET", "")
+            channel_access_token = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN", "")
+            liff_id = os.environ.get("LIFF_ID", "")
+            web_url = os.environ.get("APP_URL", "https://plb-horoscope.vercel.app")
+
+            if channel_secret and not verify_signature(body_bytes, signature, channel_secret):
+                self.send_response(403)
+                self.end_headers()
+                return
+
+            try:
+                payload = json.loads(body_bytes.decode('utf-8')) if body_bytes else {}
+                events = payload.get("events", [])
+                for ev in events:
+                    handle_line_event(ev, channel_access_token, liff_id, web_url)
+
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.end_headers()
+                self.wfile.write(b'{"status":"ok"}')
+            except Exception as e:
+                self.send_response(500)
+                self.end_headers()
+            return
+
+        # 2. LIFF Registration / Transit Location
+        if 'line/register' in check_str:
+            try:
+                payload = json.loads(body_bytes.decode('utf-8')) if body_bytes else {}
+                action = payload.get("action", "register_natal")
+                user_id = payload.get("line_user_id", "")
+
+                if action == "update_transit":
+                    prov = payload.get("transit_province", "กรุงเทพมหานคร")
+                    dist = payload.get("transit_district", "")
+                    user = update_transit_location(user_id, prov, dist)
+                else:
+                    user = save_user(user_id, payload)
+
+                channel_access_token = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN", "")
+                liff_id = os.environ.get("LIFF_ID", "")
+                web_url = os.environ.get("APP_URL", "https://plb-horoscope.vercel.app")
+                if channel_access_token and user_id.startswith("U"):
+                    try:
+                        horoscope = compute_user_horoscope(user)
+                        summary_flex = build_daily_summary_flex(
+                            user, horoscope,
+                            f"https://liff.line.me/{liff_id}" if liff_id else f"{web_url}/liff-register.html",
+                            web_url
+                        )
+                        msg_text = "🎉 ยินดีด้วยครับ! บันทึกข้อมูลและผูกดวงชะตาสำเร็จแล้ว นี่คือดวงประจำวันของคุณครับ ✨" if action != "update_transit" else f"📍 อัปเดตสถานที่จรเป็น '{payload.get('transit_province')}' เรียบร้อยแล้วครับ!"
+                        push_line_message(user_id, [{"type": "text", "text": msg_text}, summary_flex], channel_access_token)
+                    except Exception as pe:
+                        print(f"Push to LINE warning: {pe}")
+
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps({'success': True, 'data': user}, ensure_ascii=False).encode('utf-8'))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps({'success': False, 'error': str(e)}, ensure_ascii=False).encode('utf-8'))
+            return
+
+        # 3. Feedback Submission
+        if 'feedback' in check_str:
+            try:
+                payload = json.loads(body_bytes.decode('utf-8')) if body_bytes else {}
+                payload["server_received_at"] = datetime.datetime.now().isoformat()
+                DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwBA-NdVNPQSC_M-a_dMWinkH1-5zSADD0xxkXJkE42TYIa-fvQNGMrVoq2Yu5zJ1_-6A/exec"
+                webhook_url = os.environ.get("GOOGLE_SHEETS_WEBHOOK_URL") or os.environ.get("FEEDBACK_WEBHOOK_URL") or DEFAULT_WEBHOOK_URL
+                if webhook_url:
+                    try:
+                        req = urllib.request.Request(
+                            webhook_url,
+                            data=json.dumps(payload, ensure_ascii=False).encode('utf-8'),
+                            headers={"Content-Type": "application/json; charset=utf-8", "User-Agent": "PLB-Astrology-App"}
+                        )
+                        urllib.request.urlopen(req, timeout=5)
+                    except Exception as we:
+                        print(f"Webhook forward warning: {we}")
+
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps({'success': True, 'message': 'Feedback recorded'}, ensure_ascii=False).encode('utf-8'))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps({'success': False, 'error': str(e)}, ensure_ascii=False).encode('utf-8'))
+            return
+
+        # 4. Standard Daily Astrology Calculation
         try:
-            payload = json.loads(body_bytes.decode('utf-8'))
+            payload = json.loads(body_bytes.decode('utf-8')) if body_bytes else {}
             target_date = payload.get('targetDate', '')
             result = get_horoscope(payload, target_date)
             self.send_response(200)
