@@ -11,8 +11,11 @@ import os
 import datetime
 import urllib.request
 
+import tempfile
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-USERS_FILE = os.path.join(BASE_DIR, "line_users.json")
+TMP_USERS_FILE = os.path.join(tempfile.gettempdir(), "line_users.json")
+LOCAL_USERS_FILE = os.path.join(BASE_DIR, "line_users.json")
 DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwBA-NdVNPQSC_M-a_dMWinkH1-5zSADD0xxkXJkE42TYIa-fvQNGMrVoq2Yu5zJ1_-6A/exec"
 
 # In-memory cache for fast lookup
@@ -20,21 +23,24 @@ _USER_CACHE = {}
 
 def _load_cache():
     global _USER_CACHE
-    if os.path.exists(USERS_FILE):
-        try:
-            with open(USERS_FILE, "r", encoding="utf-8") as f:
-                _USER_CACHE = json.load(f)
-        except Exception as e:
-            print(f"Error loading {USERS_FILE}: {e}")
-            _USER_CACHE = {}
+    for fpath in [LOCAL_USERS_FILE, TMP_USERS_FILE]:
+        if os.path.exists(fpath):
+            try:
+                with open(fpath, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    if isinstance(data, dict):
+                        _USER_CACHE.update(data)
+            except Exception as e:
+                pass
     return _USER_CACHE
 
 def _save_cache():
-    try:
-        with open(USERS_FILE, "w", encoding="utf-8") as f:
-            json.dump(_USER_CACHE, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        print(f"Error saving {USERS_FILE}: {e}")
+    for fpath in [TMP_USERS_FILE, LOCAL_USERS_FILE]:
+        try:
+            with open(fpath, "w", encoding="utf-8") as f:
+                json.dump(_USER_CACHE, f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass
 
 # Initialize cache on module load
 _load_cache()
@@ -64,6 +70,7 @@ def save_user(line_user_id: str, data: dict):
         "calc_method": data.get("calc_method") or data.get("calcMethod") or existing.get("calc_method", "suriyayatra"),
         "transit_province": data.get("transit_province") or data.get("transitProvince") or existing.get("transit_province") or data.get("birth_province") or "กรุงเทพมหานคร",
         "transit_district": data.get("transit_district") or data.get("transitDistrict") or existing.get("transit_district") or data.get("birth_district") or "พระนคร",
+        "registered": True,
         "created_at": existing.get("created_at", now),
         "updated_at": now
     }

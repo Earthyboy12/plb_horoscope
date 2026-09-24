@@ -278,6 +278,37 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                         ]
                     },
                     {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "spacing": "sm",
+                        "contents": [
+                            {
+                                "type": "button",
+                                "style": "secondary",
+                                "color": "#1e293b",
+                                "height": "sm",
+                                "action": {
+                                    "type": "uri",
+                                    "label": "⚙️ แก้ไขวันเกิด",
+                                    "uri": liff_url
+                                },
+                                "flex": 1
+                            },
+                            {
+                                "type": "button",
+                                "style": "secondary",
+                                "color": "#065f46",
+                                "height": "sm",
+                                "action": {
+                                    "type": "uri",
+                                    "label": "👥 ชวนเพื่อนดูดวง",
+                                    "uri": "https://line.me/R/nv/recommendOA/@374xcoto"
+                                },
+                                "flex": 1
+                            }
+                        ]
+                    },
+                    {
                         "type": "button",
                         "style": "link",
                         "height": "sm",
@@ -617,3 +648,65 @@ def get_category_quick_reply() -> dict:
             }
         ]
     }
+
+def build_share_flex() -> dict:
+    """Build a cute share invitation card for LINE OA."""
+    return {
+        "type": "flex",
+        "altText": "ชวนเพื่อนมาดูดวงกับน้องหมี PLB โหราศาสตร์ 🐻‍❄️✨",
+        "contents": {
+            "type": "bubble",
+            "size": "mega",
+            "header": {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#0b0f19",
+                "paddingAll": "16px",
+                "contents": [
+                    {"type": "text", "text": "🐻‍❄️ PLB หมีดูดวง • ชวนเพื่อน", "weight": "bold", "color": "#fbbf24", "size": "md"},
+                    {"type": "text", "text": "แชร์ความแม่นยำให้เพื่อนๆ เช็คดวงฟรี!", "color": "#94a3b8", "size": "xxs"}
+                ]
+            },
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#0f172a",
+                "paddingAll": "16px",
+                "contents": [
+                    {"type": "text", "text": "ส่งต่อความเฮงให้เพื่อนของคุณ ✨", "weight": "bold", "size": "sm", "color": "#f8fafc"},
+                    {"type": "text", "text": "ชวนเพื่อนมารู้จักลัคนาราศีที่แท้จริง พร้อมคำนวณคะแนนชีวิต 4 ด้านและเลขมงคลประจำวันได้ฟรีทุกวันครับ 🔮", "size": "xs", "color": "#cbd5e1", "wrap": True, "margin": "xs"},
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "margin": "md",
+                        "backgroundColor": "#1e293b",
+                        "cornerRadius": "12px",
+                        "paddingAll": "12px",
+                        "contents": [
+                            {"type": "text", "text": "📲 LINE ID สำหรับเพิ่มเพื่อน:", "size": "xs", "color": "#38bdf8", "weight": "bold"},
+                            {"type": "text", "text": "@374xcoto", "size": "lg", "weight": "bold", "color": "#fbbf24", "margin": "xs"}
+                        ]
+                    }
+                ]
+            },
+            "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#0b0f19",
+                "paddingAll": "12px",
+                "contents": [
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#059669",
+                        "action": {
+                            "type": "uri",
+                            "label": "📤 แตะเพื่อแชร์ให้เพื่อนใน LINE",
+                            "uri": "https://line.me/R/nv/recommendOA/@374xcoto"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+

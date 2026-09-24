@@ -89,6 +89,7 @@ class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         matched = self.headers.get('x-matched-path', '')
         forwarded = self.headers.get('x-forwarded-uri', '')
+        check_str = f"{self.path} {matched} {forwarded}".lower()
         content_length = int(self.headers.get('Content-Length', 0))
         body_bytes = self.rfile.read(content_length)
         payload = {}

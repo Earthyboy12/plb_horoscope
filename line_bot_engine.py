@@ -24,6 +24,7 @@ from line_flex_builder import (
     build_category_flex,
     build_feedback_flex,
     build_donation_flex,
+    build_share_flex,
     get_category_quick_reply
 )
 
@@ -184,6 +185,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
         return
     
     user = get_user(user_id)
+    is_registered = bool(user and user.get("registered", False))
     
     # Helper for unregistered users
     def prompt_registration():
@@ -191,7 +193,13 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
         reply_line_message(reply_token, [
             {
                 "type": "text",
-                "text": "🔮 สวัสดีครับ! เพื่อคำนวณดวงชะตาและลัคนาของท่านได้อย่างแม่นยำ กรุณาลงทะเบียนวันเกิดและสถานที่เกิดก่อนนะครับ แตะปุ่มด้านล่างได้เลยครับ 👇"
+                "text": "🔮 สวัสดีครับ! น้องหมียังไม่มีข้อมูลวันเกิดของคุณ กรุณาแตะปุ่ม 'ลงทะเบียนข้อมูลดวงชะตา' ด้านล่างเพื่อเริ่มคำนวณลัคนาราศีนะครับ 👇",
+                "quickReply": {
+                    "items": [
+                        {"type": "action", "action": {"type": "uri", "label": "🌟 ลงทะเบียนวันเกิด", "uri": liff_url}},
+                        {"type": "action", "action": {"type": "uri", "label": "👥 ชวนเพื่อนดูดวง", "uri": "https://line.me/R/nv/recommendOA/@374xcoto"}}
+                    ]
+                }
             },
             welcome_flex
         ], channel_access_token)
@@ -208,9 +216,14 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
         text_lower = text.lower()
         
         # Check registration commands
-        if any(k in text for k in ["ลงทะเบียน", "แก้ไขข้อมูล", "ตั้งค่าดวง", "โปรไฟล์"]):
+        if any(k in text for k in ["ลงทะเบียน", "แก้ไขข้อมูล", "ตั้งค่าดวง", "โปรไฟล์", "เปลี่ยนวันเกิด"]):
             welcome_flex = build_welcome_flex(liff_url)
             reply_line_message(reply_token, [welcome_flex], channel_access_token)
+            return
+
+        # Check Share LINE OA command
+        if any(k in text for k in ["แชร์", "ชวนเพื่อน", "แชร์ให้เพื่อน", "share", "ชวน"]):
+            reply_line_message(reply_token, [build_share_flex()], channel_access_token)
             return
 
         # Check Transit Location Change command e.g. "จร เชียงใหม่" หรือ "เปลี่ยนสถานที่จร"
@@ -289,7 +302,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
 
         # Specific category keywords
         if any(k in text for k in ["การงาน", "งาน"]):
-            if not user:
+            if not is_registered:
                 prompt_registration()
                 return
             h = compute_user_horoscope(user)
@@ -299,7 +312,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             return
 
         if any(k in text for k in ["การเงิน", "เงิน", "โชคลาภ"]):
-            if not user:
+            if not is_registered:
                 prompt_registration()
                 return
             h = compute_user_horoscope(user)
@@ -309,7 +322,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             return
 
         if any(k in text for k in ["ความรัก", "รัก", "คู่ครอง"]):
-            if not user:
+            if not is_registered:
                 prompt_registration()
                 return
             h = compute_user_horoscope(user)
@@ -319,7 +332,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             return
 
         if any(k in text for k in ["สุขภาพ", "เตือนภัย", "อุบัติเหตุ"]):
-            if not user:
+            if not is_registered:
                 prompt_registration()
                 return
             h = compute_user_horoscope(user)
@@ -330,7 +343,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
 
         # Main Daily Horoscope Summary (Button 1)
         if any(k in text for k in ["สรุปดวง", "ดวงวันนี้", "ดวงประจำวัน", "1"]):
-            if not user:
+            if not is_registered:
                 prompt_registration()
                 return
             horoscope = compute_user_horoscope(user)
