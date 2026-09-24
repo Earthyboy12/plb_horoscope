@@ -1512,14 +1512,26 @@
       if (btn) btn.disabled = true;
       if (btnText) btnText.innerText = '⏳ กำลังบันทึกข้อมูล...';
 
+      const googleSheetUrl = "https://script.google.com/macros/s/AKfycbwBA-NdVNPQSC_M-a_dMWinkH1-5zSADD0xxkXJkE42TYIa-fvQNGMrVoq2Yu5zJ1_-6A/exec";
+      
+      // Dual-dispatch: Send to backend API and direct to Google Sheets
       try {
-        await fetch('/api/feedback', {
+        fetch('/api/feedback', {
           method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).catch(err => console.warn('API feedback error:', err));
+      } catch(e) {}
+
+      try {
+        await fetch(googleSheetUrl, {
+          method: 'POST',
+          mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
       } catch (err) {
-        console.warn('Backend feedback fetch warning:', err);
+        console.warn('Google Sheets direct fetch error:', err);
       }
 
       // Save locally in localStorage so user sees immediate confirmation

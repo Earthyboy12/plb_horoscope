@@ -83,8 +83,9 @@ class HoroscopeHandler(http.server.SimpleHTTPRequestHandler):
                 with open(feedback_file, "a", encoding="utf-8") as f:
                     f.write(json.dumps(payload, ensure_ascii=False) + "\n")
                 
-                # Forward to webhook if configured
-                webhook_url = os.environ.get("GOOGLE_SHEETS_WEBHOOK_URL") or os.environ.get("FEEDBACK_WEBHOOK_URL")
+                # Forward to webhook
+                DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwBA-NdVNPQSC_M-a_dMWinkH1-5zSADD0xxkXJkE42TYIa-fvQNGMrVoq2Yu5zJ1_-6A/exec"
+                webhook_url = os.environ.get("GOOGLE_SHEETS_WEBHOOK_URL") or os.environ.get("FEEDBACK_WEBHOOK_URL") or DEFAULT_WEBHOOK_URL
                 if webhook_url:
                     try:
                         req = urllib.request.Request(

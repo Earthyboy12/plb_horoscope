@@ -31,8 +31,9 @@ class handler(BaseHTTPRequestHandler):
             payload = json.loads(body.decode('utf-8')) if body else {}
             payload["server_received_at"] = datetime.datetime.now().isoformat()
             
-            # Forward to Google Sheets Webhook if configured in Vercel Environment Variables
-            webhook_url = os.environ.get("GOOGLE_SHEETS_WEBHOOK_URL") or os.environ.get("FEEDBACK_WEBHOOK_URL")
+            # Forward to Google Sheets Webhook
+            DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwBA-NdVNPQSC_M-a_dMWinkH1-5zSADD0xxkXJkE42TYIa-fvQNGMrVoq2Yu5zJ1_-6A/exec"
+            webhook_url = os.environ.get("GOOGLE_SHEETS_WEBHOOK_URL") or os.environ.get("FEEDBACK_WEBHOOK_URL") or DEFAULT_WEBHOOK_URL
             webhook_status = "not_configured"
             if webhook_url:
                 try:
