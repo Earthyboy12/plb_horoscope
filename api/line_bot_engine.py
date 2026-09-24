@@ -28,9 +28,49 @@ from line_flex_builder import (
 )
 
 DEFAULT_FEEDBACK_WEBHOOK = "https://script.google.com/macros/s/AKfycbwBA-NdVNPQSC_M-a_dMWinkH1-5zSADD0xxkXJkE42TYIa-fvQNGMrVoq2Yu5zJ1_-6A/exec"
+DEFAULT_CHANNEL_ID = "2011723219"
+DEFAULT_CHANNEL_SECRET = "3881fe1c9b74acd6f8f293be16692a04"
+DEFAULT_ACCESS_TOKEN = "MImmut2hIeq/gqp5f9g6v7KYnxg+hglGb/q15Lu3bTt6bEEKRQE4bji6BrwAr/8RjANH8Bed9O9W95CAe4t8/ELYqXGtxmNLQvMTtK+U0PasBLpRENWte1D6S9fCkJtRXTlWm8TN7wzuSloTNDKei49PbdgDzCFqoOLOYbqAITQ="
 
-def verify_signature(body_bytes: bytes, signature: str, channel_secret: str) -> bool:
+_CACHED_TOKEN = DEFAULT_ACCESS_TOKEN
+_TOKEN_EXPIRY = datetime.datetime.now() + datetime.timedelta(days=29)
+
+def get_channel_access_token():
+    global _CACHED_TOKEN, _TOKEN_EXPIRY
+    env_token = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN")
+    if env_token:
+        return env_token
+    
+    if _CACHED_TOKEN and datetime.datetime.now() < _TOKEN_EXPIRY:
+        return _CACHED_TOKEN
+        
+    channel_id = os.environ.get("LINE_CHANNEL_ID", DEFAULT_CHANNEL_ID)
+    channel_secret = os.environ.get("LINE_CHANNEL_SECRET", DEFAULT_CHANNEL_SECRET)
+    
+    try:
+        data = urllib.parse.urlencode({
+            'grant_type': 'client_credentials',
+            'client_id': channel_id,
+            'client_secret': channel_secret
+        }).encode('utf-8')
+        req = urllib.request.Request(
+            'https://api.line.me/v2/oauth/accessToken',
+            data=data,
+            headers={'Content-Type': 'application/x-www-form-urlencoded'}
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            resp_data = json.loads(resp.read().decode('utf-8'))
+            _CACHED_TOKEN = resp_data.get('access_token', DEFAULT_ACCESS_TOKEN)
+            expires_in = int(resp_data.get('expires_in', 2592000))
+            _TOKEN_EXPIRY = datetime.datetime.now() + datetime.timedelta(seconds=expires_in - 3600)
+            return _CACHED_TOKEN
+    except Exception as e:
+        print(f"Error fetching access token: {e}")
+        return _CACHED_TOKEN or DEFAULT_ACCESS_TOKEN
+
+def verify_signature(body_bytes: bytes, signature: str, channel_secret: str = "") -> bool:
     """Verify that the webhook request came from LINE Platform."""
+    channel_secret = channel_secret or os.environ.get("LINE_CHANNEL_SECRET") or DEFAULT_CHANNEL_SECRET
     if not signature or not channel_secret:
         return True # In development mode or unconfigured, allow testing
     try:
@@ -42,8 +82,9 @@ def verify_signature(body_bytes: bytes, signature: str, channel_secret: str) -> 
         print(f"Signature verify error: {e}")
         return False
 
-def reply_line_message(reply_token: str, messages: list, access_token: str):
+def reply_line_message(reply_token: str, messages: list, access_token: str = ""):
     """Send reply message(s) back to LINE user."""
+    access_token = access_token or get_channel_access_token()
     if not access_token or not reply_token:
         print("[LineBotEngine] No access token or reply token provided")
         return False
@@ -70,8 +111,9 @@ def reply_line_message(reply_token: str, messages: list, access_token: str):
         print(f"[LineBotEngine] Error replying to LINE: {e}")
         return False
 
-def push_line_message(user_id: str, messages: list, access_token: str):
+def push_line_message(user_id: str, messages: list, access_token: str = ""):
     """Push message directly to a LINE user by user ID."""
+    access_token = access_token or get_channel_access_token()
     if not access_token or not user_id:
         return False
     
