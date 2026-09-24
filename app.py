@@ -8,9 +8,11 @@ import http.server
 import socketserver
 import json
 import urllib.parse
+import urllib.request
 import os
 import sys
 import webbrowser
+import datetime
 
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
@@ -68,6 +70,43 @@ class HoroscopeHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json; charset=utf-8")
                 self.end_headers()
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+        elif parsed.path == "/api/feedback":
+            content_length = int(self.headers.get("Content-Length", 0))
+            body_bytes = self.rfile.read(content_length)
+            try:
+                payload = json.loads(body_bytes.decode("utf-8")) if body_bytes else {}
+                payload["server_received_at"] = datetime.datetime.now().isoformat()
+                
+                # Save locally to feedback.jsonl
+                feedback_file = os.path.join(BASE_DIR, "feedback.jsonl")
+                with open(feedback_file, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(payload, ensure_ascii=False) + "\n")
+                
+                # Forward to webhook if configured
+                webhook_url = os.environ.get("GOOGLE_SHEETS_WEBHOOK_URL") or os.environ.get("FEEDBACK_WEBHOOK_URL")
+                if webhook_url:
+                    try:
+                        req = urllib.request.Request(
+                            webhook_url,
+                            data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+                            headers={"Content-Type": "application/json; charset=utf-8", "User-Agent": "PLB-Astrology-App"}
+                        )
+                        urllib.request.urlopen(req, timeout=5)
+                    except Exception as we:
+                        print(f"Webhook forward warning: {we}")
+
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "message": "Feedback recorded successfully"}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}, ensure_ascii=False).encode("utf-8"))
             return
         else:
             self.send_response(404)
