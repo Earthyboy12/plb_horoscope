@@ -493,12 +493,14 @@ def get_horoscope(birth_dict, target_date_str=""):
     if not target_date_str:
         target_date_str = datetime.datetime.now().strftime("%Y-%m-%d")
 
-    # Parse birth info
-    by, bm, bd = [int(x) for x in birth_dict["birthDate"].split("-")]
-    bh, bmin = [int(x) for x in birth_dict["birthTime"].split(":")]
-    prov_name = birth_dict.get("province", "กรุงเทพมหานคร")
-    district_name = birth_dict.get("district", "พระนคร")
-    calc_method = birth_dict.get("calcMethod", "suriyayatra") # default suriyayatra (Thai astrology standard)
+    # Parse birth info safely (supports camelCase and snake_case)
+    b_date = birth_dict.get("birthDate") or birth_dict.get("birth_date") or "1995-08-12"
+    b_time = birth_dict.get("birthTime") or birth_dict.get("birth_time") or "08:30"
+    by, bm, bd = [int(x) for x in b_date.split("-")]
+    bh, bmin = [int(x) for x in b_time.split(":")]
+    prov_name = birth_dict.get("province") or birth_dict.get("birth_province") or "กรุงเทพมหานคร"
+    district_name = birth_dict.get("district") or birth_dict.get("birth_district") or "พระนคร"
+    calc_method = birth_dict.get("calcMethod") or birth_dict.get("calc_method") or "suriyayatra" # default suriyayatra
 
     # Resolve birth coordinates
     coords, prov_data = resolve_coordinates(prov_name, district_name)

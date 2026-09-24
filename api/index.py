@@ -89,12 +89,17 @@ class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         matched = self.headers.get('x-matched-path', '')
         forwarded = self.headers.get('x-forwarded-uri', '')
-        check_str = f"{self.path} {matched} {forwarded}".lower()
         content_length = int(self.headers.get('Content-Length', 0))
         body_bytes = self.rfile.read(content_length)
+        payload = {}
+        if body_bytes:
+            try:
+                payload = json.loads(body_bytes.decode('utf-8'))
+            except Exception:
+                payload = {}
 
         # 1. LINE Webhook
-        if 'line/webhook' in check_str or 'x-line-signature' in self.headers:
+        if 'line/webhook' in check_str or 'x-line-signature' in self.headers or ('events' in payload and 'destination' in payload):
             signature = self.headers.get("X-Line-Signature", "")
             channel_secret = os.environ.get("LINE_CHANNEL_SECRET", "")
             channel_access_token = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN", "")
@@ -107,7 +112,6 @@ class handler(BaseHTTPRequestHandler):
                 return
 
             try:
-                payload = json.loads(body_bytes.decode('utf-8')) if body_bytes else {}
                 events = payload.get("events", [])
                 for ev in events:
                     handle_line_event(ev, channel_access_token, liff_id, web_url)
@@ -122,15 +126,14 @@ class handler(BaseHTTPRequestHandler):
             return
 
         # 2. LIFF Registration / Transit Location
-        if 'line/register' in check_str:
+        if 'line/register' in check_str or payload.get("action") in ("register_natal", "update_transit") or "line_user_id" in payload:
             try:
-                payload = json.loads(body_bytes.decode('utf-8')) if body_bytes else {}
                 action = payload.get("action", "register_natal")
                 user_id = payload.get("line_user_id", "")
 
                 if action == "update_transit":
-                    prov = payload.get("transit_province", "กรุงเทพมหานคร")
-                    dist = payload.get("transit_district", "")
+                    prov = payload.get("transit_province") or payload.get("transitProvince", "กรุงเทพมหานคร")
+                    dist = payload.get("transit_district") or payload.get("transitDistrict", "")
                     user = update_transit_location(user_id, prov, dist)
                 else:
                     user = save_user(user_id, payload)

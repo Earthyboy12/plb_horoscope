@@ -169,8 +169,8 @@ class HoroscopeHandler(http.server.SimpleHTTPRequestHandler):
                 user_id = payload.get("line_user_id", "")
 
                 if action == "update_transit":
-                    prov = payload.get("transit_province", "กรุงเทพมหานคร")
-                    dist = payload.get("transit_district", "")
+                    prov = payload.get("transit_province") or payload.get("transitProvince", "กรุงเทพมหานคร")
+                    dist = payload.get("transit_district") or payload.get("transitDistrict", "")
                     user = update_transit_location(user_id, prov, dist)
                 else:
                     user = save_user(user_id, payload)

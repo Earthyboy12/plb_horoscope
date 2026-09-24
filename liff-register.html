@@ -374,16 +374,27 @@
         dist = document.getElementById('birthDistrictCustom').value.trim() || `อำเภอเมือง${prov}`;
       }
 
+      const bDate = document.getElementById('birthDateInput').value;
+      const bTime = document.getElementById('birthTimeInput').value;
+      const cMethod = document.querySelector('input[name="calcMethod"]:checked').value;
+
       const payload = {
         action: "register_natal",
         line_user_id: document.getElementById('lineUserId').value || localStorage.getItem('plb_line_user_id') || `guest_${Date.now()}`,
         name: document.getElementById('nameInput').value.trim(),
-        birth_date: document.getElementById('birthDateInput').value,
-        birth_time: document.getElementById('birthTimeInput').value,
+        birthDate: bDate,
+        birth_date: bDate,
+        birthTime: bTime,
+        birth_time: bTime,
+        province: prov,
         birth_province: prov,
+        district: dist,
         birth_district: dist,
-        calc_method: document.querySelector('input[name="calcMethod"]:checked').value,
+        calcMethod: cMethod,
+        calc_method: cMethod,
+        transitProvince: prov,
         transit_province: prov,
+        transitDistrict: dist,
         transit_district: dist
       };
 
@@ -423,7 +434,9 @@
       const payload = {
         action: "update_transit",
         line_user_id: document.getElementById('lineUserId').value || localStorage.getItem('plb_line_user_id'),
+        transitProvince: prov,
         transit_province: prov,
+        transitDistrict: dist,
         transit_district: dist
       };
 
