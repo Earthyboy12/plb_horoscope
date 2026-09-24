@@ -121,8 +121,11 @@ class handler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(b'{"status":"ok"}')
             except Exception as e:
+                import traceback
                 self.send_response(500)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.end_headers()
+                self.wfile.write(json.dumps({"error": str(e), "trace": traceback.format_exc()}).encode('utf-8'))
             return
 
         # 2. LIFF Registration / Transit Location
