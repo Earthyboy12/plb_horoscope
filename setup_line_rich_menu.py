@@ -21,39 +21,57 @@ RICH_MENU_SCHEMA = {
         "height": 1686
     },
     "selected": True,
-    "name": "PLB Horoscope Rich Menu",
+    "name": "PLB Horoscope Cute Polar Bear 6-Grid",
     "chatBarText": "🔮 เมนูดูดวง",
     "areas": [
-        # Top-Left: สรุปดวงประจำวัน
+        # 1. Top-Left: สรุปดวงประจำวัน
         {
-            "bounds": {"x": 0, "y": 0, "width": 1250, "height": 843},
+            "bounds": {"x": 0, "y": 0, "width": 833, "height": 843},
             "action": {
                 "type": "message",
-                "label": "สรุปดวงประจำวัน",
+                "label": "สรุปดวงวันนี้",
                 "text": "สรุปดวงประจำวัน"
             }
         },
-        # Top-Right: เลือกหมวดอยากจะดูหมวดไหน
+        # 2. Top-Center: เลือกหมวดอยากจะดูหมวดไหน
         {
-            "bounds": {"x": 1250, "y": 0, "width": 1250, "height": 843},
+            "bounds": {"x": 833, "y": 0, "width": 834, "height": 843},
             "action": {
                 "type": "message",
-                "label": "เลือกหมวดดูดวง",
+                "label": "เลือกหมวดดวง",
                 "text": "เลือกหมวดอยากจะดูหมวดไหน"
             }
         },
-        # Bottom-Left: ให้ feedback
+        # 3. Top-Right: เรียกดูสถิติ
         {
-            "bounds": {"x": 0, "y": 843, "width": 1250, "height": 843},
+            "bounds": {"x": 1667, "y": 0, "width": 833, "height": 843},
+            "action": {
+                "type": "message",
+                "label": "เรียกดูสถิติ",
+                "text": "เรียกดูสถิติ"
+            }
+        },
+        # 4. Bottom-Left: แชร์ให้เพื่อน
+        {
+            "bounds": {"x": 0, "y": 843, "width": 833, "height": 843},
+            "action": {
+                "type": "message",
+                "label": "แชร์ให้เพื่อน",
+                "text": "แชร์ให้เพื่อน"
+            }
+        },
+        # 5. Bottom-Center: ให้ feedback
+        {
+            "bounds": {"x": 833, "y": 843, "width": 834, "height": 843},
             "action": {
                 "type": "message",
                 "label": "ให้ feedback",
                 "text": "ให้ feedback"
             }
         },
-        # Bottom-Right: สนับสนุนแม่หมอ
+        # 6. Bottom-Right: สนับสนุนแม่หมอ
         {
-            "bounds": {"x": 1250, "y": 843, "width": 1250, "height": 843},
+            "bounds": {"x": 1667, "y": 843, "width": 833, "height": 843},
             "action": {
                 "type": "message",
                 "label": "สนับสนุนแม่หมอ",
@@ -128,4 +146,10 @@ def setup_rich_menu(access_token: str):
 
 if __name__ == "__main__":
     token = sys.argv[1] if len(sys.argv) > 1 else os.environ.get("LINE_CHANNEL_ACCESS_TOKEN", "")
+    if not token:
+        try:
+            from line_bot_engine import get_channel_access_token
+            token = get_channel_access_token()
+        except Exception as te:
+            print(f"Could not auto-fetch token: {te}")
     setup_rich_menu(token)

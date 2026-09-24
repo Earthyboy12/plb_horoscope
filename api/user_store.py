@@ -133,34 +133,62 @@ def record_user_check(line_user_id: str, daily_score: int = 80):
     return user
 
 def get_rank_title(check_count: int = 1, streak: int = 1) -> dict:
-    """Get playful astrological rank and badges based on check count & streak."""
-    if check_count >= 15 or streak >= 7:
+    """Get playful astrological rank and badges based on check count & streak (7 Tiers)."""
+    if check_count >= 50 or streak >= 21:
         return {
+            "tier": 7,
             "title": "👑 มหาจักรพรรดิ์สายมู",
-            "badge": "ระดับ 4 • เกณฑ์วาสนาสูงสุด ✨",
+            "badge": "ระดับ 7 • เกณฑ์วาสนาสูงสุด 👑",
             "color": "#fbbf24",
-            "perk": "สถิติของคุณอยู่ในกลุ่มท็อป 1% ผู้หยั่งรู้ดวงดาวอย่างสม่ำเสมอ!"
+            "perk": "เกียรติยศสูงสุดแห่งจักรวาล PLB สถิติของคุณอยู่ในกลุ่มท็อป 1% ผู้อยู่เหนือกระแสดาวชะตาอย่างแท้จริง ✨"
+        }
+    elif check_count >= 35 or streak >= 15:
+        return {
+            "tier": 6,
+            "title": "💎 เทพพยากรณ์จักรวาล",
+            "badge": "ระดับ 6 • วิสุทธิญาณ 💎",
+            "color": "#60a5fa",
+            "perk": "เกณฑ์วาสนาอยู่ในกลุ่มท็อป 3% ดึงดูดพลังมงคลและหยั่งรู้จังหวะโชคชะตาได้อย่างแม่นยำ 🔮"
+        }
+    elif check_count >= 21 or streak >= 11:
+        return {
+            "tier": 5,
+            "title": "🛡️ ปรมาจารย์ค้ำดวง",
+            "badge": "ระดับ 5 • เหนือดวงชะตา 🛡️",
+            "color": "#f472b6",
+            "perk": "สถิติสะท้อนความสม่ำเสมอ พลังดวงชะตาเข้มแข็ง เกณฑ์ร้ายกลับกลายเป็นดีอย่างอัศจรรย์ ✨"
+        }
+    elif check_count >= 14 or streak >= 7:
+        return {
+            "tier": 4,
+            "title": "🔮 ศิษย์เอกแม่หมอ PLB",
+            "badge": "ระดับ 4 • ขั้นสูง 🔮",
+            "color": "#c084fc",
+            "perk": "ตรวจดวงสม่ำเสมอ ดาวพฤหัสบดีเริ่มคุ้มครองชะตา มั่นใจในทุกการตัดสินใจสำคัญ 🌟"
         }
     elif check_count >= 7 or streak >= 4:
         return {
-            "title": "🔮 ศิษย์เอกแม่หมอ PLB",
-            "badge": "ระดับ 3 • ขั้นสูง 🌟",
-            "color": "#c084fc",
-            "perk": "ตรวจดวงเป็นประจำ ช่วยให้คุณตั้งรับและคว้าจังหวะโชคดีได้แม่นยำ!"
+            "tier": 3,
+            "title": "🌟 ผู้หยั่งรู้กระแสดวง",
+            "badge": "ระดับ 3 • หยั่งรู้ทิศทาง 🌟",
+            "color": "#34d399",
+            "perk": "เริ่มกุมจังหวะชีวิตได้คล่องแคล่ว โชคลาภเปิดรับอย่างเด่นชัด เช็กต่อเนื่องเพื่อก้าวสู่ระดับ 4!"
         }
     elif check_count >= 3 or streak >= 2:
         return {
-            "title": "✨ นักสำรวจดวงชะตา",
-            "badge": "ระดับ 2 • เชี่ยวชาญ ⚡",
+            "tier": 2,
+            "title": "⚡ นักสำรวจดวงชะตา",
+            "badge": "ระดับ 2 • จุดประกายโชค ⚡",
             "color": "#38bdf8",
-            "perk": "เริ่มจับทางกระแสดาวได้ดีเยี่ยม เช็กต่อเนื่องอีก 2 วันเพื่อเลื่อนขั้น!"
+            "perk": "เริ่มจับทางกระแสดาวได้ดีเยี่ยม เช็กต่อเนื่องทุกวันเพื่อสะสมแต้มวาสนาสู่ขั้นถัดไป!"
         }
     else:
         return {
-            "title": "🌟 ผู้เริ่มต้นสู่ดวงดาว",
+            "tier": 1,
+            "title": "🌱 ผู้เริ่มต้นสู่ดวงดาว",
             "badge": "ระดับ 1 • สมาชิกใหม่ 🌱",
-            "color": "#34d399",
-            "perk": "ก้าวแรกแห่งการเปิดดวงชะตา ขอต้อนรับสู่จักรวาล PLB โหราศาสตร์ครับ"
+            "color": "#94a3b8",
+            "perk": "ก้าวแรกแห่งการเปิดดวงชะตา ขอต้อนรับสู่จักรวาล PLB โหราศาสตร์ครับ ✨"
         }
 
 def update_transit_location(line_user_id: str, transit_province: str, transit_district: str = ""):

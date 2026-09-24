@@ -103,7 +103,7 @@ def draw_polar_bear_face(draw, cx, cy, size=180, accessory="star"):
     draw.arc([cx - int(size*0.14), mouth_y - int(size*0.06), cx, mouth_y + int(size*0.12)], start=20, end=160, fill=(30, 41, 59), width=5)
     draw.arc([cx, mouth_y - int(size*0.06), cx + int(size*0.14), mouth_y + int(size*0.12)], start=20, end=160, fill=(30, 41, 59), width=5)
 
-    # Accessories
+    # Cute Themed Accessories
     if accessory == "star":
         # Wizard star hat
         draw.polygon([(cx, cy - int(size*1.35)), (cx - int(size*0.55), cy - int(size*0.65)), (cx + int(size*0.55), cy - int(size*0.65))], fill=(124, 58, 237))
@@ -113,8 +113,34 @@ def draw_polar_bear_face(draw, cx, cy, size=180, accessory="star"):
         # Glowing Crystal Ball
         ball_r = int(size * 0.36)
         ball_y = cy + int(size * 0.65)
-        draw.ellipse([cx - ball_r, ball_y - ball_r, cx + ball_r, ball_y + ball_r], fill=(99, 102, 241), outline=(199, 210, 254), width=6)
+        draw.ellipse([cx - ball_r, ball_y - ball_r, cx + ball_r, ball_y + ball_r], fill=(99, 102, 241), outline=(199, 210, 254), width=5)
         draw.ellipse([cx - int(ball_r*0.6), ball_y - int(ball_r*0.6), cx - int(ball_r*0.2), ball_y - int(ball_r*0.2)], fill=(255, 255, 255))
+    elif accessory == "crown":
+        # Royal Astrological Crown (Rank 7)
+        crown_y = cy - int(size * 0.95)
+        crown_w = int(size * 0.55)
+        crown_h = int(size * 0.35)
+        points = [
+            (cx - crown_w, cy - int(size * 0.65)),
+            (cx - crown_w, crown_y),
+            (cx - crown_w // 2, crown_y + crown_h // 2),
+            (cx, crown_y - int(size * 0.15)),
+            (cx + crown_w // 2, crown_y + crown_h // 2),
+            (cx + crown_w, crown_y),
+            (cx + crown_w, cy - int(size * 0.65))
+        ]
+        draw.polygon(points, fill=(251, 191, 36), outline=(245, 158, 11))
+        draw_star(draw, cx, crown_y - int(size * 0.15), 12, 6, fill=(239, 68, 68))
+        draw_star(draw, cx - crown_w, crown_y, 8, 4, fill=(59, 130, 246))
+        draw_star(draw, cx + crown_w, crown_y, 8, 4, fill=(59, 130, 246))
+    elif accessory == "share":
+        # Holding glowing heart
+        heart_y = cy + int(size * 0.65)
+        hr = int(size * 0.20)
+        draw.ellipse([cx - hr*2, heart_y - hr, cx, heart_y + hr], fill=(244, 114, 182))
+        draw.ellipse([cx, heart_y - hr, cx + hr*2, heart_y + hr], fill=(244, 114, 182))
+        draw.polygon([(cx - hr*2, heart_y), (cx + hr*2, heart_y), (cx, heart_y + int(hr*2.0))], fill=(244, 114, 182))
+        draw_star(draw, cx, heart_y, 8, 4, fill=(255, 255, 255))
     elif accessory == "rating":
         # 5-Star Golden Badge
         star_y = cy + int(size * 0.65)
@@ -124,10 +150,8 @@ def draw_polar_bear_face(draw, cx, cy, size=180, accessory="star"):
         cup_y = cy + int(size * 0.65)
         cup_w = int(size * 0.32)
         cup_h = int(size * 0.28)
-        draw.rounded_rectangle([cx - cup_w, cup_y - cup_h//2, cx + cup_w, cup_y + cup_h//2], radius=16, fill=(244, 63, 94))
-        # Handle
-        draw.arc([cx + cup_w - 6, cup_y - cup_h//3, cx + cup_w + 28, cup_y + cup_h//3], start=270, end=90, fill=(244, 63, 94), width=7)
-        # Steam Heart / Star
+        draw.rounded_rectangle([cx - cup_w, cup_y - cup_h//2, cx + cup_w, cup_y + cup_h//2], radius=14, fill=(244, 63, 94))
+        draw.arc([cx + cup_w - 6, cup_y - cup_h//3, cx + cup_w + 24, cup_y + cup_h//3], start=270, end=90, fill=(244, 63, 94), width=6)
         draw_star(draw, cx, cup_y - int(size*0.30), int(size*0.14), int(size*0.07), fill=(254, 205, 211))
 
 def generate_cute_polar_rich_menu(output_path="rich_menu.png"):
@@ -136,25 +160,21 @@ def generate_cute_polar_rich_menu(output_path="rich_menu.png"):
 
     # Use Modern Google Font 'Prompt'
     if os.path.exists(FONT_BOLD_PATH):
-        font_super_title = ImageFont.truetype(FONT_BOLD_PATH, 115)
-        font_sub = ImageFont.truetype(FONT_MED_PATH, 48)
-        font_pill = ImageFont.truetype(FONT_BOLD_PATH, 42)
-        font_btn = ImageFont.truetype(FONT_BOLD_PATH, 42)
-        font_center_title = ImageFont.truetype(FONT_BOLD_PATH, 42)
-        font_center_sub = ImageFont.truetype(FONT_MED_PATH, 28)
+        font_title = ImageFont.truetype(FONT_BOLD_PATH, 74)
+        font_sub = ImageFont.truetype(FONT_MED_PATH, 36)
+        font_pill = ImageFont.truetype(FONT_BOLD_PATH, 34)
+        font_btn = ImageFont.truetype(FONT_BOLD_PATH, 34)
     else:
-        # Fallback
-        font_super_title = ImageFont.truetype("C:/Windows/Fonts/tahomabd.ttf", 110)
-        font_sub = ImageFont.truetype("C:/Windows/Fonts/tahoma.ttf", 46)
-        font_pill = font_super_title
-        font_btn = font_super_title
-        font_center_title = font_super_title
-        font_center_sub = font_sub
+        font_title = ImageFont.truetype("C:/Windows/Fonts/tahomabd.ttf", 70)
+        font_sub = ImageFont.truetype("C:/Windows/Fonts/tahoma.ttf", 34)
+        font_pill = font_title
+        font_btn = font_title
 
-    # 4 Quadrants configuration with NO raw unicode emojis in text strings!
+    # 6 Grid Cards (3 columns x 2 rows)
     cards = [
+        # ROW 1
         {
-            "rect": (35, 35, 1230, 823),
+            "rect": (32, 32, 828, 831),
             "bg": (17, 24, 48, 255),
             "border": (251, 191, 36, 230),
             "tag_text": "ส่องดวงชะตา",
@@ -163,138 +183,163 @@ def generate_cute_polar_rich_menu(output_path="rich_menu.png"):
             "title": "สรุปดวงวันนี้",
             "sub": "ลัคนา • 4 มิติชีวิต • เลขมงคล",
             "btn_text": "แตะเปิดดวงวันนี้",
-            "bear_type": "star"
+            "bear_type": "star",
+            "use_logo": True
         },
         {
-            "rect": (1270, 35, 2465, 823),
+            "rect": (852, 32, 1648, 831),
             "bg": (20, 28, 58, 255),
             "border": (96, 165, 250, 230),
             "tag_text": "ลูกแก้ววิเศษ",
             "tag_color": (96, 165, 250),
             "tag_icon": "crystal",
-            "title": "เลือกหมวดดูดวง",
+            "title": "เลือกหมวดดวง",
             "sub": "งาน • เงิน • ความรัก • สุขภาพ",
             "btn_text": "แตะเลือกหมวดดวง",
-            "bear_type": "crystal"
+            "bear_type": "crystal",
+            "use_logo": False
         },
         {
-            "rect": (35, 863, 1230, 1651),
-            "bg": (32, 20, 68, 255),
-            "border": (216, 180, 254, 230),
-            "tag_text": "แม่นแค่ไหน",
-            "tag_color": (216, 180, 254),
+            "rect": (1672, 32, 2468, 831),
+            "bg": (26, 20, 54, 255),
+            "border": (52, 211, 153, 230),
+            "tag_text": "ยศ 7 ระดับ",
+            "tag_color": (52, 211, 153),
+            "tag_icon": "crown",
+            "title": "เรียกดูสถิติ",
+            "sub": "คลื่นดวง 7 วัน • สถิติวาสนา",
+            "btn_text": "แตะตรวจเช็กสถิติ",
+            "bear_type": "crown",
+            "use_logo": False
+        },
+        # ROW 2
+        {
+            "rect": (32, 855, 828, 1654),
+            "bg": (42, 20, 50, 255),
+            "border": (244, 114, 182, 230),
+            "tag_text": "ชวนเพื่อนมู",
+            "tag_color": (244, 114, 182),
             "tag_icon": "heart",
-            "title": "ให้ Feedback 5 ดาว",
+            "title": "แชร์ให้เพื่อน",
+            "sub": "ส่งต่อดวงดี • สะสมแต้มบุญ",
+            "btn_text": "แตะชวนเพื่อนแอด",
+            "bear_type": "share",
+            "use_logo": False
+        },
+        {
+            "rect": (852, 855, 1648, 1654),
+            "bg": (32, 20, 68, 255),
+            "border": (192, 132, 252, 230),
+            "tag_text": "แม่นแค่ไหน",
+            "tag_color": (192, 132, 252),
+            "tag_icon": "rating",
+            "title": "ให้ Feedback",
             "sub": "ประเมินความแม่น • ติชมแม่หมอ",
             "btn_text": "แตะร่วมประเมินผล",
-            "bear_type": "rating"
+            "bear_type": "rating",
+            "use_logo": False
         },
         {
-            "rect": (1270, 863, 2465, 1651),
+            "rect": (1672, 855, 2468, 1654),
             "bg": (38, 24, 45, 255),
             "border": (251, 146, 60, 230),
-            "tag_text": "สมทบทุนเซิร์ฟเวอร์",
+            "tag_text": "บำรุงเซิร์ฟเวอร์",
             "tag_color": (251, 146, 60),
             "tag_icon": "coffee",
             "title": "สนับสนุนแม่หมอ",
             "sub": "เลี้ยงกาแฟน้องหมี • PromptPay",
-            "btn_text": "แตะร่วมสนับสนุน",
-            "bear_type": "coffee"
+            "btn_text": "แตะสแกน QR โอนเงิน",
+            "bear_type": "coffee",
+            "use_logo": False
         }
     ]
 
     for c in cards:
         x1, y1, x2, y2 = c["rect"]
         # Card Body
-        draw.rounded_rectangle([x1, y1, x2, y2], radius=44, fill=c["bg"], outline=c["border"], width=6)
+        draw.rounded_rectangle([x1, y1, x2, y2], radius=38, fill=c["bg"], outline=c["border"], width=5)
 
         # Star sparkles in card corners
-        draw_star(draw, x2 - 70, y1 + 70, 18, 8, fill=(255, 255, 255, 190))
-        draw_star(draw, x2 - 130, y1 + 100, 12, 5, fill=(255, 255, 255, 140))
+        draw_star(draw, x2 - 50, y1 + 50, 14, 6, fill=(255, 255, 255, 180))
+        draw_star(draw, x2 - 90, y1 + 80, 9, 4, fill=(255, 255, 255, 130))
 
         # Tag Badge (Pill) with vector icon inside
         tag_text = c["tag_text"]
         tag_bbox = draw.textbbox((0, 0), tag_text, font=font_pill)
         text_w = tag_bbox[2] - tag_bbox[0]
-        pill_w = text_w + 90
-        pill_h = 66
-        pill_x = x1 + 60
-        pill_y = y1 + 55
-        draw.rounded_rectangle([pill_x, pill_y, pill_x + pill_w, pill_y + pill_h], radius=33, fill=(15, 23, 42, 230), outline=c["tag_color"], width=3)
+        pill_w = text_w + 75
+        pill_h = 56
+        pill_x = x1 + 45
+        pill_y = y1 + 45
+        draw.rounded_rectangle([pill_x, pill_y, pill_x + pill_w, pill_y + pill_h], radius=28, fill=(15, 23, 42, 230), outline=c["tag_color"], width=3)
         
         # Draw vector icon inside pill
-        icon_cx = pill_x + 36
+        icon_cx = pill_x + 30
         icon_cy = pill_y + pill_h // 2
         if c["tag_icon"] == "star":
-            draw_star(draw, icon_cx, icon_cy, 16, 8, fill=c["tag_color"])
+            draw_star(draw, icon_cx, icon_cy, 13, 6, fill=c["tag_color"])
         elif c["tag_icon"] == "crystal":
-            draw.ellipse([icon_cx - 14, icon_cy - 14, icon_cx + 14, icon_cy + 14], fill=c["tag_color"])
-            draw.ellipse([icon_cx - 8, icon_cy - 8, icon_cx - 2, icon_cy - 2], fill=(255, 255, 255))
+            draw.ellipse([icon_cx - 11, icon_cy - 11, icon_cx + 11, icon_cy + 11], fill=c["tag_color"])
+            draw.ellipse([icon_cx - 6, icon_cy - 6, icon_cx - 1, icon_cy - 1], fill=(255, 255, 255))
+        elif c["tag_icon"] == "crown":
+            draw_star(draw, icon_cx, icon_cy - 2, 13, 6, fill=c["tag_color"])
+            draw.ellipse([icon_cx - 10, icon_cy + 6, icon_cx + 10, icon_cy + 10], fill=c["tag_color"])
         elif c["tag_icon"] == "heart":
-            draw.ellipse([icon_cx - 10, icon_cy - 12, icon_cx, icon_cy], fill=c["tag_color"])
-            draw.ellipse([icon_cx, icon_cy - 12, icon_cx + 10, icon_cy], fill=c["tag_color"])
-            draw.polygon([(icon_cx - 10, icon_cy - 4), (icon_cx + 10, icon_cy - 4), (icon_cx, icon_cy + 10)], fill=c["tag_color"])
+            draw.ellipse([icon_cx - 8, icon_cy - 9, icon_cx, icon_cy + 1], fill=c["tag_color"])
+            draw.ellipse([icon_cx, icon_cy - 9, icon_cx + 8, icon_cy + 1], fill=c["tag_color"])
+            draw.polygon([(icon_cx - 8, icon_cy - 2), (icon_cx + 8, icon_cy - 2), (icon_cx, icon_cy + 9)], fill=c["tag_color"])
+        elif c["tag_icon"] == "rating":
+            draw_star(draw, icon_cx, icon_cy, 13, 6, fill=c["tag_color"])
         elif c["tag_icon"] == "coffee":
-            draw.rounded_rectangle([icon_cx - 12, icon_cy - 10, icon_cx + 8, icon_cy + 10], radius=4, fill=c["tag_color"])
-            draw.arc([icon_cx + 4, icon_cy - 6, icon_cx + 16, icon_cy + 6], start=270, end=90, fill=c["tag_color"], width=3)
+            draw.rounded_rectangle([icon_cx - 10, icon_cy - 8, icon_cx + 6, icon_cy + 8], radius=3, fill=c["tag_color"])
+            draw.arc([icon_cx + 3, icon_cy - 5, icon_cx + 13, icon_cy + 5], start=270, end=90, fill=c["tag_color"], width=3)
 
         # Text inside pill
-        draw.text((pill_x + 65, pill_y + 8), tag_text, font=font_pill, fill=c["tag_color"])
+        draw.text((pill_x + 55, pill_y + 8), tag_text, font=font_pill, fill=c["tag_color"])
 
         # Main Title (BIG, MODERN, BOLD)
-        draw.text((x1 + 60, y1 + 155), c["title"], font=font_super_title, fill=(255, 255, 255))
+        draw.text((x1 + 45, y1 + 130), c["title"], font=font_title, fill=(255, 255, 255))
 
         # Subtitle (Readable & Clear)
-        draw.text((x1 + 65, y1 + 300), c["sub"], font=font_sub, fill=(203, 213, 225))
+        draw.text((x1 + 48, y1 + 245), c["sub"], font=font_sub, fill=(203, 213, 225))
 
         # Bottom Button Pill with paw print icon
-        btn_y = y2 - 120
-        btn_w = 480
-        btn_h = 76
-        draw.rounded_rectangle([x1 + 60, btn_y, x1 + 60 + btn_w, btn_y + btn_h], radius=26, fill=(15, 23, 42, 240), outline=c["border"], width=3)
-        draw_paw_print(draw, x1 + 100, btn_y + btn_h // 2, size=16, fill=c["tag_color"])
-        draw.text((x1 + 130, btn_y + 12), c["btn_text"], font=font_btn, fill=(255, 255, 255))
+        btn_y = y2 - 100
+        btn_w = 420
+        btn_h = 66
+        draw.rounded_rectangle([x1 + 45, btn_y, x1 + 45 + btn_w, btn_y + btn_h], radius=22, fill=(15, 23, 42, 240), outline=c["border"], width=3)
+        draw_paw_print(draw, x1 + 80, btn_y + btn_h // 2, size=14, fill=c["tag_color"])
+        draw.text((x1 + 110, btn_y + 11), c["btn_text"], font=font_btn, fill=(255, 255, 255))
 
-        # Fluffy Polar Bear Character Illustration on the right
-        bear_cx = x2 - 250
-        bear_cy = y1 + 420
-        draw_polar_bear_face(draw, bear_cx, bear_cy, size=175, accessory=c["bear_type"])
-
-    # Center Badge: Embed the Earth PLB Buff Polar Bear Logo!
-    cx, cy = WIDTH // 2, HEIGHT // 2
-    cw, ch = 520, 160
-    draw.rounded_rectangle([cx - cw//2, cy - ch//2, cx + cw//2, cy + ch//2], radius=50, fill=(10, 15, 30, 255), outline=(251, 191, 36, 255), width=6)
-
-    # Insert Circular Buff Bear Avatar from logo.jpg if available
-    if os.path.exists(LOGO_PATH):
-        try:
-            logo_img = Image.open(LOGO_PATH).convert("RGBA")
-            avatar_size = 120
-            logo_img = logo_img.resize((avatar_size, avatar_size), Image.Resampling.LANCZOS)
-            
-            # Mask to circle
-            mask = Image.new("L", (avatar_size, avatar_size), 0)
-            mask_draw = ImageDraw.Draw(mask)
-            mask_draw.ellipse((0, 0, avatar_size, avatar_size), fill=255)
-            
-            avatar_x = cx - cw//2 + 25
-            avatar_y = cy - avatar_size // 2
-            img.paste(logo_img, (avatar_x, avatar_y), mask)
-            draw.ellipse([avatar_x, avatar_y, avatar_x + avatar_size, avatar_y + avatar_size], outline=(251, 191, 36), width=4)
-            
-            text_start_x = avatar_x + avatar_size + 20
-        except Exception as le:
-            print(f"Logo load warning: {le}")
-            text_start_x = cx - 180
-    else:
-        text_start_x = cx - 180
-
-    draw.text((text_start_x, cy - 44), "PLB หมีดูดวง", font=font_center_title, fill=(254, 240, 138))
-    draw.text((text_start_x, cy + 12), "โหราศาสตร์ไทยชั้นสูง", font=font_center_sub, fill=(148, 163, 184))
+        # Bear Illustration on the right
+        bear_cx = x2 - 175
+        bear_cy = y1 + 375
+        
+        # If use_logo is True and logo exists, embed the Earth PLB Buff Bear with gold ring
+        if c.get("use_logo") and os.path.exists(LOGO_PATH):
+            try:
+                logo_img = Image.open(LOGO_PATH).convert("RGBA")
+                asize = 160
+                logo_img = logo_img.resize((asize, asize), Image.Resampling.LANCZOS)
+                mask = Image.new("L", (asize, asize), 0)
+                mask_draw = ImageDraw.Draw(mask)
+                mask_draw.ellipse((0, 0, asize, asize), fill=255)
+                ax = bear_cx - asize // 2
+                ay = bear_cy - asize // 2
+                img.paste(logo_img, (ax, ay), mask)
+                draw.ellipse([ax, ay, ax + asize, ay + asize], outline=(251, 191, 36), width=5)
+                # Wizard star hat above buff bear
+                draw.polygon([(bear_cx, ay - 45), (bear_cx - 45, ay), (bear_cx + 45, ay)], fill=(124, 58, 237))
+                draw_star(draw, bear_cx, ay - 25, 12, 6, fill=(251, 191, 36))
+            except Exception:
+                draw_polar_bear_face(draw, bear_cx, bear_cy, size=135, accessory=c["bear_type"])
+        else:
+            draw_polar_bear_face(draw, bear_cx, bear_cy, size=135, accessory=c["bear_type"])
 
     img.save(output_path, "PNG")
-    print(f"Modern Cute Polar Bear Rich Menu generated: {output_path}")
+    print(f"Modern Cute Polar Bear 6-Button Rich Menu generated: {output_path}")
 
 if __name__ == "__main__":
     generate_cute_polar_rich_menu("rich_menu.png")
     generate_cute_polar_rich_menu("public/rich_menu.png")
+

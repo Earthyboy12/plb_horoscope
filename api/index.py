@@ -156,7 +156,23 @@ class handler(BaseHTTPRequestHandler):
                             f"https://liff.line.me/{liff_id}?userId={user_id}" if liff_id else f"{web_url}/liff-register.html?userId={user_id}",
                             web_url
                         )
-                        msg_text = "🎉 ยินดีด้วยครับ! บันทึกข้อมูลและผูกดวงชะตาสำเร็จแล้ว นี่คือดวงประจำวันของคุณครับ ✨" if action != "update_transit" else f"📍 อัปเดตสถานที่จรเป็น '{payload.get('transit_province')}' เรียบร้อยแล้วครับ!"
+                        if action == "update_transit":
+                            msg_text = (
+                                f"📍 อัปเดตสถานที่จรสำเร็จเรียบร้อยแล้วครับ!\n"
+                                f"🧭 จังหวัดจรปัจจุบัน: {user.get('transit_province')}\n"
+                                f"🗺️ เขต/อำเภอ: {user.get('transit_district')}\n\n"
+                                f"แม่หมอได้คำนวณรุ่งอรุณและกระแสดาวจรตามพิกัดใหม่ให้คุณเรียบร้อยแล้วครับ ✨"
+                            )
+                        else:
+                            msg_text = (
+                                f"✅ ระบบบันทึกข้อมูลดวงชะตาของคุณเรียบร้อยแล้วครับ!\n\n"
+                                f"👤 ชื่อ: {user.get('name', 'ผู้ใช้')}\n"
+                                f"📅 วันเกิด: {user.get('birth_date')}\n"
+                                f"⏰ เวลาเกิด: {user.get('birth_time')} น.\n"
+                                f"📍 จังหวัดเกิด: {user.get('birth_province')}\n"
+                                f"🧭 สถานที่จร: {user.get('transit_province')}\n\n"
+                                f"แม่หมอผูกดวงและคำนวณลัคนาราศีให้เรียบร้อยแล้ว นี่คือสรุปดวงประจำวันของคุณครับ 👇✨"
+                            )
                         push_line_message(user_id, [{"type": "text", "text": msg_text}, summary_flex], channel_access_token)
                     except Exception as pe:
                         print(f"Push to LINE warning: {pe}")

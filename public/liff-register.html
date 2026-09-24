@@ -189,16 +189,59 @@
       </form>
     </div>
 
-    <!-- Success Modal / Toast -->
-    <div id="successCard" class="hidden my-4 p-5 bg-emerald-950/80 border border-emerald-500/50 rounded-2xl text-center">
-      <div class="text-3xl mb-2">🎉</div>
-      <h3 class="text-base font-bold text-emerald-300">บันทึกข้อมูลเรียบร้อยแล้ว!</h3>
-      <p class="text-xs text-slate-300 mt-1" id="successMsg">
-        บอท PLB โหราศาสตร์ กำลังส่งดวงชะตาส่วนบุคคลของคุณไปใน LINE แชต...
+    <!-- Success Modal / Card -->
+    <div id="successCard" class="hidden my-4 p-6 bg-gradient-to-b from-[#064e3b]/90 via-[#06281e]/95 to-[#0b0f19] border-2 border-emerald-500/60 rounded-3xl shadow-2xl text-center">
+      <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center text-3xl shadow-lg shadow-emerald-500/30 animate-pulse">
+        ✅
+      </div>
+      <h3 class="text-lg font-black text-emerald-300">ระบบบันทึกข้อมูลเรียบร้อยแล้ว!</h3>
+      <p class="text-xs text-emerald-400/90 mt-1" id="successMsg">
+        แม่หมอได้ทำการผูกดวงและคำนวณตามหลักโหราศาสตร์ไทยให้คุณเรียบร้อยแล้วครับ
       </p>
-      <div class="mt-4">
-        <button onclick="closeLiffWindow()" class="px-4 py-2 bg-emerald-500 text-slate-950 font-bold text-xs rounded-lg">
-          กลับสู่ห้องแชต LINE
+
+      <!-- Confirmation Breakdown Box -->
+      <div class="mt-4 p-4 bg-slate-900/90 border border-emerald-500/30 rounded-2xl text-left space-y-2.5 text-xs">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <span class="text-slate-400">👤 ชื่อเจ้าชะตา:</span>
+          <span id="confName" class="font-bold text-white">-</span>
+        </div>
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <span class="text-slate-400">📅 วันเกิด:</span>
+          <span id="confBirthDate" class="font-bold text-amber-300">-</span>
+        </div>
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <span class="text-slate-400">⏰ เวลาเกิด:</span>
+          <span id="confBirthTime" class="font-bold text-amber-300">-</span>
+        </div>
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <span class="text-slate-400">📍 จังหวัดกำเนิด:</span>
+          <span id="confBirthProv" class="font-bold text-white">-</span>
+        </div>
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <span class="text-slate-400">🧭 สถานที่จรปัจจุบัน:</span>
+          <span id="confTransitProv" class="font-bold text-cyan-300">-</span>
+        </div>
+        <div class="flex items-center justify-between pt-1">
+          <span class="text-slate-400">🛡️ สถานะระบบ:</span>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[11px] border border-emerald-500/40">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+            บันทึกสำเร็จ พร้อมดูดวง
+          </span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="mt-5 space-y-2.5">
+        <button onclick="goToLineChat()" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 text-slate-950 font-black text-sm shadow-xl shadow-amber-500/30 active:scale-95 transition-all flex items-center justify-center gap-2">
+          <span>🔮</span>
+          <span>เปิดดูสรุปดวงในแชต LINE ทันที</span>
+        </button>
+        <button onclick="window.location.href='https://line.me/R/nv/recommendOA/@374xcoto'" class="w-full py-2.5 px-4 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-cyan-300 font-bold text-xs border border-cyan-500/30 flex items-center justify-center gap-2">
+          <span>👥</span>
+          <span>ชวนเพื่อนมาผูกดวงด้วยกัน</span>
+        </button>
+        <button onclick="editAgain()" class="text-slate-400 hover:text-white text-xs underline pt-1 block mx-auto">
+          ✏️ แก้ไขข้อมูลอีกครั้ง
         </button>
       </div>
     </div>
@@ -418,7 +461,7 @@
               console.log("LIFF sendMessages note:", le);
             }
           }
-          showSuccess("บันทึกข้อมูลดวงกำเนิดสำเร็จแล้ว! บอท PLB โหราศาสตร์ กำลังส่งสรุปดวงและลัคนาไปในแชตของคุณ...");
+          showSuccess("บันทึกข้อมูลดวงกำเนิดสำเร็จแล้ว! บอท PLB โหราศาสตร์ ส่งสรุปดวงและลัคนาไปในแชตของคุณแล้วครับ", payload);
         } else {
           alert("เกิดข้อผิดพลาด: " + (resData.error || "ไม่สามารถบันทึกได้"));
           btn.disabled = false;
@@ -472,7 +515,7 @@
               console.log("LIFF sendMessages note:", le);
             }
           }
-          showSuccess(`อัปเดตสถานที่จรเป็น '${prov}' สำเร็จ! บอทกำลังส่งดวงชะตาตามพิกัดใหม่ไปในแชตของคุณ...`);
+          showSuccess(`อัปเดตสถานที่จรเป็น '${prov}' สำเร็จ! แม่หมอส่งดวงชะตาตามพิกัดใหม่ไปในแชตของคุณแล้วครับ`, payload);
         } else {
           alert("เกิดข้อผิดพลาด: " + (resData.error || "ไม่สามารถอัปเดตได้"));
           btn.disabled = false;
@@ -485,22 +528,56 @@
       }
     }
 
-    function showSuccess(msg) {
+    function showSuccess(msg, data) {
       document.getElementById('natalCard').classList.add('hidden');
       document.getElementById('transitCard').classList.add('hidden');
-      document.getElementById('successMsg').textContent = msg;
-      document.getElementById('successCard').classList.remove('hidden');
+      if (msg) document.getElementById('successMsg').textContent = msg;
 
-      setTimeout(() => {
-        closeLiffWindow();
-      }, 2000);
+      if (data) {
+        document.getElementById('confName').textContent = data.name || document.getElementById('nameInput').value || "ผู้ใช้";
+        document.getElementById('confBirthDate').textContent = data.birth_date || data.birthDate || document.getElementById('birthDateInput').value || "-";
+        document.getElementById('confBirthTime').textContent = (data.birth_time || data.birthTime || document.getElementById('birthTimeInput').value || "08:30") + " น.";
+        const bProv = data.birth_province || data.province || document.getElementById('birthProvinceSelect').value || "กรุงเทพมหานคร";
+        const bDist = data.birth_district || data.district || "";
+        document.getElementById('confBirthProv').textContent = bDist ? `${bProv} (${bDist})` : bProv;
+        const tProv = data.transit_province || data.transitProvince || bProv;
+        document.getElementById('confTransitProv').textContent = tProv;
+      }
+
+      document.getElementById('successCard').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function editAgain() {
+      document.getElementById('successCard').classList.add('hidden');
+      document.getElementById('natalCard').classList.remove('hidden');
+      const btn = document.getElementById('saveNatalBtn');
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "🌟 บันทึกข้อมูลดวงชะตา";
+      }
+      const tbtn = document.getElementById('saveTransitBtn');
+      if (tbtn) {
+        tbtn.disabled = false;
+        tbtn.textContent = "📍 บันทึกสถานที่จรทันที";
+      }
+    }
+
+    function goToLineChat() {
+      if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
+        try {
+          liff.closeWindow();
+          return;
+        } catch (e) {}
+      }
+      window.location.href = "https://line.me/R/oaMessage/@374xcoto/?สรุปดวงประจำวัน";
     }
 
     function closeLiffWindow() {
       if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
         liff.closeWindow();
       } else {
-        window.location.href = "https://line.me/R/nv/chat";
+        window.location.href = "https://line.me/R/oaMessage/@374xcoto/?สรุปดวงประจำวัน";
       }
     }
 

@@ -94,12 +94,14 @@ def make_progress_bar(score: int, fill_color: str = "#fbbf24", bg_color: str = "
                 "backgroundColor": fill_color,
                 "flex": fill_flex,
                 "height": height,
-                "cornerRadius": "99px"
+                "cornerRadius": "99px",
+                "contents": [{"type": "filler"}]
             },
             {
                 "type": "box",
                 "layout": "vertical",
-                "flex": empty_flex
+                "flex": empty_flex,
+                "contents": [{"type": "filler"}]
             }
         ]
     }
@@ -107,6 +109,9 @@ def make_progress_bar(score: int, fill_color: str = "#fbbf24", bg_color: str = "
 def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", web_url: str = "https://plb-horoscope.vercel.app") -> dict:
     """Build an Ultra-Premium Royal Gold & Obsidian themed Daily Summary Flex Card."""
     from user_store import get_rank_title
+    
+    web_url = web_url or "https://plb-horoscope.vercel.app"
+    liff_url = liff_url or f"{web_url}/liff-register.html"
     
     natal = horoscope.get("natalChart", {})
     asc = natal.get("ascendant", {})
@@ -288,7 +293,7 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                                         "flex": 1,
                                         "contents": [
                                             {"type": "text", "text": f"💼 งาน {career.get('score', 80)}%", "size": "xxs", "color": "#93c5fd", "weight": "bold"},
-                                            {"type": "text", "text": career.get("summary", "งานก้าวหน้า"), "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xxs"}
+                                            {"type": "text", "text": career.get("summary", "งานก้าวหน้า"), "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xs"}
                                         ]
                                     },
                                     # Finance
@@ -301,7 +306,7 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                                         "flex": 1,
                                         "contents": [
                                             {"type": "text", "text": f"💰 เงิน {finance.get('score', 80)}%", "size": "xxs", "color": "#fef08a", "weight": "bold"},
-                                            {"type": "text", "text": finance.get("summary", "เงินคล่องตัว"), "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xxs"}
+                                            {"type": "text", "text": finance.get("summary", "เงินคล่องตัว"), "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xs"}
                                         ]
                                     }
                                 ]
@@ -322,7 +327,7 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                                         "flex": 1,
                                         "contents": [
                                             {"type": "text", "text": f"❤️ รัก {love.get('score', 80)}%", "size": "xxs", "color": "#f472b6", "weight": "bold"},
-                                            {"type": "text", "text": love.get("summary", "เสน่ห์เมตตา"), "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xxs"}
+                                            {"type": "text", "text": love.get("summary", "เสน่ห์เมตตา"), "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xs"}
                                         ]
                                     },
                                     # Health
@@ -335,7 +340,7 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                                         "flex": 1,
                                         "contents": [
                                             {"type": "text", "text": f"🩺 กาย {health.get('score', 80)}%", "size": "xxs", "color": "#86efac", "weight": "bold"},
-                                            {"type": "text", "text": health.get("summary", "พลังชีวาสดใส"), "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xxs"}
+                                            {"type": "text", "text": health.get("summary", "พลังชีวาสดใส"), "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xs"}
                                         ]
                                     }
                                 ]
@@ -535,7 +540,7 @@ def build_stats_flex(user: dict, horoscope: dict, days_history: list = None) -> 
                 {
                     "type": "box",
                     "layout": "vertical",
-                    "margin": "xxs",
+                    "margin": "xs",
                     "contents": [
                         make_progress_bar(sc, fill_color=bar_color, bg_color="#1e293b", height="6px")
                     ]
@@ -999,7 +1004,7 @@ def build_donation_flex(
                         "contents": [
                             {"type": "text", "text": "💳 บัญชีพร้อมเพย์ (PromptPay):", "size": "xs", "weight": "bold", "color": "#38bdf8"},
                             {"type": "text", "text": account_name, "size": "md", "weight": "bold", "color": "#fbbf24", "margin": "xs"},
-                            {"type": "text", "text": account_en, "size": "xxs", "color": "#94a3b8", "margin": "xxs"},
+                            {"type": "text", "text": account_en, "size": "xxs", "color": "#94a3b8", "margin": "xs"},
                             {"type": "text", "text": f"🏦 {bank_info}", "size": "xs", "color": "#38bdf8", "weight": "bold", "margin": "xs"},
                             {"type": "separator", "margin": "sm", "color": "#334155"},
                             {"type": "text", "text": "💡 แตะที่รูปภาพ QR Code ด้านบน เพื่อเปิดเต็มจอ บันทึกภาพลงมือถือ หรือสแกนผ่านแอปธนาคารได้ทันทีครับ", "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "sm"}
