@@ -259,6 +259,7 @@
     ];
 
     let PROVINCES = [];
+    let latestLineChatMsg = "สรุปดวงประจำวัน";
 
     // Switch between Natal & Transit tabs
     function switchTab(tab) {
@@ -449,12 +450,13 @@
         });
         const resData = await res.json();
         if (resData.success) {
+          latestLineChatMsg = `เกิด ${bDate} ${bTime} ${prov} ${dist}`;
           if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
             try {
               await liff.sendMessages([
                 {
                   type: 'text',
-                  text: `เกิด ${bDate} ${bTime} ${prov} ${dist}`
+                  text: latestLineChatMsg
                 }
               ]);
             } catch (le) {
@@ -503,12 +505,13 @@
         });
         const resData = await res.json();
         if (resData.success) {
+          latestLineChatMsg = `จร ${prov}`;
           if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
             try {
               await liff.sendMessages([
                 {
                   type: 'text',
-                  text: `จร ${prov}`
+                  text: latestLineChatMsg
                 }
               ]);
             } catch (le) {
@@ -564,21 +567,25 @@
     }
 
     function goToLineChat() {
+      const targetUrl = "https://line.me/R/oaMessage/@374xcoto/?" + encodeURIComponent(latestLineChatMsg);
       if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
         try {
           liff.closeWindow();
           return;
         } catch (e) {}
       }
-      window.location.href = "https://line.me/R/oaMessage/@374xcoto/?สรุปดวงประจำวัน";
+      window.location.href = targetUrl;
     }
 
     function closeLiffWindow() {
+      const targetUrl = "https://line.me/R/oaMessage/@374xcoto/?" + encodeURIComponent(latestLineChatMsg);
       if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
-        liff.closeWindow();
-      } else {
-        window.location.href = "https://line.me/R/oaMessage/@374xcoto/?สรุปดวงประจำวัน";
+        try {
+          liff.closeWindow();
+          return;
+        } catch (e) {}
       }
+      window.location.href = targetUrl;
     }
 
     // Auto initialize

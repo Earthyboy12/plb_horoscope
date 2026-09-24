@@ -9,5 +9,4 @@ venv/
 .vercel/
 legacy-vite/
 feedback.jsonl
-line_users.json
 

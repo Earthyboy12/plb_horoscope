@@ -190,34 +190,45 @@ def verify_signature(body_bytes: bytes, signature: str, channel_secret: str = ""
         print(f"Signature verify error: {e}")
         return False
 
-def reply_line_message(reply_token: str, messages: list, access_token: str = ""):
-    """Send reply message(s) back to LINE user."""
+def reply_line_message(reply_token: str, messages: list, access_token: str = "", user_id: str = ""):
+    """Send reply message(s) back to LINE user. Automatically falls back to push if replyToken expired or failed!"""
     access_token = access_token or get_channel_access_token()
-    if not access_token or not reply_token:
-        print("[LineBotEngine] No access token or reply token provided")
+    if not access_token:
+        print("[LineBotEngine] No access token provided")
         return False
     
-    url = "https://api.line.me/v2/bot/message/reply"
-    payload = {
-        "replyToken": reply_token,
-        "messages": messages
-    }
-    
-    try:
-        data = json.dumps(payload, ensure_ascii=False).encode('utf-8')
-        req = urllib.request.Request(
-            url,
-            data=data,
-            headers={
-                "Content-Type": "application/json; charset=utf-8",
-                "Authorization": f"Bearer {access_token}"
-            }
-        )
-        with urllib.request.urlopen(req, timeout=8) as response:
-            return response.status == 200
-    except Exception as e:
-        print(f"[LineBotEngine] Error replying to LINE: {e}")
-        return False
+    success = False
+    if reply_token:
+        url = "https://api.line.me/v2/bot/message/reply"
+        payload = {
+            "replyToken": reply_token,
+            "messages": messages
+        }
+        try:
+            data = json.dumps(payload, ensure_ascii=False).encode('utf-8')
+            req = urllib.request.Request(
+                url,
+                data=data,
+                headers={
+                    "Content-Type": "application/json; charset=utf-8",
+                    "Authorization": f"Bearer {access_token}"
+                }
+            )
+            with urllib.request.urlopen(req, timeout=5) as response:
+                if response.status == 200:
+                    return True
+        except urllib.error.HTTPError as he:
+            err_body = he.read().decode('utf-8', errors='ignore')
+            print(f"[LineBotEngine] Reply failed ({he.code}): {err_body}")
+        except Exception as e:
+            print(f"[LineBotEngine] Error replying to LINE: {e}")
+
+    # Fallback to direct push if reply token expired, already consumed, or failed
+    if not success and user_id and user_id.startswith("U"):
+        print(f"[LineBotEngine] Auto-fallback to direct push for {user_id}")
+        return push_line_message(user_id, messages, access_token)
+
+    return success
 
 def push_line_message(user_id: str, messages: list, access_token: str = ""):
     """Push message directly to a LINE user by user ID."""
@@ -285,11 +296,14 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
     
     liff_param = f"?userId={user_id}"
     liff_url = f"https://liff.line.me/{liff_id}{liff_param}" if liff_id else f"{web_url}/liff-register.html{liff_param}"
+
+    def reply(messages: list):
+        return reply_line_message(reply_token, messages, channel_access_token, user_id=user_id)
     
     # 1. Event: Follow (User adds LINE OA as friend)
     if event_type == "follow":
         welcome_flex = build_welcome_flex(liff_url)
-        reply_line_message(reply_token, [welcome_flex], channel_access_token)
+        reply([welcome_flex])
         return
     
     user = get_user(user_id)
@@ -298,19 +312,20 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
     # Helper for unregistered users
     def prompt_registration():
         welcome_flex = build_welcome_flex(liff_url)
-        reply_line_message(reply_token, [
+        reply([
             {
                 "type": "text",
-                "text": "🔮 สวัสดีครับ! น้องหมียังไม่มีข้อมูลวันเกิดของคุณ กรุณาแตะปุ่ม 'ลงทะเบียนข้อมูลดวงชะตา' ด้านล่างเพื่อเริ่มคำนวณลัคนาราศีนะครับ 👇",
+                "text": "🔮 สวัสดีครับ! น้องหมียังไม่มีข้อมูลวันเกิดของคุณ\n\n📌 สามารถกดลงทะเบียนผ่านปุ่มด้านล่าง หรือพิมพ์บอกวันเกิดได้ทันที เช่น:\n👉 เกิด 15/08/2538 08:30 กทม",
                 "quickReply": {
                     "items": [
                         {"type": "action", "action": {"type": "uri", "label": "🌟 ลงทะเบียนวันเกิด", "uri": liff_url}},
+                        {"type": "action", "action": {"type": "message", "label": "💡 ตัวอย่างพิมพ์บอก", "text": "เกิด 12/08/2538 08:30 กทม"}},
                         {"type": "action", "action": {"type": "uri", "label": "👥 ชวนเพื่อนดูดวง", "uri": "https://line.me/R/nv/recommendOA/@374xcoto"}}
                     ]
                 }
             },
             welcome_flex
-        ], channel_access_token)
+        ])
 
     # 2. Event: Message (Text)
     if event_type == "message":
@@ -331,13 +346,13 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             horoscope = compute_user_horoscope(user)
             record_user_check(user_id, horoscope.get("overallScore", 80))
             summary_flex = build_daily_summary_flex(user, horoscope, liff_url, web_url)
-            reply_line_message(reply_token, [
+            reply([
                 {
                     "type": "text",
                     "text": f"🎉 บันทึกข้อมูลและผูกดวงชะตาสำเร็จแล้วครับ!\n📅 วันเกิด: {user.get('birth_date')}\n⏰ เวลา: {user.get('birth_time')} น.\n📍 จังหวัดเกิด/จร: {user.get('birth_province')}\n\nนี่คือสรุปดวงประจำวันและลัคนาราศีเฉพาะตัวของคุณครับ ✨"
                 },
                 summary_flex
-            ], channel_access_token)
+            ])
             return
 
         # Check Personal Astro Stats & Streak Gimmick (สถิติดวงย้อนหลัง & กราฟ 7 วัน)
@@ -347,18 +362,18 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                 return
             horoscope = compute_user_horoscope(user)
             stats_flex = build_stats_flex(user, horoscope)
-            reply_line_message(reply_token, [stats_flex], channel_access_token)
+            reply([stats_flex])
             return
 
         # Check registration commands
         if any(k in text for k in ["ลงทะเบียน", "แก้ไขข้อมูล", "ตั้งค่าดวง", "โปรไฟล์", "เปลี่ยนวันเกิด"]):
             welcome_flex = build_welcome_flex(liff_url)
-            reply_line_message(reply_token, [welcome_flex], channel_access_token)
+            reply([welcome_flex])
             return
 
         # Check Share LINE OA command
         if any(k in text for k in ["แชร์", "ชวนเพื่อน", "แชร์ให้เพื่อน", "share", "ชวน"]):
-            reply_line_message(reply_token, [build_share_flex()], channel_access_token)
+            reply([build_share_flex()])
             return
 
         # Check Transit Location Change command e.g. "จร เชียงใหม่" หรือ "เปลี่ยนสถานที่จร"
@@ -380,25 +395,25 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                 # Compute updated horoscope
                 horoscope = compute_user_horoscope(user)
                 summary_flex = build_daily_summary_flex(user, horoscope, liff_url, web_url)
-                reply_line_message(reply_token, [
+                reply([
                     {
                         "type": "text",
                         "text": f"✅ อัปเดตสถานที่จรเป็น: {matched_prov} เรียบร้อยแล้วครับ! 📍 (คำนวณรุ่งอรุณและ LMT ณ {matched_prov} ทันที)"
                     },
                     summary_flex
-                ], channel_access_token)
+                ])
                 return
             else:
-                reply_line_message(reply_token, [{
+                reply([{
                     "type": "text",
                     "text": f"⚠️ ไม่พบจังหวัด '{target_prov}' กรุณาระบุชื่อจังหวัดในประเทศไทย เช่น 'จร เชียงใหม่' หรือ 'จร ภูเก็ต' ครับ"
-                }], channel_access_token)
+                }])
                 return
 
         # Check transit menu request
         if any(k in text for k in ["เปลี่ยนสถานที่จร", "สถานที่จร", "เปลี่ยนที่จร"]):
             # Quick reply with top provinces + LIFF button
-            reply_line_message(reply_token, [{
+            reply([{
                 "type": "text",
                 "text": "📍 คุณสามารถเลือกจังหวัดจรปัจจุบัน หรือพิมพ์บอกแม่หมอได้เลย เช่น 'จร เชียงใหม่', 'จร ภูเก็ต' หรือแตะเลือกด้านล่างได้เลยครับ 👇",
                 "quickReply": {
@@ -411,13 +426,13 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                         {"type": "action", "action": {"type": "uri", "label": "🗺️ เลือกเขต/อำเภอละเอียด", "uri": f"{liff_url}#transit"}}
                     ]
                 }
-            }], channel_access_token)
+            }])
             return
 
         # Check Feedback / Rating
         if any(k in text_lower for k in ["feedback", "ประเมิน", "ให้คะแนน", "ความแม่นยำ", "3"]):
             feedback_flex = build_feedback_flex()
-            reply_line_message(reply_token, [feedback_flex], channel_access_token)
+            reply([feedback_flex])
             return
 
         # Check Donation
@@ -429,16 +444,16 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                 "previewImageUrl": qr_url
             }
             donation_flex = build_donation_flex(qr_url=qr_url)
-            reply_line_message(reply_token, [image_msg, donation_flex], channel_access_token)
+            reply([image_msg, donation_flex])
             return
 
         # Check Category selection
         if any(k in text for k in ["เลือกหมวด", "หมวดหมู่", "ดูดวง", "2"]):
-            reply_line_message(reply_token, [{
+            reply([{
                 "type": "text",
                 "text": "🔮 เลือกหมวดดูดวงที่ท่านต้องการเจาะลึกได้เลยครับ 👇",
                 "quickReply": get_category_quick_reply()
-            }], channel_access_token)
+            }])
             return
 
         # Specific category keywords
@@ -449,7 +464,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             h = compute_user_horoscope(user)
             asc_name = h["natalChart"]["ascendant"]["signName"]
             flex = build_category_flex("career", h["categories"]["career"], asc_name, h["date"])
-            reply_line_message(reply_token, [flex], channel_access_token)
+            reply([flex])
             return
 
         if any(k in text for k in ["การเงิน", "เงิน", "โชคลาภ"]):
@@ -459,7 +474,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             h = compute_user_horoscope(user)
             asc_name = h["natalChart"]["ascendant"]["signName"]
             flex = build_category_flex("finance", h["categories"]["finance"], asc_name, h["date"])
-            reply_line_message(reply_token, [flex], channel_access_token)
+            reply([flex])
             return
 
         if any(k in text for k in ["ความรัก", "รัก", "คู่ครอง"]):
@@ -469,7 +484,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             h = compute_user_horoscope(user)
             asc_name = h["natalChart"]["ascendant"]["signName"]
             flex = build_category_flex("love", h["categories"]["love"], asc_name, h["date"])
-            reply_line_message(reply_token, [flex], channel_access_token)
+            reply([flex])
             return
 
         if any(k in text for k in ["สุขภาพ", "เตือนภัย", "อุบัติเหตุ"]):
@@ -479,7 +494,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             h = compute_user_horoscope(user)
             asc_name = h["natalChart"]["ascendant"]["signName"]
             flex = build_category_flex("health", h["categories"]["health"], asc_name, h["date"])
-            reply_line_message(reply_token, [flex], channel_access_token)
+            reply([flex])
             return
 
         # Main Daily Horoscope Summary (Button 1)
@@ -490,14 +505,14 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             horoscope = compute_user_horoscope(user)
             record_user_check(user_id, horoscope.get("overallScore", 80))
             summary_flex = build_daily_summary_flex(user, horoscope, liff_url, web_url)
-            reply_line_message(reply_token, [summary_flex], channel_access_token)
+            reply([summary_flex])
             return
 
         # Check if user is typing a feedback comment (or greeting)
         if len(text) > 3 and not any(k in text for k in ["สวัสดี", "hello", "hi"]):
             # Treat as suggestion or general feedback
             _forward_comment_to_sheet(user_id, user.get("name", "ผู้ใช้") if user else "ผู้ใช้", text)
-            reply_line_message(reply_token, [{
+            reply([{
                 "type": "text",
                 "text": "🙏 ขอบพระคุณสำหรับข้อความและคำแนะนำครับ แม่หมอบันทึกข้อมูลเรียบร้อยแล้วครับ ✨",
                 "quickReply": {
@@ -508,7 +523,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                         {"type": "action", "action": {"type": "message", "label": "📍 เปลี่ยนสถานที่จร", "text": "เปลี่ยนสถานที่จร"}}
                     ]
                 }
-            }], channel_access_token)
+            }])
             return
 
         # Fallback greeting
@@ -518,7 +533,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             horoscope = compute_user_horoscope(user)
             record_user_check(user_id, horoscope.get("overallScore", 80))
             summary_flex = build_daily_summary_flex(user, horoscope, liff_url, web_url)
-            reply_line_message(reply_token, [summary_flex], channel_access_token)
+            reply([summary_flex])
 
     # 3. Event: Postback
     elif event_type == "postback":
@@ -544,7 +559,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             horoscope = compute_user_horoscope(user)
             record_user_check(user_id, horoscope.get("overallScore", 80))
             summary_flex = build_daily_summary_flex(user, horoscope, liff_url, web_url)
-            reply_line_message(reply_token, [summary_flex], channel_access_token)
+            reply([summary_flex])
             
         elif action == "stats":
             if not user:
@@ -552,14 +567,14 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                 return
             horoscope = compute_user_horoscope(user)
             stats_flex = build_stats_flex(user, horoscope)
-            reply_line_message(reply_token, [stats_flex], channel_access_token)
+            reply([stats_flex])
             
         elif action == "select_category":
-            reply_line_message(reply_token, [{
+            reply([{
                 "type": "text",
                 "text": "🔮 เลือกหมวดดูดวงที่ท่านต้องการเจาะลึกได้เลยครับ 👇",
                 "quickReply": get_category_quick_reply()
-            }], channel_access_token)
+            }])
             
         elif action == "category":
             cat_name = params.get("cat", "career")
@@ -570,10 +585,10 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             asc_name = h["natalChart"]["ascendant"]["signName"]
             cat_data = h["categories"].get(cat_name, h["categories"]["overall"])
             flex = build_category_flex(cat_name, cat_data, asc_name, h["date"])
-            reply_line_message(reply_token, [flex], channel_access_token)
+            reply([flex])
             
         elif action == "change_transit":
-            reply_line_message(reply_token, [{
+            reply([{
                 "type": "text",
                 "text": "📍 เลือกจังหวัดที่คุณกำลังพำนักอยู่ในปัจจุบัน หรือพิมพ์บอกแม่หมอ เช่น 'จร เชียงใหม่' 👇",
                 "quickReply": {
@@ -585,15 +600,15 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                         {"type": "action", "action": {"type": "uri", "label": "🗺️ เลือกเขต/อำเภอละเอียด", "uri": f"{liff_url}#transit"}}
                     ]
                 }
-            }], channel_access_token)
+            }])
             
         elif action == "feedback_rate":
             stars = int(params.get("stars", 5))
             _record_star_rating(user_id, stars, user)
-            reply_line_message(reply_token, [{
+            reply([{
                 "type": "text",
                 "text": f"🌟 ขอบพระคุณสำหรับคะแนน {stars} ดาวครับ! 🙏\nหากมีข้อคิดเห็น คำติชม หรืออยากให้เพิ่มฟีเจอร์ใด สามารถพิมพ์ข้อความส่งกลับมาในแชตนี้ได้เลยครับ แม่หมอจะบันทึกไว้พัฒนาต่อไปครับ ✨"
-            }], channel_access_token)
+            }])
             
         elif action == "donate":
             qr_url = "https://plb-horoscope.vercel.app/qr_donate.jpg"
@@ -603,45 +618,54 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                 "previewImageUrl": qr_url
             }
             donation_flex = build_donation_flex(qr_url=qr_url)
-            reply_line_message(reply_token, [image_msg, donation_flex], channel_access_token)
+            reply([image_msg, donation_flex])
 
 def _record_star_rating(user_id: str, stars: int, user: dict):
-    """Forward star rating to Google Sheets Webhook."""
-    webhook_url = os.environ.get("GOOGLE_SHEETS_WEBHOOK_URL") or DEFAULT_FEEDBACK_WEBHOOK
-    payload = {
-        "action": "line_feedback_rating",
-        "rating": stars,
-        "line_user_id": user_id,
-        "name": user.get("name") if user else "ผู้ใช้",
-        "transit_province": user.get("transit_province", "") if user else "",
-        "created_at": datetime.datetime.now().isoformat()
-    }
-    try:
-        req = urllib.request.Request(
-            webhook_url,
-            data=json.dumps(payload, ensure_ascii=False).encode('utf-8'),
-            headers={"Content-Type": "application/json; charset=utf-8", "User-Agent": "PLB-LineBot"}
-        )
-        urllib.request.urlopen(req, timeout=3)
-    except Exception as e:
-        print(f"Error forwarding rating: {e}")
+    """Forward star rating to Google Sheets Webhook asynchronously."""
+    def _do():
+        webhook_url = os.environ.get("GOOGLE_SHEETS_WEBHOOK_URL") or DEFAULT_FEEDBACK_WEBHOOK
+        payload = {
+            "action": "line_feedback_rating",
+            "rating": stars,
+            "line_user_id": user_id,
+            "name": user.get("name") if user else "ผู้ใช้",
+            "transit_province": user.get("transit_province", "") if user else "",
+            "created_at": datetime.datetime.now().isoformat()
+        }
+        try:
+            req = urllib.request.Request(
+                webhook_url,
+                data=json.dumps(payload, ensure_ascii=False).encode('utf-8'),
+                headers={"Content-Type": "application/json; charset=utf-8", "User-Agent": "PLB-LineBot"}
+            )
+            urllib.request.urlopen(req, timeout=4)
+        except Exception as e:
+            print(f"Error forwarding rating: {e}")
+
+    import threading
+    threading.Thread(target=_do, daemon=True).start()
 
 def _forward_comment_to_sheet(user_id: str, name: str, comment: str):
-    """Forward text comment to Google Sheets Webhook."""
-    webhook_url = os.environ.get("GOOGLE_SHEETS_WEBHOOK_URL") or DEFAULT_FEEDBACK_WEBHOOK
-    payload = {
-        "action": "line_feedback_comment",
-        "comment": comment,
-        "line_user_id": user_id,
-        "name": name,
-        "created_at": datetime.datetime.now().isoformat()
-    }
-    try:
-        req = urllib.request.Request(
-            webhook_url,
-            data=json.dumps(payload, ensure_ascii=False).encode('utf-8'),
-            headers={"Content-Type": "application/json; charset=utf-8", "User-Agent": "PLB-LineBot"}
-        )
-        urllib.request.urlopen(req, timeout=3)
-    except Exception as e:
-        print(f"Error forwarding comment: {e}")
+    """Forward text comment to Google Sheets Webhook asynchronously."""
+    def _do():
+        webhook_url = os.environ.get("GOOGLE_SHEETS_WEBHOOK_URL") or DEFAULT_FEEDBACK_WEBHOOK
+        payload = {
+            "action": "line_feedback_comment",
+            "comment": comment,
+            "line_user_id": user_id,
+            "name": name,
+            "created_at": datetime.datetime.now().isoformat()
+        }
+        try:
+            req = urllib.request.Request(
+                webhook_url,
+                data=json.dumps(payload, ensure_ascii=False).encode('utf-8'),
+                headers={"Content-Type": "application/json; charset=utf-8", "User-Agent": "PLB-LineBot"}
+            )
+            urllib.request.urlopen(req, timeout=4)
+        except Exception as e:
+            print(f"Error forwarding comment: {e}")
+
+    import threading
+    threading.Thread(target=_do, daemon=True).start()
+

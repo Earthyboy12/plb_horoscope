@@ -80,22 +80,10 @@ class handler(BaseHTTPRequestHandler):
         self.send_header('Content-Type', 'application/json; charset=utf-8')
         self.send_cors_headers()
         self.end_headers()
-        upstash_status = "not_tested"
-        if "test-db" in self.path or "health" in self.path:
-            try:
-                url = 'https://knowing-anchovy-295305.upstash.io'
-                token = 'gQAAAAAABIGJAQIgcDFlZTkxZjBjNjc2YWE0NjVmYWMwN2Y0NGI0M2IzZjA4Ng'
-                req = urllib.request.Request(url, data=json.dumps(['PING']).encode('utf-8'), headers={'Authorization': f'Bearer {token}', 'Content-Type': 'application/json'})
-                with urllib.request.urlopen(req, timeout=3) as r:
-                    upstash_status = r.read().decode('utf-8')
-            except Exception as e:
-                upstash_status = f"error: {e}"
-
         resp = {
             'status': 'ok',
             'service': 'PLB Thai Horoscope API & LINE OA Engine',
             'version': '3.2',
-            'upstash': upstash_status,
             'path': self.path
         }
         self.wfile.write(json.dumps(resp, ensure_ascii=False).encode('utf-8'))

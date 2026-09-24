@@ -207,24 +207,29 @@ def update_transit_location(line_user_id: str, transit_province: str, transit_di
     return user
 
 def _sync_to_google_sheet(action_type: str, data: dict):
-    """Optionally sync user registration or update to Google Sheets Webhook."""
-    webhook_url = os.environ.get("GOOGLE_SHEETS_WEBHOOK_URL") or DEFAULT_WEBHOOK_URL
-    if not webhook_url:
-        return
-    
-    payload = {
-        "action": f"line_user_{action_type}",
-        "timestamp": datetime.datetime.now().isoformat(),
-        **data
-    }
-    
-    try:
-        req = urllib.request.Request(
-            webhook_url,
-            data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
-            headers={"Content-Type": "application/json; charset=utf-8", "User-Agent": "PLB-LineBot"}
-        )
-        urllib.request.urlopen(req, timeout=3)
-    except Exception as e:
-        # Non-blocking warning
-        print(f"Sync to Google Sheet notice: {e}")
+    """Optionally sync user registration or update to Google Sheets Webhook asynchronously."""
+    def _do_sync():
+        webhook_url = os.environ.get("GOOGLE_SHEETS_WEBHOOK_URL") or DEFAULT_WEBHOOK_URL
+        if not webhook_url:
+            return
+        
+        payload = {
+            "action": f"line_user_{action_type}",
+            "timestamp": datetime.datetime.now().isoformat(),
+            **data
+        }
+        
+        try:
+            req = urllib.request.Request(
+                webhook_url,
+                data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+                headers={"Content-Type": "application/json; charset=utf-8", "User-Agent": "PLB-LineBot"}
+            )
+            urllib.request.urlopen(req, timeout=4)
+        except Exception as e:
+            # Non-blocking warning
+            print(f"Sync to Google Sheet notice: {e}")
+
+    import threading
+    threading.Thread(target=_do_sync, daemon=True).start()
+
