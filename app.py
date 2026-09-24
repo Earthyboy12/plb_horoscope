@@ -20,12 +20,13 @@ if hasattr(sys.stderr, 'reconfigure'):
     sys.stderr.reconfigure(encoding='utf-8')
 
 from thai_astrology import get_horoscope, PROVINCES_DICT
-from user_store import get_user, save_user, update_transit_location
+from user_store import get_user, save_user, update_transit_location, record_user_check
 from line_bot_engine import (
     verify_signature,
     handle_line_event,
     push_line_message,
-    compute_user_horoscope
+    compute_user_horoscope,
+    get_channel_access_token
 )
 from line_flex_builder import build_daily_summary_flex
 
@@ -176,15 +177,16 @@ class HoroscopeHandler(http.server.SimpleHTTPRequestHandler):
                     user = save_user(user_id, payload)
 
                 # Push celebration or updated summary to LINE chat if valid LINE user ID
-                channel_access_token = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN", "")
+                channel_access_token = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN") or get_channel_access_token()
                 liff_id = os.environ.get("LIFF_ID", "")
                 web_url = os.environ.get("APP_URL", "https://plb-horoscope.vercel.app")
                 if channel_access_token and user_id.startswith("U"):
                     try:
                         horoscope = compute_user_horoscope(user)
+                        record_user_check(user_id, horoscope.get("overallScore", 80))
                         summary_flex = build_daily_summary_flex(
                             user, horoscope,
-                            f"https://liff.line.me/{liff_id}" if liff_id else f"{web_url}/liff-register.html",
+                            f"https://liff.line.me/{liff_id}?userId={user_id}" if liff_id else f"{web_url}/liff-register.html?userId={user_id}",
                             web_url
                         )
                         msg_text = "🎉 ยินดีด้วยครับ! บันทึกข้อมูลและผูกดวงชะตาสำเร็จแล้ว นี่คือดวงประจำวันของคุณครับ ✨" if action != "update_transit" else f"📍 อัปเดตสถานที่จรเป็น '{payload.get('transit_province')}' เรียบร้อยแล้วครับ!"

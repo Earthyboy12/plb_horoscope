@@ -16,6 +16,7 @@ import tempfile
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TMP_USERS_FILE = os.path.join(tempfile.gettempdir(), "line_users.json")
 LOCAL_USERS_FILE = os.path.join(BASE_DIR, "line_users.json")
+PARENT_USERS_FILE = os.path.join(os.path.dirname(BASE_DIR), "line_users.json")
 DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwBA-NdVNPQSC_M-a_dMWinkH1-5zSADD0xxkXJkE42TYIa-fvQNGMrVoq2Yu5zJ1_-6A/exec"
 
 # In-memory cache for fast lookup
@@ -23,7 +24,7 @@ _USER_CACHE = {}
 
 def _load_cache():
     global _USER_CACHE
-    for fpath in [LOCAL_USERS_FILE, TMP_USERS_FILE]:
+    for fpath in [LOCAL_USERS_FILE, PARENT_USERS_FILE, TMP_USERS_FILE]:
         if os.path.exists(fpath):
             try:
                 with open(fpath, "r", encoding="utf-8") as f:
@@ -71,6 +72,9 @@ def save_user(line_user_id: str, data: dict):
         "transit_province": data.get("transit_province") or data.get("transitProvince") or existing.get("transit_province") or data.get("birth_province") or "กรุงเทพมหานคร",
         "transit_district": data.get("transit_district") or data.get("transitDistrict") or existing.get("transit_district") or data.get("birth_district") or "พระนคร",
         "registered": True,
+        "check_count": existing.get("check_count", 0),
+        "streak": existing.get("streak", 1),
+        "last_check_date": existing.get("last_check_date", ""),
         "created_at": existing.get("created_at", now),
         "updated_at": now
     }
@@ -81,6 +85,83 @@ def save_user(line_user_id: str, data: dict):
     # Sync with Google Sheets Webhook asynchronously/safely
     _sync_to_google_sheet("register", updated_profile)
     return updated_profile
+
+def record_user_check(line_user_id: str, daily_score: int = 80):
+    """Increment user check count, record streak and daily score history."""
+    if not line_user_id:
+        return
+    user = _USER_CACHE.get(line_user_id)
+    if not user:
+        return
+    
+    now_th = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+    today_str = now_th.strftime("%Y-%m-%d")
+    
+    user["check_count"] = user.get("check_count", 0) + 1
+    last_date = user.get("last_check_date", "")
+    current_streak = user.get("streak", 1)
+    
+    if last_date == today_str:
+        pass  # Already checked today
+    elif last_date:
+        try:
+            last_dt = datetime.datetime.strptime(last_date, "%Y-%m-%d")
+            diff = (now_th.date() - last_dt.date()).days
+            if diff == 1:
+                current_streak += 1
+            elif diff > 1:
+                current_streak = 1
+        except Exception:
+            current_streak = 1
+    else:
+        current_streak = 1
+        
+    user["streak"] = current_streak
+    user["last_check_date"] = today_str
+    
+    # Keep score history (last 14 check records)
+    history = user.get("history", [])
+    history.append({
+        "date": today_str,
+        "score": daily_score,
+        "time": now_th.strftime("%H:%M")
+    })
+    user["history"] = history[-14:]
+    
+    _save_cache()
+    _sync_to_google_sheet("check_stats", user)
+    return user
+
+def get_rank_title(check_count: int = 1, streak: int = 1) -> dict:
+    """Get playful astrological rank and badges based on check count & streak."""
+    if check_count >= 15 or streak >= 7:
+        return {
+            "title": "👑 มหาจักรพรรดิ์สายมู",
+            "badge": "ระดับ 4 • เกณฑ์วาสนาสูงสุด ✨",
+            "color": "#fbbf24",
+            "perk": "สถิติของคุณอยู่ในกลุ่มท็อป 1% ผู้หยั่งรู้ดวงดาวอย่างสม่ำเสมอ!"
+        }
+    elif check_count >= 7 or streak >= 4:
+        return {
+            "title": "🔮 ศิษย์เอกแม่หมอ PLB",
+            "badge": "ระดับ 3 • ขั้นสูง 🌟",
+            "color": "#c084fc",
+            "perk": "ตรวจดวงเป็นประจำ ช่วยให้คุณตั้งรับและคว้าจังหวะโชคดีได้แม่นยำ!"
+        }
+    elif check_count >= 3 or streak >= 2:
+        return {
+            "title": "✨ นักสำรวจดวงชะตา",
+            "badge": "ระดับ 2 • เชี่ยวชาญ ⚡",
+            "color": "#38bdf8",
+            "perk": "เริ่มจับทางกระแสดาวได้ดีเยี่ยม เช็กต่อเนื่องอีก 2 วันเพื่อเลื่อนขั้น!"
+        }
+    else:
+        return {
+            "title": "🌟 ผู้เริ่มต้นสู่ดวงดาว",
+            "badge": "ระดับ 1 • สมาชิกใหม่ 🌱",
+            "color": "#34d399",
+            "perk": "ก้าวแรกแห่งการเปิดดวงชะตา ขอต้อนรับสู่จักรวาล PLB โหราศาสตร์ครับ"
+        }
 
 def update_transit_location(line_user_id: str, transit_province: str, transit_district: str = ""):
     """Update current transit location for the user."""

@@ -406,6 +406,18 @@
         });
         const resData = await res.json();
         if (resData.success) {
+          if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
+            try {
+              await liff.sendMessages([
+                {
+                  type: 'text',
+                  text: `เกิด ${bDate} ${bTime} ${prov} ${dist}`
+                }
+              ]);
+            } catch (le) {
+              console.log("LIFF sendMessages note:", le);
+            }
+          }
           showSuccess("บันทึกข้อมูลดวงกำเนิดสำเร็จแล้ว! บอท PLB โหราศาสตร์ กำลังส่งสรุปดวงและลัคนาไปในแชตของคุณ...");
         } else {
           alert("เกิดข้อผิดพลาด: " + (resData.error || "ไม่สามารถบันทึกได้"));
@@ -448,6 +460,18 @@
         });
         const resData = await res.json();
         if (resData.success) {
+          if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
+            try {
+              await liff.sendMessages([
+                {
+                  type: 'text',
+                  text: `จร ${prov}`
+                }
+              ]);
+            } catch (le) {
+              console.log("LIFF sendMessages note:", le);
+            }
+          }
           showSuccess(`อัปเดตสถานที่จรเป็น '${prov}' สำเร็จ! บอทกำลังส่งดวงชะตาตามพิกัดใหม่ไปในแชตของคุณ...`);
         } else {
           alert("เกิดข้อผิดพลาด: " + (resData.error || "ไม่สามารถอัปเดตได้"));

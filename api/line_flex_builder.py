@@ -77,8 +77,37 @@ def build_welcome_flex(liff_url: str) -> dict:
         }
     }
 
+def make_progress_bar(score: int, fill_color: str = "#fbbf24", bg_color: str = "#1e293b", height: str = "8px") -> dict:
+    """Create a sleek visual vector progress bar using Flex boxes."""
+    fill_flex = max(1, min(100, int(score)))
+    empty_flex = max(1, 100 - fill_flex)
+    return {
+        "type": "box",
+        "layout": "horizontal",
+        "height": height,
+        "backgroundColor": bg_color,
+        "cornerRadius": "99px",
+        "contents": [
+            {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": fill_color,
+                "flex": fill_flex,
+                "height": height,
+                "cornerRadius": "99px"
+            },
+            {
+                "type": "box",
+                "layout": "vertical",
+                "flex": empty_flex
+            }
+        ]
+    }
+
 def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", web_url: str = "https://plb-horoscope.vercel.app") -> dict:
-    """Build the main daily horoscope summary Flex Card."""
+    """Build an Ultra-Premium Royal Gold & Obsidian themed Daily Summary Flex Card."""
+    from user_store import get_rank_title
+    
     natal = horoscope.get("natalChart", {})
     asc = natal.get("ascendant", {})
     asc_name = asc.get("signName", "เมษ")
@@ -92,6 +121,7 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
     
     cats = horoscope.get("categories", {})
     overall = cats.get("overall", {})
+    overall_score = overall.get("score", 80)
     career = cats.get("career", {})
     finance = cats.get("finance", {})
     love = cats.get("love", {})
@@ -99,30 +129,43 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
     
     lucky = horoscope.get("luckyInfo", {})
     lucky_nums = " ".join([str(n) for n in lucky.get("numbers", [1, 5, 9])[:3]])
-    lucky_colors = lucky.get("colors", "ทอง, เหลือง")
-    lucky_dirs = lucky.get("directions", "ทิศตะวันออก")
-    gemstones = lucky.get("gemstones", "บุษราคัม")
+    lucky_colors = lucky.get("colors", "ทองคำ, เหลืองมงคล")
+    lucky_dirs = lucky.get("directions", "ทิศมหาราช (ตะวันออก)")
+    gemstones = lucky.get("gemstones", "บุษราคัมจักรพรรดิ์")
     
     date_str = horoscope.get("date", "")
     user_name = user.get("name", "ผู้ใช้")
+    check_count = user.get("check_count", 1)
+    streak = user.get("streak", 1)
+    rank = get_rank_title(check_count, streak)
+    
+    # Stateless postback fallback payload
+    b_date = user.get("birth_date", "1995-08-12")
+    b_time = user.get("birth_time", "08:30")
+    b_prov = user.get("birth_province", "กรุงเทพมหานคร")
+    t_prov = user.get("transit_province", b_prov)
+    pb_meta = f"&b={b_date}&t={b_time}&p={b_prov}&tp={t_prov}"
+
+    # Visual gauge color based on score
+    gauge_color = "#fbbf24" if overall_score >= 85 else ("#38bdf8" if overall_score >= 75 else "#a78bfa")
 
     return {
         "type": "flex",
-        "altText": f"🔮 สรุปดวงวันนี้: ลัคนาราศี{asc_name} (คะแนน {overall.get('score', 80)}%)",
+        "altText": f"👑 ดวงประจำวัน: ลัคนาราศี{asc_name} (เกณฑ์วาสนา {overall_score}%)",
         "contents": {
             "type": "bubble",
             "size": "mega",
             "header": {
                 "type": "box",
                 "layout": "vertical",
-                "backgroundColor": "#0b0f19",
-                "paddingAll": "16px",
+                "backgroundColor": "#030712",
+                "paddingAll": "18px",
                 "contents": [
                     {
                         "type": "box",
                         "layout": "horizontal",
                         "contents": [
-                            {"type": "text", "text": "🔮 PLB โหราศาสตร์", "weight": "bold", "color": "#f59e0b", "size": "sm", "flex": 1},
+                            {"type": "text", "text": "👑 PLB โหราศาสตร์ไทยชั้นสูง", "weight": "bold", "color": "#fbbf24", "size": "sm", "flex": 1},
                             {"type": "text", "text": f"📅 {date_str}", "color": "#94a3b8", "size": "xxs", "align": "end"}
                         ]
                     },
@@ -130,19 +173,22 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                         "type": "box",
                         "layout": "horizontal",
                         "margin": "sm",
+                        "alignItems": "center",
                         "contents": [
-                            {"type": "text", "text": f"ดวงของคุณ {user_name}", "color": "#f8fafc", "size": "md", "weight": "bold", "flex": 1},
+                            {"type": "text", "text": f"ดวงชะตาคุณ {user_name}", "color": "#f8fafc", "size": "md", "weight": "bold", "flex": 1},
                             {
                                 "type": "box",
                                 "layout": "vertical",
-                                "backgroundColor": "#f59e0b",
+                                "backgroundColor": "#1e1b4b",
+                                "borderColor": "#818cf8",
+                                "borderWidth": "1px",
                                 "cornerRadius": "99px",
                                 "paddingStart": "8px",
                                 "paddingEnd": "8px",
                                 "paddingTop": "2px",
                                 "paddingBottom": "2px",
                                 "contents": [
-                                    {"type": "text", "text": f"ลัคนา {asc_name} {asc_deg}°{asc_min}'", "color": "#0f172a", "size": "xxs", "weight": "bold"}
+                                    {"type": "text", "text": rank["title"], "color": "#c7d2fe", "size": "xxs", "weight": "bold"}
                                 ]
                             }
                         ]
@@ -152,76 +198,169 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
             "body": {
                 "type": "box",
                 "layout": "vertical",
-                "backgroundColor": "#0f172a",
+                "backgroundColor": "#070b19",
                 "paddingAll": "16px",
                 "contents": [
-                    # Location badge
-                    {
-                        "type": "box",
-                        "layout": "horizontal",
-                        "backgroundColor": "#1e293b",
-                        "cornerRadius": "8px",
-                        "paddingAll": "8px",
-                        "contents": [
-                            {"type": "text", "text": f"📍 สถิตจร: {transit_prov} ({transit_dist}) • รุ่งอรุณ {sunrise} น.", "size": "xxs", "color": "#38bdf8", "flex": 1}
-                        ]
-                    },
-                    # Theme & Score
+                    # Ascendant & Transit Badge
                     {
                         "type": "box",
                         "layout": "vertical",
-                        "margin": "md",
+                        "backgroundColor": "#0d1b38",
+                        "borderColor": "#1d4ed8",
+                        "borderWidth": "1px",
+                        "cornerRadius": "12px",
+                        "paddingAll": "12px",
                         "contents": [
                             {
                                 "type": "box",
                                 "layout": "horizontal",
                                 "contents": [
-                                    {"type": "text", "text": "ภาพรวมวันนี้", "size": "xs", "color": "#cbd5e1", "weight": "bold", "flex": 1},
-                                    {"type": "text", "text": f"{overall.get('score', 80)}% ({overall.get('grade', 'B+')})", "size": "sm", "color": "#f59e0b", "weight": "bold", "align": "end"}
+                                    {"type": "text", "text": f"✨ ลัคนาราศี{asc_name} • วาสนามหาจักร", "size": "sm", "color": "#fef08a", "weight": "bold", "flex": 1},
+                                    {"type": "text", "text": f"{asc_deg}° {asc_min}'", "size": "xs", "color": "#93c5fd", "weight": "bold", "align": "end"}
                                 ]
                             },
-                            {"type": "text", "text": overall.get("theme", "จังหวะชีวิตราบรื่น มีเกณฑ์ก้าวหน้า"), "size": "xs", "color": "#e2e8f0", "wrap": True, "margin": "xs"}
+                            {"type": "text", "text": f"📍 สถิตจร: {transit_prov} ({transit_dist}) • รุ่งอรุณ {sunrise} น.", "size": "xxs", "color": "#7dd3fc", "margin": "xs"}
                         ]
                     },
-                    {"type": "separator", "color": "#334155", "margin": "md"},
-                    # Category Scores
+                    # Overall Power Score Gauge
                     {
                         "type": "box",
                         "layout": "vertical",
                         "margin": "md",
+                        "backgroundColor": "#0f172a",
+                        "borderColor": "#334155",
+                        "borderWidth": "1px",
+                        "cornerRadius": "12px",
+                        "paddingAll": "12px",
                         "contents": [
-                            {"type": "text", "text": "📊 คะแนนพลังชะตา 4 ด้าน:", "size": "xxs", "color": "#94a3b8", "weight": "bold"},
                             {
                                 "type": "box",
                                 "layout": "horizontal",
+                                "alignItems": "center",
+                                "contents": [
+                                    {"type": "text", "text": "⚜️ ดัชนีพลังดวงชะตาประจำวัน", "size": "xs", "color": "#e2e8f0", "weight": "bold", "flex": 1},
+                                    {"type": "text", "text": f"{overall_score}%", "size": "lg", "color": gauge_color, "weight": "bold", "align": "end"}
+                                ]
+                            },
+                            {
+                                "type": "box",
+                                "layout": "vertical",
                                 "margin": "xs",
                                 "contents": [
-                                    {"type": "text", "text": f"💼 งาน {career.get('score', 80)}%", "size": "xxs", "color": "#93c5fd", "flex": 1},
-                                    {"type": "text", "text": f"💰 เงิน {finance.get('score', 80)}%", "size": "xxs", "color": "#86efac", "flex": 1},
-                                    {"type": "text", "text": f"❤️ รัก {love.get('score', 80)}%", "size": "xxs", "color": "#f472b6", "flex": 1},
-                                    {"type": "text", "text": f"🩺 สุขภาพ {health.get('score', 80)}%", "size": "xxs", "color": "#fde047", "flex": 1}
+                                    make_progress_bar(overall_score, fill_color=gauge_color, bg_color="#1e293b", height="8px")
+                                ]
+                            },
+                            {"type": "text", "text": overall.get("theme", "จังหวะดวงเปิดกว้าง มีเกณฑ์ก้าวหน้าราบรื่น"), "size": "xs", "color": "#fef08a", "wrap": True, "margin": "xs"},
+                            # Gamified Streak Badge
+                            {
+                                "type": "box",
+                                "layout": "horizontal",
+                                "margin": "sm",
+                                "backgroundColor": "#172554",
+                                "cornerRadius": "8px",
+                                "paddingAll": "6px",
+                                "contents": [
+                                    {"type": "text", "text": f"🔥 ตรวจดวงสะสม {check_count} ครั้ง • เช็กติดต่อกัน {streak} วัน", "size": "xxs", "color": "#67e8f9", "weight": "bold", "align": "center"}
                                 ]
                             }
                         ]
                     },
-                    {"type": "separator", "color": "#334155", "margin": "md"},
-                    # Lucky Boosters
+                    # 4 Pillars of Destiny
                     {
                         "type": "box",
                         "layout": "vertical",
                         "margin": "md",
-                        "backgroundColor": "#172554",
-                        "cornerRadius": "8px",
+                        "contents": [
+                            {"type": "text", "text": "🏛️ จตุสดมภ์โชคลาภ 4 ด้าน:", "size": "xxs", "color": "#fbbf24", "weight": "bold"},
+                            {
+                                "type": "box",
+                                "layout": "horizontal",
+                                "margin": "xs",
+                                "spacing": "xs",
+                                "contents": [
+                                    # Career
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "backgroundColor": "#0b192c",
+                                        "cornerRadius": "8px",
+                                        "paddingAll": "8px",
+                                        "flex": 1,
+                                        "contents": [
+                                            {"type": "text", "text": f"💼 งาน {career.get('score', 80)}%", "size": "xxs", "color": "#93c5fd", "weight": "bold"},
+                                            {"type": "text", "text": career.get("summary", "งานก้าวหน้า"), "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xxs"}
+                                        ]
+                                    },
+                                    # Finance
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "backgroundColor": "#1c1917",
+                                        "cornerRadius": "8px",
+                                        "paddingAll": "8px",
+                                        "flex": 1,
+                                        "contents": [
+                                            {"type": "text", "text": f"💰 เงิน {finance.get('score', 80)}%", "size": "xxs", "color": "#fef08a", "weight": "bold"},
+                                            {"type": "text", "text": finance.get("summary", "เงินคล่องตัว"), "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xxs"}
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "box",
+                                "layout": "horizontal",
+                                "margin": "xs",
+                                "spacing": "xs",
+                                "contents": [
+                                    # Love
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "backgroundColor": "#1f1224",
+                                        "cornerRadius": "8px",
+                                        "paddingAll": "8px",
+                                        "flex": 1,
+                                        "contents": [
+                                            {"type": "text", "text": f"❤️ รัก {love.get('score', 80)}%", "size": "xxs", "color": "#f472b6", "weight": "bold"},
+                                            {"type": "text", "text": love.get("summary", "เสน่ห์เมตตา"), "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xxs"}
+                                        ]
+                                    },
+                                    # Health
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "backgroundColor": "#06231a",
+                                        "cornerRadius": "8px",
+                                        "paddingAll": "8px",
+                                        "flex": 1,
+                                        "contents": [
+                                            {"type": "text", "text": f"🩺 กาย {health.get('score', 80)}%", "size": "xxs", "color": "#86efac", "weight": "bold"},
+                                            {"type": "text", "text": health.get("summary", "พลังชีวาสดใส"), "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xxs"}
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    # Sacred Royal Alignments
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "margin": "md",
+                        "backgroundColor": "#0f172a",
+                        "borderColor": "#ca8a04",
+                        "borderWidth": "1px",
+                        "cornerRadius": "10px",
                         "paddingAll": "10px",
                         "contents": [
-                            {"type": "text", "text": "✨ เคล็ดลับดวงมงคลวันนี้:", "size": "xxs", "color": "#fbbf24", "weight": "bold"},
+                            {"type": "text", "text": "⚜️ เครื่องหมายมงคลราชสำนัก:", "size": "xxs", "color": "#fbbf24", "weight": "bold"},
                             {
                                 "type": "box",
                                 "layout": "horizontal",
                                 "margin": "xs",
                                 "contents": [
-                                    {"type": "text", "text": f"🎯 เลขเด่น: {lucky_nums}", "size": "xxs", "color": "#e2e8f0", "flex": 1},
-                                    {"type": "text", "text": f"🎨 สีมงคล: {lucky_colors}", "size": "xxs", "color": "#e2e8f0", "flex": 1}
+                                    {"type": "text", "text": f"🔢 เลขเทวราช: {lucky_nums}", "size": "xxs", "color": "#f8fafc", "flex": 1},
+                                    {"type": "text", "text": f"🎨 สีมหาจักร: {lucky_colors}", "size": "xxs", "color": "#f8fafc", "flex": 1}
                                 ]
                             },
                             {
@@ -229,8 +368,8 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                                 "layout": "horizontal",
                                 "margin": "xs",
                                 "contents": [
-                                    {"type": "text", "text": f"🧭 ทิศมงคล: {lucky_dirs}", "size": "xxs", "color": "#cbd5e1", "flex": 1},
-                                    {"type": "text", "text": f"💎 อัญมณี: {gemstones}", "size": "xxs", "color": "#cbd5e1", "flex": 1}
+                                    {"type": "text", "text": f"🧭 ทิศมหาราช: {lucky_dirs}", "size": "xxs", "color": "#94a3b8", "flex": 1},
+                                    {"type": "text", "text": f"💎 อัญมณี: {gemstones}", "size": "xxs", "color": "#94a3b8", "flex": 1}
                                 ]
                             }
                         ]
@@ -240,24 +379,36 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
             "footer": {
                 "type": "box",
                 "layout": "vertical",
-                "backgroundColor": "#0b0f19",
+                "backgroundColor": "#030712",
                 "paddingAll": "12px",
-                "spacing": "sm",
+                "spacing": "xs",
                 "contents": [
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#d97706",
+                        "height": "sm",
+                        "action": {
+                            "type": "postback",
+                            "label": "📊 สถิติดวงย้อนหลัง & กิมมิกดวง",
+                            "data": f"action=stats{pb_meta}",
+                            "displayText": "สถิติดวงย้อนหลัง"
+                        }
+                    },
                     {
                         "type": "box",
                         "layout": "horizontal",
-                        "spacing": "sm",
+                        "spacing": "xs",
                         "contents": [
                             {
                                 "type": "button",
-                                "style": "primary",
-                                "color": "#d97706",
+                                "style": "secondary",
+                                "color": "#1e293b",
                                 "height": "sm",
                                 "action": {
                                     "type": "postback",
                                     "label": "🔮 เจาะลึกรายหมวด",
-                                    "data": "action=select_category",
+                                    "data": f"action=select_category{pb_meta}",
                                     "displayText": "เลือกหมวดอยากจะดูหมวดไหน"
                                 },
                                 "flex": 1
@@ -265,12 +416,12 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                             {
                                 "type": "button",
                                 "style": "secondary",
-                                "color": "#334155",
+                                "color": "#1e293b",
                                 "height": "sm",
                                 "action": {
                                     "type": "postback",
                                     "label": "📍 เปลี่ยนสถานที่จร",
-                                    "data": "action=change_transit",
+                                    "data": f"action=change_transit{pb_meta}",
                                     "displayText": "เปลี่ยนสถานที่จร"
                                 },
                                 "flex": 1
@@ -280,7 +431,7 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                     {
                         "type": "box",
                         "layout": "horizontal",
-                        "spacing": "sm",
+                        "spacing": "xs",
                         "contents": [
                             {
                                 "type": "button",
@@ -290,7 +441,7 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                                 "action": {
                                     "type": "uri",
                                     "label": "⚙️ แก้ไขวันเกิด",
-                                    "uri": liff_url
+                                    "uri": f"{liff_url}?userId={user.get('line_user_id','')}" if '?' not in liff_url else liff_url
                                 },
                                 "flex": 1
                             },
@@ -307,16 +458,289 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                                 "flex": 1
                             }
                         ]
+                    }
+                ]
+            }
+        }
+    }
+
+def build_stats_flex(user: dict, horoscope: dict, days_history: list = None) -> dict:
+    """Build the Gamified Personal Astro Stats & 7-Day Luck Wave Flex Card."""
+    try:
+        from user_store import get_rank_title
+        from thai_astrology import get_horoscope
+    except ImportError:
+        from api.user_store import get_rank_title
+        from api.thai_astrology import get_horoscope
+    import datetime
+
+    user_name = user.get("name", "ผู้ใช้")
+    check_count = user.get("check_count", 1)
+    streak = user.get("streak", 1)
+    rank = get_rank_title(check_count, streak)
+    
+    # Calculate 7-day luck history if not provided
+    if not days_history:
+        now_th = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=7)
+        thai_days = ["จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์", "อาทิตย์"]
+        thai_months = ["", "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."]
+        days_history = []
+        for offset in range(-4, 3):
+            d = now_th + datetime.timedelta(days=offset)
+            d_str = d.strftime("%Y-%m-%d")
+            day_name = thai_days[d.weekday()]
+            label = f"{day_name[:2]} {d.day} {thai_months[d.month]}"
+            try:
+                h_day = get_horoscope(user, d_str)
+                sc = h_day.get("categories", {}).get("overall", {}).get("score", 78)
+            except Exception:
+                sc = 80
+            days_history.append({
+                "date": d_str,
+                "label": label,
+                "score": sc,
+                "is_today": (offset == 0)
+            })
+
+    best_day = max(days_history, key=lambda x: x["score"])
+    avg_score = round(sum(d["score"] for d in days_history) / len(days_history))
+    
+    # Build visual progress bar rows for the 7 days
+    day_rows = []
+    for d in days_history:
+        is_today = d.get("is_today", False)
+        is_best = (d["date"] == best_day["date"])
+        sc = d["score"]
+        bar_color = "#fbbf24" if sc >= 85 else ("#38bdf8" if sc >= 75 else "#a78bfa")
+        
+        status_tag = " 🏆 (สูงสุด)" if is_best else (" ✨ (วันนี้)" if is_today else "")
+        day_rows.append({
+            "type": "box",
+            "layout": "vertical",
+            "margin": "xs",
+            "backgroundColor": "#172554" if is_today else "#0a0f24",
+            "borderColor": "#3b82f6" if is_today else "#1e293b",
+            "borderWidth": "1px",
+            "cornerRadius": "8px",
+            "paddingAll": "8px",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {"type": "text", "text": f"{d['label']}{status_tag}", "size": "xxs", "color": "#fef08a" if is_today else "#e2e8f0", "weight": "bold" if (is_today or is_best) else "regular", "flex": 3},
+                        {"type": "text", "text": f"{sc}%", "size": "xxs", "color": bar_color, "weight": "bold", "align": "end", "flex": 1}
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "margin": "xxs",
+                    "contents": [
+                        make_progress_bar(sc, fill_color=bar_color, bg_color="#1e293b", height="6px")
+                    ]
+                }
+            ]
+        })
+
+    # Stateless postback metadata
+    b_date = user.get("birth_date", "1995-08-12")
+    b_time = user.get("birth_time", "08:30")
+    b_prov = user.get("birth_province", "กรุงเทพมหานคร")
+    t_prov = user.get("transit_province", b_prov)
+    pb_meta = f"&b={b_date}&t={b_time}&p={b_prov}&tp={t_prov}"
+
+    return {
+        "type": "flex",
+        "altText": f"📊 แดชบอร์ดสถิติดวงชะตา: คุณ {user_name} ({rank['title']})",
+        "contents": {
+            "type": "bubble",
+            "size": "mega",
+            "header": {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#030712",
+                "paddingAll": "18px",
+                "contents": [
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                            {"type": "text", "text": "📊 แดชบอร์ดสถิติดวงชะตา", "weight": "bold", "color": "#fbbf24", "size": "sm", "flex": 1},
+                            {"type": "text", "text": "PLB โหราศาสตร์", "color": "#94a3b8", "size": "xxs", "align": "end"}
+                        ]
                     },
+                    {"type": "text", "text": f"บันทึกประวัติและความเฮงของคุณ {user_name} ✨", "color": "#e2e8f0", "size": "xs", "margin": "xs"}
+                ]
+            },
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#070b19",
+                "paddingAll": "16px",
+                "contents": [
+                    # Rank & Streak Trophy Card
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "backgroundColor": "#0f172a",
+                        "borderColor": "#ca8a04",
+                        "borderWidth": "1px",
+                        "cornerRadius": "12px",
+                        "paddingAll": "14px",
+                        "contents": [
+                            {
+                                "type": "box",
+                                "layout": "horizontal",
+                                "alignItems": "center",
+                                "contents": [
+                                    {"type": "text", "text": rank["title"], "size": "md", "color": rank["color"], "weight": "bold", "flex": 1},
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "backgroundColor": "#172554",
+                                        "cornerRadius": "99px",
+                                        "paddingStart": "8px",
+                                        "paddingEnd": "8px",
+                                        "paddingTop": "2px",
+                                        "paddingBottom": "2px",
+                                        "contents": [
+                                            {"type": "text", "text": rank["badge"], "size": "xxs", "color": "#93c5fd", "weight": "bold"}
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "box",
+                                "layout": "horizontal",
+                                "margin": "sm",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "backgroundColor": "#1e293b",
+                                        "cornerRadius": "8px",
+                                        "paddingAll": "8px",
+                                        "flex": 1,
+                                        "contents": [
+                                            {"type": "text", "text": "🔢 ตรวจดวงสะสม", "size": "xxs", "color": "#94a3b8"},
+                                            {"type": "text", "text": f"{check_count} ครั้ง", "size": "sm", "color": "#fbbf24", "weight": "bold"}
+                                        ]
+                                    },
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "backgroundColor": "#1e293b",
+                                        "cornerRadius": "8px",
+                                        "paddingAll": "8px",
+                                        "flex": 1,
+                                        "contents": [
+                                            {"type": "text", "text": "🔥 ต่อเนื่อง", "size": "xxs", "color": "#94a3b8"},
+                                            {"type": "text", "text": f"{streak} วันติด", "size": "sm", "color": "#38bdf8", "weight": "bold"}
+                                        ]
+                                    },
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "backgroundColor": "#1e293b",
+                                        "cornerRadius": "8px",
+                                        "paddingAll": "8px",
+                                        "flex": 1,
+                                        "contents": [
+                                            {"type": "text", "text": "📈 เฉลี่ยสัปดาห์นี้", "size": "xxs", "color": "#94a3b8"},
+                                            {"type": "text", "text": f"{avg_score}%", "size": "sm", "color": "#86efac", "weight": "bold"}
+                                        ]
+                                    }
+                                ]
+                            },
+                            {"type": "text", "text": rank["perk"], "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "sm"}
+                        ]
+                    },
+                    # 7-Day Planetary Wave Section
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "margin": "md",
+                        "contents": [
+                            {
+                                "type": "box",
+                                "layout": "horizontal",
+                                "contents": [
+                                    {"type": "text", "text": "📈 กราฟความเฮง 7 วัน (7-Day Luck Wave):", "size": "xxs", "color": "#fbbf24", "weight": "bold", "flex": 1},
+                                    {"type": "text", "text": f"🏆 สูงสุด: {best_day['score']}%", "size": "xxs", "color": "#fef08a", "weight": "bold", "align": "end"}
+                                ]
+                            },
+                            *day_rows
+                        ]
+                    },
+                    # Motivational astro tip
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "margin": "md",
+                        "backgroundColor": "#111827",
+                        "borderColor": "#374151",
+                        "borderWidth": "1px",
+                        "cornerRadius": "10px",
+                        "paddingAll": "10px",
+                        "contents": [
+                            {"type": "text", "text": "💡 เคล็ดลับการรักษาสถิติวาสนา:", "size": "xxs", "color": "#38bdf8", "weight": "bold"},
+                            {"type": "text", "text": "การตรวจดวงทุกเช้าช่วยให้คุณตั้งรับและคว้าจังหวะโชคดีได้แม่นยำ เช็กต่อเนื่องทุกวันเพื่อสะสมแต้มวาสนาสู่ระดับมหาจักรพรรดิ์ครับ ✨", "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xs"}
+                        ]
+                    }
+                ]
+            },
+            "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#030712",
+                "paddingAll": "12px",
+                "spacing": "xs",
+                "contents": [
                     {
                         "type": "button",
-                        "style": "link",
+                        "style": "primary",
+                        "color": "#d97706",
                         "height": "sm",
                         "action": {
-                            "type": "uri",
-                            "label": "🌐 ดูผังจักรราศีเต็มบนเว็บ",
-                            "uri": web_url
+                            "type": "postback",
+                            "label": "🌟 ดูสรุปดวงประจำวัน",
+                            "data": f"action=daily_summary{pb_meta}",
+                            "displayText": "สรุปดวงประจำวัน"
                         }
+                    },
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "spacing": "xs",
+                        "contents": [
+                            {
+                                "type": "button",
+                                "style": "secondary",
+                                "color": "#1e293b",
+                                "height": "sm",
+                                "action": {
+                                    "type": "postback",
+                                    "label": "🔮 เจาะลึกรายหมวด",
+                                    "data": f"action=select_category{pb_meta}",
+                                    "displayText": "เลือกหมวดอยากจะดูหมวดไหน"
+                                },
+                                "flex": 1
+                            },
+                            {
+                                "type": "button",
+                                "style": "secondary",
+                                "color": "#065f46",
+                                "height": "sm",
+                                "action": {
+                                    "type": "uri",
+                                    "label": "👥 ชวนเพื่อนดูดวง",
+                                    "uri": "https://line.me/R/nv/recommendOA/@374xcoto"
+                                },
+                                "flex": 1
+                            }
+                        ]
                     }
                 ]
             }

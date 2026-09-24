@@ -12,21 +12,128 @@ import hashlib
 import base64
 import json
 import os
+import re
 import urllib.request
 import urllib.parse
 import datetime
 
-from thai_astrology import get_horoscope, PROVINCES_DICT
-from user_store import get_user, save_user, update_transit_location
-from line_flex_builder import (
-    build_welcome_flex,
-    build_daily_summary_flex,
-    build_category_flex,
-    build_feedback_flex,
-    build_donation_flex,
-    build_share_flex,
-    get_category_quick_reply
-)
+try:
+    from thai_astrology import get_horoscope, PROVINCES_DICT
+    from user_store import get_user, save_user, update_transit_location, record_user_check
+    from line_flex_builder import (
+        build_welcome_flex,
+        build_daily_summary_flex,
+        build_category_flex,
+        build_feedback_flex,
+        build_donation_flex,
+        build_share_flex,
+        build_stats_flex,
+        get_category_quick_reply
+    )
+except ImportError:
+    from api.thai_astrology import get_horoscope, PROVINCES_DICT
+    from api.user_store import get_user, save_user, update_transit_location, record_user_check
+    from api.line_flex_builder import (
+        build_welcome_flex,
+        build_daily_summary_flex,
+        build_category_flex,
+        build_feedback_flex,
+        build_donation_flex,
+        build_share_flex,
+        build_stats_flex,
+        get_category_quick_reply
+    )
+
+THAI_MONTHS_MAP = {
+    'ม.ค.': 1, 'มกรา': 1, 'มกราคม': 1,
+    'ก.พ.': 2, 'กุมภา': 2, 'กุมภาพันธ์': 2,
+    'มี.ค.': 3, 'มีนา': 3, 'มีนาคม': 3,
+    'เม.ย.': 4, 'เมษา': 4, 'เมษายน': 4,
+    'พ.ค.': 5, 'พฤษภา': 5, 'พฤษภาคม': 5,
+    'มิ.ย.': 6, 'มิถุนา': 6, 'มิถุนายน': 6,
+    'ก.ค.': 7, 'กรกฎา': 7, 'กรกฎาคม': 7,
+    'ส.ค.': 8, 'สิงหา': 8, 'สิงหาคม': 8,
+    'ก.ย.': 9, 'กันยา': 9, 'กันยายน': 9,
+    'ต.ค.': 10, 'ตุลา': 10, 'ตุลาคม': 10,
+    'พ.ย.': 11, 'พฤศจิกา': 11, 'พฤศจิกายน': 11,
+    'ธ.ค.': 12, 'ธันวา': 12, 'ธันวาคม': 12
+}
+
+def parse_birth_info_from_text(text: str):
+    """
+    Parse birth date, time, and province from natural Thai text.
+    Handles:
+      - 'เกิด 12/08/2538 08:30 กรุงเทพมหานคร'
+      - 'เกิด 1995-08-12 09:15 เชียงใหม่'
+      - 'เกิด 12 ส.ค. 2538 08.30 ภูเก็ต'
+      - 'วันเกิด 1/5/2540 ขอนแก่น'
+      - LIFF automated messages: 'เกิด YYYY-MM-DD HH:MM Province District'
+    """
+    cleaned = text.strip()
+    has_birth_keyword = any(k in cleaned for k in ["เกิด", "วันเกิด", "birth", "ลงทะเบียน"])
+    
+    bdate = None
+    # 1. YYYY-MM-DD or YYYY/MM/DD
+    m = re.search(r'\b(\d{4})[-/](\d{1,2})[-/](\d{1,2})\b', cleaned)
+    if m:
+        y, mth, d = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        if y > 2400: y -= 543
+        bdate = f"{y:04d}-{mth:02d}-{d:02d}"
+    
+    # 2. DD/MM/YYYY or DD-MM-YYYY
+    if not bdate:
+        m2 = re.search(r'\b(\d{1,2})[/-](\d{1,2})[/-](\d{4})\b', cleaned)
+        if m2:
+            d, mth, y = int(m2.group(1)), int(m2.group(2)), int(m2.group(3))
+            if y > 2400: y -= 543
+            bdate = f"{y:04d}-{mth:02d}-{d:02d}"
+
+    # 3. Thai month text
+    if not bdate:
+        for m_name, m_num in sorted(THAI_MONTHS_MAP.items(), key=lambda x: -len(x[0])):
+            pattern = rf'(\d{{1,2}})\s*{re.escape(m_name)}\s*(\d{{4}})?'
+            m3 = re.search(pattern, cleaned)
+            if m3:
+                d = int(m3.group(1))
+                y = int(m3.group(2)) if m3.group(2) else 2538
+                if y > 2400: y -= 543
+                bdate = f"{y:04d}-{m_num:02d}-{d:02d}"
+                break
+
+    if not bdate:
+        return None
+
+    if not has_birth_keyword:
+        has_time_or_prov = bool(re.search(r'\b\d{1,2}[:.]\d{2}\b', cleaned)) or any(p in cleaned for p in ["กรุงเทพ", "กทม"] + list(PROVINCES_DICT.keys())[:20])
+        if not has_time_or_prov:
+            return None
+
+    # Parse time
+    mt = re.search(r'\b(\d{1,2})[:.](\d{2})\b', cleaned)
+    btime = f"{int(mt.group(1)):02d}:{int(mt.group(2)):02d}" if mt else "08:30"
+    
+    # Parse province
+    prov = "กรุงเทพมหานคร"
+    if "กทม" in cleaned or "กรุงเทพ" in cleaned:
+        prov = "กรุงเทพมหานคร"
+    else:
+        for p in PROVINCES_DICT.keys():
+            if p in cleaned:
+                prov = p
+                break
+
+    dist = "พระนคร" if prov == "กรุงเทพมหานคร" else f"อำเภอเมือง{prov}"
+    
+    return {
+        "birth_date": bdate,
+        "birth_time": btime,
+        "birth_province": prov,
+        "birth_district": dist,
+        "transit_province": prov,
+        "transit_district": dist,
+        "calc_method": "suriyayatra",
+        "registered": True
+    }
 
 DEFAULT_FEEDBACK_WEBHOOK = "https://script.google.com/macros/s/AKfycbwBA-NdVNPQSC_M-a_dMWinkH1-5zSADD0xxkXJkE42TYIa-fvQNGMrVoq2Yu5zJ1_-6A/exec"
 DEFAULT_CHANNEL_ID = "2011723219"
@@ -176,7 +283,8 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
     if not user_id:
         return
     
-    liff_url = f"https://liff.line.me/{liff_id}" if liff_id else f"{web_url}/liff-register.html?userId={user_id}"
+    liff_param = f"?userId={user_id}"
+    liff_url = f"https://liff.line.me/{liff_id}{liff_param}" if liff_id else f"{web_url}/liff-register.html{liff_param}"
     
     # 1. Event: Follow (User adds LINE OA as friend)
     if event_type == "follow":
@@ -215,6 +323,33 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
         text = message.get("text", "").strip()
         text_lower = text.lower()
         
+        # Check Natural Chat Registration / LIFF auto-messages e.g. "เกิด 12/08/2538 08:30 กทม"
+        parsed_natal = parse_birth_info_from_text(text)
+        if parsed_natal:
+            user = save_user(user_id, parsed_natal)
+            is_registered = True
+            horoscope = compute_user_horoscope(user)
+            record_user_check(user_id, horoscope.get("overallScore", 80))
+            summary_flex = build_daily_summary_flex(user, horoscope, liff_url, web_url)
+            reply_line_message(reply_token, [
+                {
+                    "type": "text",
+                    "text": f"🎉 บันทึกข้อมูลและผูกดวงชะตาสำเร็จแล้วครับ!\n📅 วันเกิด: {user.get('birth_date')}\n⏰ เวลา: {user.get('birth_time')} น.\n📍 จังหวัดเกิด/จร: {user.get('birth_province')}\n\nนี่คือสรุปดวงประจำวันและลัคนาราศีเฉพาะตัวของคุณครับ ✨"
+                },
+                summary_flex
+            ], channel_access_token)
+            return
+
+        # Check Personal Astro Stats & Streak Gimmick (สถิติดวงย้อนหลัง & กราฟ 7 วัน)
+        if any(k in text_lower for k in ["stats", "สถิติ", "ประวัติ", "กี่ครั้ง", "streak", "ย้อนหลัง", "กิมมิก", "คะแนนย้อนหลัง"]):
+            if not is_registered:
+                prompt_registration()
+                return
+            horoscope = compute_user_horoscope(user)
+            stats_flex = build_stats_flex(user, horoscope)
+            reply_line_message(reply_token, [stats_flex], channel_access_token)
+            return
+
         # Check registration commands
         if any(k in text for k in ["ลงทะเบียน", "แก้ไขข้อมูล", "ตั้งค่าดวง", "โปรไฟล์", "เปลี่ยนวันเกิด"]):
             welcome_flex = build_welcome_flex(liff_url)
@@ -353,6 +488,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                 prompt_registration()
                 return
             horoscope = compute_user_horoscope(user)
+            record_user_check(user_id, horoscope.get("overallScore", 80))
             summary_flex = build_daily_summary_flex(user, horoscope, liff_url, web_url)
             reply_line_message(reply_token, [summary_flex], channel_access_token)
             return
@@ -367,6 +503,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                 "quickReply": {
                     "items": [
                         {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวงวันนี้", "text": "สรุปดวงวันนี้"}},
+                        {"type": "action", "action": {"type": "message", "label": "📊 สถิติดวง & กิมมิก", "text": "สถิติ"}},
                         {"type": "action", "action": {"type": "message", "label": "🔮 เลือกหมวดดูดวง", "text": "เลือกหมวดอยากจะดูหมวดไหน"}},
                         {"type": "action", "action": {"type": "message", "label": "📍 เปลี่ยนสถานที่จร", "text": "เปลี่ยนสถานที่จร"}}
                     ]
@@ -379,6 +516,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             prompt_registration()
         else:
             horoscope = compute_user_horoscope(user)
+            record_user_check(user_id, horoscope.get("overallScore", 80))
             summary_flex = build_daily_summary_flex(user, horoscope, liff_url, web_url)
             reply_line_message(reply_token, [summary_flex], channel_access_token)
 
@@ -389,13 +527,32 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
         params = dict(urllib.parse.parse_qsl(data_str))
         action = params.get("action")
         
+        # Re-hydrate user from stateless postback metadata if missing
+        if not user and params.get("b"):
+            user = save_user(user_id, {
+                "birth_date": params.get("b"),
+                "birth_time": params.get("t", "08:30"),
+                "birth_province": params.get("p", "กรุงเทพมหานคร"),
+                "transit_province": params.get("tp", params.get("p", "กรุงเทพมหานคร"))
+            })
+            is_registered = True
+        
         if action == "daily_summary":
             if not user:
                 prompt_registration()
                 return
             horoscope = compute_user_horoscope(user)
+            record_user_check(user_id, horoscope.get("overallScore", 80))
             summary_flex = build_daily_summary_flex(user, horoscope, liff_url, web_url)
             reply_line_message(reply_token, [summary_flex], channel_access_token)
+            
+        elif action == "stats":
+            if not user:
+                prompt_registration()
+                return
+            horoscope = compute_user_horoscope(user)
+            stats_flex = build_stats_flex(user, horoscope)
+            reply_line_message(reply_token, [stats_flex], channel_access_token)
             
         elif action == "select_category":
             reply_line_message(reply_token, [{

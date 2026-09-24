@@ -72,7 +72,42 @@ def test_all():
     assert valid is True
     print("   Signature Verification: PASS")
 
-    print("\n🎉 ALL TESTS PASSED SUCCESSFULLY! 🔮")
+    print("6. Testing Gamification & Streak History...")
+    from user_store import record_user_check, get_rank_title
+    user_with_check = record_user_check(mock_uid, 85)
+    assert user_with_check["check_count"] >= 1
+    assert "streak" in user_with_check
+    rank = get_rank_title(user_with_check["check_count"], user_with_check["streak"])
+    assert "title" in rank and "badge" in rank
+    print(f"   Rank: {rank['title']} ({rank['badge']})")
+    print(f"   Checks: {user_with_check['check_count']}, Streak: {user_with_check['streak']}")
+    print("   Gamification & Streak: PASS")
+
+    print("7. Testing Personal Astro Stats & 7-Day Luck Wave Flex Card...")
+    from line_flex_builder import build_stats_flex
+    stats_flex = build_stats_flex(user_with_check, horoscope_cm)
+    assert stats_flex["type"] == "flex"
+    assert "สถิติดวงชะตา" in stats_flex["altText"]
+    assert stats_flex["contents"]["type"] == "bubble"
+    print("   Personal Astro Stats Flex Card: PASS (Valid Flex JSON)")
+
+    print("8. Testing Chat Natural Language Birth Parser...")
+    from line_bot_engine import parse_birth_info_from_text
+    parsed1 = parse_birth_info_from_text("เกิด 12/08/2538 08:30 กรุงเทพมหานคร")
+    assert parsed1 is not None
+    assert parsed1["birth_date"] == "1995-08-12"
+    assert parsed1["birth_time"] == "08:30"
+    assert parsed1["birth_province"] == "กรุงเทพมหานคร"
+
+    parsed2 = parse_birth_info_from_text("เกิด 1995-08-12 09.15 เชียงใหม่")
+    assert parsed2 is not None
+    assert parsed2["birth_province"] == "เชียงใหม่"
+
+    parsed3 = parse_birth_info_from_text("สวัสดีครับ วันนี้ดวงเป็นไงบ้าง")
+    assert parsed3 is None
+    print("   Chat Birth Parser: PASS")
+
+    print("\n🎉 ALL 8 TESTS PASSED SUCCESSFULLY! 🔮")
 
 if __name__ == "__main__":
     test_all()
