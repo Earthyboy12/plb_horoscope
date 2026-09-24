@@ -166,6 +166,29 @@
       filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.2));
       z-index: 0;
     }
+
+    /* Pointing hand animation for category navigation */
+    @keyframes point-bounce-x {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(6px) scale(1.12); }
+    }
+    .animate-point-x {
+      display: inline-block;
+      animation: point-bounce-x 0.8s ease-in-out infinite;
+    }
+
+    /* Golden glowing beacon aura */
+    @keyframes golden-glow {
+      0%, 100% {
+        box-shadow: 0 0 15px rgba(245, 158, 11, 0.5), 0 0 30px rgba(251, 191, 36, 0.25);
+      }
+      50% {
+        box-shadow: 0 0 25px rgba(245, 158, 11, 0.85), 0 0 45px rgba(251, 191, 36, 0.5);
+      }
+    }
+    .animate-golden-glow {
+      animation: golden-glow 2s ease-in-out infinite;
+    }
   </style>
 </head>
 <body class="min-h-screen astrology-bg flex flex-col selection:bg-amber-500 selection:text-black">
@@ -410,15 +433,24 @@
     </div>
 
     <!-- Sticky Category Tabs Navigation Bar (Prominently Placed at Top of Screen on Mobile) -->
-    <div id="categoryNavWrapper" class="sticky top-[52px] sm:top-[60px] z-30 -mx-3.5 sm:-mx-4 px-3.5 sm:px-4 py-2 sm:py-2.5 bg-[#030611]/95 backdrop-blur-md border-y border-amber-500/30 shadow-xl">
-      <div class="max-w-6xl mx-auto flex flex-col gap-1.5">
-        <div class="flex items-center justify-between">
-          <span class="text-xs sm:text-sm font-bold text-amber-300 flex items-center gap-1.5">
-            <span class="text-amber-400 animate-pulse">👉</span> <span>เลือกหมวดดูดวง:</span>
+    <div id="categoryNavWrapper" class="sticky top-[52px] sm:top-[60px] z-30 -mx-3.5 sm:-mx-4 px-3.5 sm:px-4 py-2.5 sm:py-3 bg-[#030611]/98 backdrop-blur-md border-y-2 border-amber-500/50 shadow-2xl shadow-amber-500/20">
+      <div class="max-w-6xl mx-auto flex flex-col gap-2">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 text-slate-950 font-black text-xs sm:text-sm border-2 border-yellow-200 ring-2 ring-amber-400/50 animate-golden-glow">
+            <span class="text-xl sm:text-2xl animate-point-x">👉</span>
+            <span class="text-xs sm:text-sm font-black text-slate-950 tracking-wide uppercase drop-shadow-sm">
+              เลือกหมวดดูดวง:
+            </span>
+          </div>
+          <span class="text-[11px] sm:text-xs text-amber-300 font-extrabold flex items-center gap-1.5 bg-amber-500/20 px-3 py-1.5 rounded-full border border-amber-400/40 shadow-sm">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
+            </span>
+            <span>แตะเปลี่ยนหมวดทันที ⚡</span>
           </span>
-          <span class="text-[11px] text-amber-200/90 font-medium">แตะเพื่อเปลี่ยนหมวดทันที ⚡</span>
         </div>
-        <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <div class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none pt-0.5">
           <button onclick="setCategoryTab('all')" id="tab-all" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap bg-amber-500 text-slate-950 border border-amber-400 shadow-md shadow-amber-500/25 transition-all active:scale-95">
             🌟 สรุปรวม
           </button>
