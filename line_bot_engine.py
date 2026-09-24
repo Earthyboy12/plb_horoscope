@@ -23,6 +23,7 @@ try:
     from line_flex_builder import (
         build_welcome_flex,
         build_daily_summary_flex,
+        build_category_menu_flex,
         build_category_flex,
         build_feedback_flex,
         build_donation_flex,
@@ -36,6 +37,7 @@ except ImportError:
     from api.line_flex_builder import (
         build_welcome_flex,
         build_daily_summary_flex,
+        build_category_menu_flex,
         build_category_flex,
         build_feedback_flex,
         build_donation_flex,
@@ -447,17 +449,8 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             reply([image_msg, donation_flex])
             return
 
-        # Check Category selection
-        if any(k in text for k in ["เลือกหมวด", "หมวดหมู่", "ดูดวง", "2"]):
-            reply([{
-                "type": "text",
-                "text": "🔮 เลือกหมวดดูดวงที่ท่านต้องการเจาะลึกได้เลยครับ 👇",
-                "quickReply": get_category_quick_reply()
-            }])
-            return
-
-        # Specific category keywords
-        if any(k in text for k in ["การงาน", "งาน"]):
+        # Specific category keywords (checked first so specific terms like 'ดูดวงหมวดการงาน' or 'การงาน' resolve to that category)
+        if any(k in text for k in ["การงาน", "งาน"]) and not any(k in text for k in ["เลือกหมวด", "หมวดหมู่"]):
             if not is_registered:
                 prompt_registration()
                 return
@@ -467,7 +460,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             reply([flex])
             return
 
-        if any(k in text for k in ["การเงิน", "เงิน", "โชคลาภ"]):
+        if any(k in text for k in ["การเงิน", "เงิน", "โชคลาภ"]) and not any(k in text for k in ["เลือกหมวด", "หมวดหมู่"]):
             if not is_registered:
                 prompt_registration()
                 return
@@ -477,7 +470,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             reply([flex])
             return
 
-        if any(k in text for k in ["ความรัก", "รัก", "คู่ครอง"]):
+        if any(k in text for k in ["ความรัก", "รัก", "คู่ครอง"]) and not any(k in text for k in ["เลือกหมวด", "หมวดหมู่"]):
             if not is_registered:
                 prompt_registration()
                 return
@@ -487,7 +480,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             reply([flex])
             return
 
-        if any(k in text for k in ["สุขภาพ", "เตือนภัย", "อุบัติเหตุ"]):
+        if any(k in text for k in ["สุขภาพ", "เตือนภัย", "อุบัติเหตุ"]) and not any(k in text for k in ["เลือกหมวด", "หมวดหมู่"]):
             if not is_registered:
                 prompt_registration()
                 return
@@ -495,6 +488,11 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             asc_name = h["natalChart"]["ascendant"]["signName"]
             flex = build_category_flex("health", h["categories"]["health"], asc_name, h["date"])
             reply([flex])
+            return
+
+        # Check Category selection menu (Button 2 in Rich Menu)
+        if any(k in text for k in ["เลือกหมวด", "หมวดหมู่", "หมวด", "2"]):
+            reply([build_category_menu_flex()])
             return
 
         # Main Daily Horoscope Summary (Button 1)
@@ -570,11 +568,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             reply([stats_flex])
             
         elif action == "select_category":
-            reply([{
-                "type": "text",
-                "text": "🔮 เลือกหมวดดูดวงที่ท่านต้องการเจาะลึกได้เลยครับ 👇",
-                "quickReply": get_category_quick_reply()
-            }])
+            reply([build_category_menu_flex()])
             
         elif action == "category":
             cat_name = params.get("cat", "career")

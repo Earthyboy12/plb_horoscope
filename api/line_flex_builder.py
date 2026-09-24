@@ -752,31 +752,203 @@ def build_stats_flex(user: dict, horoscope: dict, days_history: list = None) -> 
         }
     }
 
+def build_category_menu_flex() -> dict:
+    """Build an interactive luxury card to choose horoscope categories."""
+    return {
+        "type": "flex",
+        "altText": "🔮 เลือกหมวดดูดวงเจาะลึก (การงาน, การเงิน, ความรัก, สุขภาพ)",
+        "contents": {
+            "type": "bubble",
+            "size": "mega",
+            "header": {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#030712",
+                "paddingAll": "16px",
+                "contents": [
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                            {"type": "text", "text": "🔮 เลือกหมวดดูดวงเจาะลึก", "weight": "bold", "color": "#fbbf24", "size": "sm", "flex": 1},
+                            {"type": "text", "text": "PLB โหราศาสตร์", "color": "#94a3b8", "size": "xxs", "align": "end"}
+                        ]
+                    },
+                    {"type": "text", "text": "แตะเลือกหมวดที่คุณต้องการทำนายเฉพาะด้านได้ทันที 👇", "color": "#cbd5e1", "size": "xs", "margin": "xs"}
+                ]
+            },
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#070b19",
+                "paddingAll": "14px",
+                "spacing": "sm",
+                "contents": [
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#1d4ed8",
+                        "height": "sm",
+                        "action": {
+                            "type": "message",
+                            "label": "💼 ดูหมวดการงาน & ธุรกิจ",
+                            "text": "การงาน"
+                        }
+                    },
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#047857",
+                        "height": "sm",
+                        "action": {
+                            "type": "message",
+                            "label": "💰 ดูหมวดการเงิน & โชคลาภ",
+                            "text": "การเงิน"
+                        }
+                    },
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#be185d",
+                        "height": "sm",
+                        "action": {
+                            "type": "message",
+                            "label": "❤️ ดูหมวดความรัก & เสน่ห์",
+                            "text": "ความรัก"
+                        }
+                    },
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#b45309",
+                        "height": "sm",
+                        "action": {
+                            "type": "message",
+                            "label": "🩺 ดูหมวดสุขภาพ & เตือนภัย",
+                            "text": "สุขภาพ"
+                        }
+                    }
+                ]
+            },
+            "footer": {
+                "type": "box",
+                "layout": "horizontal",
+                "backgroundColor": "#030712",
+                "paddingAll": "12px",
+                "spacing": "xs",
+                "contents": [
+                    {
+                        "type": "button",
+                        "style": "secondary",
+                        "color": "#1e293b",
+                        "height": "sm",
+                        "action": {
+                            "type": "message",
+                            "label": "🌟 สรุปดวงรวม",
+                            "text": "สรุปดวงประจำวัน"
+                        },
+                        "flex": 1
+                    },
+                    {
+                        "type": "button",
+                        "style": "secondary",
+                        "color": "#1e293b",
+                        "height": "sm",
+                        "action": {
+                            "type": "message",
+                            "label": "📍 เปลี่ยนที่จร",
+                            "text": "เปลี่ยนสถานที่จร"
+                        },
+                        "flex": 1
+                    }
+                ]
+            }
+        },
+        "quickReply": get_category_quick_reply()
+    }
+
 def build_category_flex(category_key: str, category_data: dict, asc_name: str, date_str: str) -> dict:
-    """Build a detailed single-category horoscope flex message."""
+    """Build a detailed single-category horoscope flex message in Royal Obsidian & Gold theme."""
     CAT_NAMES = {
-        "career": ("💼 การงาน & ธุรกิจ", "#3b82f6"),
-        "finance": ("💰 การเงิน & โชคลาภ", "#10b981"),
-        "love": ("❤️ ความรัก & เสน่ห์", "#ec4899"),
-        "health": ("🩺 สุขภาพ & เตือนภัย", "#eab308"),
-        "zodiac": ("☸ ผังจักรราศี 12 ช่อง", "#8b5cf6")
+        "career": ("💼 การงาน & ธุรกิจ", "#3b82f6", "#1d4ed8"),
+        "finance": ("💰 การเงิน & โชคลาภ", "#10b981", "#047857"),
+        "love": ("❤️ ความรัก & เสน่ห์", "#ec4899", "#be185d"),
+        "health": ("🩺 สุขภาพ & เตือนภัย", "#eab308", "#b45309"),
+        "zodiac": ("☸ ผังจักรราศี 12 ช่อง", "#8b5cf6", "#6d28d9")
     }
     
-    title, color = CAT_NAMES.get(category_key, ("🔮 คำทำนายดวงชะตา", "#f59e0b"))
-    score = category_data.get("score", 80)
-    grade = category_data.get("grade", "B+")
-    theme = category_data.get("theme", "จังหวะดวงกำลังเปิด")
-    forecast = category_data.get("forecast", "")
-    advice = category_data.get("advice", "")
-    highlights = category_data.get("highlights", [])
+    info = CAT_NAMES.get(category_key, ("🔮 คำทำนายดวงชะตา", "#f59e0b", "#d97706"))
+    title, color, border_color = info[0], info[1], info[2]
     
+    score = int(category_data.get("score", 75))
+    if score >= 85:
+        grade = "A+ (มหาเฮง)"
+    elif score >= 75:
+        grade = "A (ดวงเปิด)"
+    elif score >= 65:
+        grade = "B+ (เกณฑ์ดี)"
+    elif score >= 55:
+        grade = "B (ปานกลาง)"
+    else:
+        grade = "C+ (ต้องรอบคอบ)"
+        
+    theme = category_data.get("statusLabel") or category_data.get("theme") or "จังหวะดวงเปิดในทิศทางที่ดี"
+    summary = category_data.get("summary") or category_data.get("forecast") or "ดวงชะตาในหมวดนี้มีเกณฑ์เคลื่อนไหวที่ดี มีโอกาสและจังหวะก้าวหน้า ให้ดำเนินชีวิตด้วยความมั่นใจและรอบคอบครับ"
+    
+    # Subsections (e.g. 🏢 งานประจำ, 📈 ธุรกิจ, 💡 กลยุทธ์)
+    subsections = category_data.get("subsections", {})
+    sub_boxes = []
+    for sub_k, sub_v in subsections.items():
+        sub_title = sub_v.get("title", "")
+        sub_desc = sub_v.get("desc", "")
+        if sub_title and sub_desc:
+            sub_boxes.append({
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#111827",
+                "borderColor": "#1f2937",
+                "borderWidth": "1px",
+                "cornerRadius": "8px",
+                "paddingAll": "10px",
+                "margin": "xs",
+                "contents": [
+                    {"type": "text", "text": sub_title, "weight": "bold", "size": "xxs", "color": "#fef08a"},
+                    {"type": "text", "text": sub_desc, "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xs"}
+                ]
+            })
+            
+    # Highlights / DoList / DontList
+    highlights = category_data.get("highlights", [])
     hl_contents = []
-    for h in highlights[:4]:
-        hl_contents.append({
+    for hl in highlights[:3]:
+        if hl:
+            hl_contents.append({
+                "type": "text",
+                "text": f"• {hl}",
+                "size": "xxs",
+                "color": "#94a3b8",
+                "wrap": True,
+                "margin": "xs"
+            })
+            
+    do_list = category_data.get("doList", [])
+    dont_list = category_data.get("dontList", [])
+    action_tips = []
+    if do_list and do_list[0]:
+        action_tips.append({
             "type": "text",
-            "text": f"• {h}",
+            "text": f"✅ แนะนำ: {do_list[0]}",
             "size": "xxs",
-            "color": "#cbd5e1",
+            "color": "#86efac",
+            "wrap": True,
+            "margin": "xs"
+        })
+    if dont_list and dont_list[0]:
+        action_tips.append({
+            "type": "text",
+            "text": f"❌ ระวัง: {dont_list[0]}",
+            "size": "xxs",
+            "color": "#fca5a5",
             "wrap": True,
             "margin": "xs"
         })
@@ -790,7 +962,7 @@ def build_category_flex(category_key: str, category_data: dict, asc_name: str, d
             "header": {
                 "type": "box",
                 "layout": "vertical",
-                "backgroundColor": "#0b0f19",
+                "backgroundColor": "#030712",
                 "paddingAll": "16px",
                 "contents": [
                     {
@@ -801,30 +973,50 @@ def build_category_flex(category_key: str, category_data: dict, asc_name: str, d
                             {"type": "text", "text": f"{score}% ({grade})", "color": "#f8fafc", "size": "sm", "weight": "bold", "align": "end"}
                         ]
                     },
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "margin": "sm",
+                        "contents": [
+                            make_progress_bar(score, fill_color=color, bg_color="#1e293b", height="7px")
+                        ]
+                    },
                     {"type": "text", "text": f"ลัคนาราศี{asc_name} • วันที่ {date_str}", "size": "xxs", "color": "#94a3b8", "margin": "xs"}
                 ]
             },
             "body": {
                 "type": "box",
                 "layout": "vertical",
-                "backgroundColor": "#0f172a",
+                "backgroundColor": "#070b19",
                 "paddingAll": "16px",
                 "contents": [
-                    {"type": "text", "text": theme, "weight": "bold", "size": "sm", "color": "#fbbf24", "wrap": True},
-                    {"type": "separator", "color": "#334155", "margin": "sm"},
-                    {"type": "text", "text": forecast, "size": "xs", "color": "#e2e8f0", "wrap": True, "margin": "md"},
-                    {
-                        "type": "box",
-                        "layout": "vertical",
-                        "margin": "md",
-                        "backgroundColor": "#1e293b",
-                        "cornerRadius": "8px",
-                        "paddingAll": "10px",
-                        "contents": [
-                            {"type": "text", "text": "💡 คำแนะนำเชิงโหราศาสตร์:", "weight": "bold", "size": "xxs", "color": "#38bdf8"},
-                            {"type": "text", "text": advice, "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xs"}
-                        ]
-                    },
+                    {"type": "text", "text": f"✨ เกณฑ์ดวง: {theme}", "weight": "bold", "size": "xs", "color": "#fbbf24", "wrap": True},
+                    {"type": "separator", "color": "#1e293b", "margin": "sm"},
+                    {"type": "text", "text": summary, "size": "xs", "color": "#e2e8f0", "wrap": True, "margin": "md"},
+                    *( [
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "margin": "md",
+                            "contents": sub_boxes
+                        }
+                    ] if sub_boxes else [] ),
+                    *( [
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "margin": "md",
+                            "backgroundColor": "#0f172a",
+                            "borderColor": "#334155",
+                            "borderWidth": "1px",
+                            "cornerRadius": "8px",
+                            "paddingAll": "10px",
+                            "contents": [
+                                {"type": "text", "text": "💡 เคล็ดลับเสริมดวงประจำวัน:", "weight": "bold", "size": "xxs", "color": "#38bdf8"},
+                                *action_tips
+                            ]
+                        }
+                    ] if action_tips else [] ),
                     *( [
                         {
                             "type": "box",
@@ -840,10 +1032,10 @@ def build_category_flex(category_key: str, category_data: dict, asc_name: str, d
             },
             "footer": {
                 "type": "box",
-                "layout": "horizontal",
-                "backgroundColor": "#0b0f19",
+                "layout": "vertical",
+                "backgroundColor": "#030712",
                 "paddingAll": "12px",
-                "spacing": "sm",
+                "spacing": "xs",
                 "contents": [
                     {
                         "type": "button",
@@ -851,29 +1043,46 @@ def build_category_flex(category_key: str, category_data: dict, asc_name: str, d
                         "color": "#d97706",
                         "height": "sm",
                         "action": {
-                            "type": "postback",
-                            "label": "หมวดอื่น 🔄",
-                            "data": "action=select_category",
-                            "displayText": "เลือกหมวดอยากจะดูหมวดไหน"
-                        },
-                        "flex": 1
+                            "type": "message",
+                            "label": "🔮 เลือกหมวดอื่น",
+                            "text": "เลือกหมวดอยากจะดูหมวดไหน"
+                        }
                     },
                     {
-                        "type": "button",
-                        "style": "secondary",
-                        "color": "#334155",
-                        "height": "sm",
-                        "action": {
-                            "type": "postback",
-                            "label": "ดวงสรุป 🌟",
-                            "data": "action=daily_summary",
-                            "displayText": "สรุปดวงประจำวัน"
-                        },
-                        "flex": 1
+                        "type": "box",
+                        "layout": "horizontal",
+                        "spacing": "xs",
+                        "contents": [
+                            {
+                                "type": "button",
+                                "style": "secondary",
+                                "color": "#1e293b",
+                                "height": "sm",
+                                "action": {
+                                    "type": "message",
+                                    "label": "🌟 สรุปดวงรวม",
+                                    "text": "สรุปดวงประจำวัน"
+                                },
+                                "flex": 1
+                            },
+                            {
+                                "type": "button",
+                                "style": "secondary",
+                                "color": "#065f46",
+                                "height": "sm",
+                                "action": {
+                                    "type": "message",
+                                    "label": "📊 สถิติ & กิมมิก",
+                                    "text": "สถิติ"
+                                },
+                                "flex": 1
+                            }
+                        ]
                     }
                 ]
             }
-        }
+        },
+        "quickReply": get_category_quick_reply()
     }
 
 def build_feedback_flex() -> dict:
@@ -1065,46 +1274,41 @@ def get_category_quick_reply() -> dict:
             {
                 "type": "action",
                 "action": {
-                    "type": "postback",
+                    "type": "message",
                     "label": "💼 การงาน",
-                    "data": "action=category&cat=career",
-                    "displayText": "ดูดวงหมวดการงาน"
+                    "text": "การงาน"
                 }
             },
             {
                 "type": "action",
                 "action": {
-                    "type": "postback",
+                    "type": "message",
                     "label": "💰 การเงิน",
-                    "data": "action=category&cat=finance",
-                    "displayText": "ดูดวงหมวดการเงิน"
+                    "text": "การเงิน"
                 }
             },
             {
                 "type": "action",
                 "action": {
-                    "type": "postback",
+                    "type": "message",
                     "label": "❤️ ความรัก",
-                    "data": "action=category&cat=love",
-                    "displayText": "ดูดวงหมวดความรัก"
+                    "text": "ความรัก"
                 }
             },
             {
                 "type": "action",
                 "action": {
-                    "type": "postback",
+                    "type": "message",
                     "label": "🩺 สุขภาพ",
-                    "data": "action=category&cat=health",
-                    "displayText": "ดูดวงหมวดสุขภาพ"
+                    "text": "สุขภาพ"
                 }
             },
             {
                 "type": "action",
                 "action": {
-                    "type": "postback",
+                    "type": "message",
                     "label": "📍 เปลี่ยนที่จร",
-                    "data": "action=change_transit",
-                    "displayText": "เปลี่ยนสถานที่จร"
+                    "text": "เปลี่ยนสถานที่จร"
                 }
             }
         ]
