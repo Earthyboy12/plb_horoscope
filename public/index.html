@@ -357,6 +357,22 @@
         </span>
       </div>
 
+      <!-- Privacy Guarantee Notice (เห็นชัดเจน ปลอดภัย 100% สบายใจได้) -->
+      <div class="mb-5 p-3.5 sm:p-4 bg-emerald-950/60 border-2 border-emerald-500/60 rounded-2xl flex items-start gap-3 shadow-xl">
+        <div class="w-9 h-9 rounded-full bg-emerald-500/20 border border-emerald-400/60 flex items-center justify-center flex-shrink-0 text-emerald-300 text-lg mt-0.5">
+          🛡️
+        </div>
+        <div class="text-left text-xs sm:text-sm min-w-0">
+          <div class="font-black text-emerald-300 flex items-center gap-2 mb-1 flex-wrap">
+            <span class="text-sm sm:text-base">คำยืนยันความปลอดภัย & นโยบายความเป็นส่วนตัว</span>
+            <span class="text-[10px] sm:text-xs px-2.5 py-0.5 bg-emerald-500/30 text-emerald-200 border border-emerald-400/40 rounded-full font-bold">100% ปลอดภัย ไม่ต้องกังวล</span>
+          </div>
+          <p class="text-slate-200 leading-relaxed text-xs sm:text-sm">
+            <strong class="text-emerald-300 font-bold">เจ้าของแอปไม่ได้บันทึกหรือดักเก็บข้อมูลส่วนตัวใด ๆ ของคุณทั้งสิ้น</strong> ข้อมูลวันเดือนปีเกิด เวลาเกิด และสถานที่ ถูกประมวลผลคำนวณสมผุสดาวและจัดเก็บบนอุปกรณ์ของคุณเอง (Local Storage ใน Browser) เท่านั้น เพื่อความสะดวกในการเปิดดูครั้งต่อไป สบายใจและมั่นใจในความปลอดภัยได้เต็มที่ครับ 🔒✨
+          </p>
+        </div>
+      </div>
+
       <!-- Section 1: ข้อมูลกำเนิด (Natal Chart) -->
       <div class="mb-5">
         <h3 class="text-xs sm:text-sm font-bold text-amber-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
@@ -461,9 +477,15 @@
           💡 <strong>การตัดเวลาท้องถิ่นจริง (LMT) & ดวงจร:</strong> ประเทศไทยอิงเวลามาตรฐาน 105°E (อุบลราชธานี) ระบบจะคำนวณ LMT ของสถานที่เกิด และนำสถานที่จรมาปรับเวลาอาทิตย์อุทัยและยามมงคลประจำถิ่น
         </div>
 
-        <button onclick="saveBirthDetails()" class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-300 hover:from-amber-400 hover:to-yellow-200 text-slate-950 font-black rounded-xl text-sm sm:text-base shadow-xl shadow-amber-500/30 active:scale-95 transition-all whitespace-nowrap">
-          ผูกดวง & ดูดวงใหม่
-        </button>
+        <div class="flex flex-col items-center sm:items-end gap-1.5 w-full sm:w-auto">
+          <button onclick="saveBirthDetails()" class="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-300 hover:from-amber-400 hover:to-yellow-200 text-slate-950 font-black rounded-xl text-sm sm:text-base shadow-xl shadow-amber-500/30 active:scale-95 transition-all whitespace-nowrap">
+            ผูกดวง & ดูดวงใหม่
+          </button>
+          <div class="text-[11px] text-slate-400 flex items-center gap-1">
+            <span>🔒</span>
+            <span class="text-slate-300">เจ้าของแอปไม่เก็บข้อมูลส่วนตัว ข้อมูลอยู่บนเครื่องคุณ 100%</span>
+          </div>
+        </div>
       </div>
     </div>
 

@@ -53,7 +53,28 @@ def build_welcome_flex(liff_url: str) -> dict:
                             {"type": "text", "text": "• เลขมงคล, สีมงคล, ทิศมงคล และเคล็ดลับเสริมดวง", "size": "xs", "color": "#94a3b8", "margin": "xs"}
                         ]
                     },
-                    {"type": "text", "text": "กรุณาลงทะเบียนข้อมูลวันเกิดและสถานที่เกิด เพื่อเริ่มคำนวณดวงชะตาเฉพาะตัวของคุณ 👇", "size": "xs", "color": "#38bdf8", "wrap": True, "margin": "lg"}
+                    # Privacy & Data Security Guarantee Box
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "margin": "md",
+                        "backgroundColor": "#06281e",
+                        "borderColor": "#10b981",
+                        "borderWidth": "1px",
+                        "cornerRadius": "10px",
+                        "paddingAll": "12px",
+                        "contents": [
+                            {
+                                "type": "box",
+                                "layout": "horizontal",
+                                "contents": [
+                                    {"type": "text", "text": "🛡️ คำยืนยันความปลอดภัย & ความเป็นส่วนตัว", "weight": "bold", "size": "xs", "color": "#86efac", "flex": 1}
+                                ]
+                            },
+                            {"type": "text", "text": "เจ้าของแอปไม่มีการบันทึกหรือเก็บข้อมูลส่วนตัวใด ๆ ทั้งสิ้น ข้อมูลวันเวลาเกิดใช้เพื่อคำนวณตำแหน่งดวงดาวบนอุปกรณ์ของคุณเท่านั้น ปลอดภัย 100% สบายใจไม่ต้องกังวลครับ 🔒✨", "size": "xxs", "color": "#a7f3d0", "wrap": True, "margin": "xs"}
+                        ]
+                    },
+                    {"type": "text", "text": "กรุณาลงทะเบียนข้อมูลวันเกิดและสถานที่เกิด เพื่อเริ่มคำนวณดวงชะตาเฉพาะตัวของคุณ 👇", "size": "xs", "color": "#38bdf8", "wrap": True, "margin": "md"}
                 ]
             },
             "footer": {
@@ -401,6 +422,17 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                                 ]
                             }
                         ]
+                    },
+                    # Privacy Reassurance Badge
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "margin": "md",
+                        "alignItems": "center",
+                        "justifyContent": "center",
+                        "contents": [
+                            {"type": "text", "text": "🛡️ เจ้าของแอปไม่บันทึกข้อมูลส่วนตัว • ปลอดภัย 100%", "size": "xxs", "color": "#64748b", "align": "center"}
+                        ]
                     }
                 ]
             },
@@ -718,6 +750,17 @@ def build_stats_flex(user: dict, horoscope: dict, days_history: list = None) -> 
                         "contents": [
                             {"type": "text", "text": "💡 เคล็ดลับการรักษาสถิติวาสนา:", "size": "xxs", "color": "#38bdf8", "weight": "bold"},
                             {"type": "text", "text": "การตรวจดวงทุกเช้าช่วยให้คุณตั้งรับและคว้าจังหวะโชคดีได้แม่นยำ เช็กต่อเนื่องทุกวันเพื่อสะสมแต้มวาสนาสู่ระดับมหาจักรพรรดิ์ครับ ✨", "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xs"}
+                        ]
+                    },
+                    # Privacy Reassurance Badge
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "margin": "md",
+                        "alignItems": "center",
+                        "justifyContent": "center",
+                        "contents": [
+                            {"type": "text", "text": "🛡️ เจ้าของแอปไม่บันทึกข้อมูลส่วนตัว • ข้อมูลอยู่บนเครื่องคุณ 100%", "size": "xxs", "color": "#64748b", "align": "center"}
                         ]
                     }
                 ]

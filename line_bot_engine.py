@@ -474,6 +474,31 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             }])
             return
 
+        # Check Privacy / Data Security Guarantee
+        if any(k in text_lower for k in ["privacy", "ความเป็นส่วนตัว", "ความปลอดภัย", "บันทึกข้อมูลไหม", "เก็บข้อมูลไหม", "ปลอดภัยไหม", "ข้อมูลส่วนตัว", "กังวล", "เจ้าของแอป"]):
+            reply([
+                {
+                    "type": "text",
+                    "text": (
+                        "🛡️ คำยืนยันความปลอดภัยและความเป็นส่วนตัว 100% 🐻‍❄️🔒\n\n"
+                        "สบายใจและไม่ต้องกังวลเลยครับ! เจ้าของแอปไม่มีการบันทึกหรือดักเก็บข้อมูลส่วนตัวใด ๆ ของคุณทั้งสิ้น ✨\n\n"
+                        "• ข้อมูลวันเกิด เวลาเกิด และสถานที่ ถูกใช้เพียงเพื่อคำนวณตำแหน่งดวงดาวและลัคนาราศีเท่านั้น\n"
+                        "• ข้อมูลการใช้งานทั้งหมดถูกจัดเก็บและประมวลผลบนเครื่องของคุณเอง (Local Device Storage)\n"
+                        "• ไม่มีการเก็บข้อมูลลงฐานข้อมูลส่วนกลางใด ๆ ของเจ้าของแอป\n\n"
+                        "คุณสามารถเปิดดูดวงได้อย่างสบายใจและปลอดภัยสูงสุดครับ! 🔮✨"
+                    ),
+                    "quickReply": {
+                        "items": [
+                            {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวงวันนี้", "text": "สรุปดวงประจำวัน"}},
+                            {"type": "action", "action": {"type": "message", "label": "📊 สถิติดวง", "text": "สถิติ"}},
+                            {"type": "action", "action": {"type": "message", "label": "🎰 ขอเลขเด็ด", "text": "ขอเลขเด็ด"}},
+                            {"type": "action", "action": {"type": "message", "label": "👕 สีเสื้อมงคล", "text": "สีเสื้อมงคล"}}
+                        ]
+                    }
+                }
+            ])
+            return
+
         # Check Feedback / Rating
         if any(k in text_lower for k in ["feedback", "ประเมิน", "ให้คะแนน", "ความแม่นยำ", "3"]):
             feedback_flex = build_feedback_flex(web_url)
