@@ -158,6 +158,14 @@ def parse_birth_info_from_text(text: str):
     m_st = re.search(r'\bst[=:]\s*(\d+)\b', cleaned, re.IGNORECASE)
     if m_st:
         st = int(m_st.group(1))
+    xp = 0
+    m_xp = re.search(r'\bxp[=:]\s*(\d+)\b', cleaned, re.IGNORECASE)
+    if m_xp:
+        xp = int(m_xp.group(1))
+    lvl = 1
+    m_lvl = re.search(r'\blvl[=:]\s*(\d+)\b', cleaned, re.IGNORECASE)
+    if m_lvl:
+        lvl = int(m_lvl.group(1))
     ld = ""
     m_ld = re.search(r'\bld[=:]\s*([\d-]+)\b', cleaned, re.IGNORECASE)
     if m_ld:
@@ -177,6 +185,10 @@ def parse_birth_info_from_text(text: str):
         res["check_count"] = cc
     if st > 1:
         res["streak"] = st
+    if xp > 0:
+        res["xp"] = xp
+    if lvl > 1:
+        res["level"] = lvl
     if ld:
         res["last_check_date"] = ld
     return res

@@ -1303,6 +1303,8 @@
 
       const checkCount = existingProfile.check_count || existingProfile.cc || 0;
       const streak = existingProfile.streak || existingProfile.st || 1;
+      const xp = existingProfile.xp || parseInt(localStorage.getItem('plb_user_xp') || '0', 10);
+      const level = existingProfile.level || 1;
       const lastCheckDate = existingProfile.last_check_date || existingProfile.ld || "";
 
       const payload = {
@@ -1325,6 +1327,8 @@
         transit_district: tDist,
         check_count: checkCount,
         streak: streak,
+        xp: xp,
+        level: level,
         last_check_date: lastCheckDate,
         registered: true
       };
@@ -1350,7 +1354,9 @@
         // Structured natural chat trigger format with preserved stats token
         const finalCc = Math.max(checkCount, parseInt(new URLSearchParams(window.location.search).get('cc') || '0', 10));
         const finalSt = Math.max(streak, parseInt(new URLSearchParams(window.location.search).get('st') || '1', 10));
-        latestLineChatMsg = `เกิด ${bDate} ${bTime} ${prov} ${dist} จร ${tProv} cc=${finalCc} st=${finalSt}` + (lastCheckDate ? ` ld=${lastCheckDate}` : '');
+        const finalXp = Math.max(xp, parseInt(new URLSearchParams(window.location.search).get('xp') || '0', 10));
+        const finalLvl = Math.max(level, parseInt(new URLSearchParams(window.location.search).get('lvl') || '1', 10));
+        latestLineChatMsg = `เกิด ${bDate} ${bTime} ${prov} ${dist} จร ${tProv} cc=${finalCc} st=${finalSt}` + (finalXp > 0 ? ` xp=${finalXp}` : '') + (finalLvl > 1 ? ` lvl=${finalLvl}` : '') + (lastCheckDate ? ` ld=${lastCheckDate}` : '');
 
         if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
           try {
@@ -1368,7 +1374,11 @@
         showSuccess("บันทึกข้อมูลดวงกำเนิดและสถานที่จรสำเร็จแล้ว! ระบบจำข้อมูลในเครื่องของคุณเรียบร้อยแล้วครับ", payload);
       } catch (err) {
         // Even if offline, local storage has it!
-        latestLineChatMsg = `เกิด ${bDate} ${bTime} ${prov} ${dist} จร ${tProv} cc=${finalCc} st=${finalSt}`;
+        const finalCc = Math.max(checkCount, parseInt(new URLSearchParams(window.location.search).get('cc') || '0', 10));
+        const finalSt = Math.max(streak, parseInt(new URLSearchParams(window.location.search).get('st') || '1', 10));
+        const finalXp = Math.max(xp, parseInt(new URLSearchParams(window.location.search).get('xp') || '0', 10));
+        const finalLvl = Math.max(level, parseInt(new URLSearchParams(window.location.search).get('lvl') || '1', 10));
+        latestLineChatMsg = `เกิด ${bDate} ${bTime} ${prov} ${dist} จร ${tProv} cc=${finalCc} st=${finalSt}` + (finalXp > 0 ? ` xp=${finalXp}` : '') + (finalLvl > 1 ? ` lvl=${finalLvl}` : '');
         showSuccess("บันทึกข้อมูลดวงชะตาลงในเครื่องของคุณสำเร็จเรียบร้อยแล้วครับ ✨", payload);
       }
     }

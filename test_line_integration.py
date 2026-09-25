@@ -79,8 +79,12 @@ def test_all():
     assert "streak" in user_with_check
     rank = get_rank_title(user_with_check["check_count"], user_with_check["streak"])
     assert "title" in rank and "badge" in rank
+    rank_xp = get_rank_title(1, 1, xp=350)
+    assert rank_xp["tier"] == 4
+    assert "ศิษย์เอกแม่หมอ" in rank_xp["title"]
     print(f"   Rank: {rank['title']} ({rank['badge']})")
-    print(f"   Checks: {user_with_check['check_count']}, Streak: {user_with_check['streak']}")
+    print(f"   XP-Rank: {rank_xp['title']} ({rank_xp['badge']})")
+    print(f"   Checks: {user_with_check['check_count']}, Streak: {user_with_check['streak']}, XP: {user_with_check.get('xp', 0)}")
     print("   Gamification & Streak: PASS")
 
     print("7. Testing Personal Astro Stats & 7-Day Luck Wave Flex Card...")
@@ -114,7 +118,8 @@ def test_all():
     print("   Lucky Colors Visual Swatches Flex Card: PASS")
 
     print("10. Testing Interaction / Message Counting for Unregistered & Registered Users...")
-    temp_uid = "U_test_counter_9999"
+    import time
+    temp_uid = f"U_test_counter_{int(time.time()*1000)}"
     u1 = record_user_check(temp_uid)
     assert u1["check_count"] == 1
     assert u1["streak"] == 1

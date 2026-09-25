@@ -67,9 +67,9 @@ def get_user(line_user_id: str):
         _load_cache()
     return _USER_CACHE.get(line_user_id)
 
-def get_rank_title(check_count: int = 1, streak: int = 1) -> dict:
-    """Get playful astrological rank and badges based on check count & streak (7 Tiers)."""
-    if check_count >= 50 or streak >= 21:
+def get_rank_title(check_count: int = 1, streak: int = 1, xp: int = 0) -> dict:
+    """Get playful astrological rank and badges based on XP, check count & streak (7 Tiers)."""
+    if xp >= 1200 or check_count >= 50 or streak >= 21:
         return {
             "tier": 7,
             "title": "👑 มหาจักรพรรดิ์สายมู",
@@ -77,7 +77,7 @@ def get_rank_title(check_count: int = 1, streak: int = 1) -> dict:
             "color": "#fbbf24",
             "perk": "เกียรติยศสูงสุดแห่งจักรวาล PLB สถิติของคุณอยู่ในกลุ่มท็อป 1% ผู้อยู่เหนือกระแสดาวชะตาอย่างแท้จริง ✨"
         }
-    elif check_count >= 35 or streak >= 15:
+    elif xp >= 800 or check_count >= 35 or streak >= 15:
         return {
             "tier": 6,
             "title": "💎 เทพพยากรณ์จักรวาล",
@@ -85,7 +85,7 @@ def get_rank_title(check_count: int = 1, streak: int = 1) -> dict:
             "color": "#60a5fa",
             "perk": "เกณฑ์วาสนาอยู่ในกลุ่มท็อป 3% ดึงดูดพลังมงคลและหยั่งรู้จังหวะโชคชะตาได้อย่างแม่นยำ 🔮"
         }
-    elif check_count >= 21 or streak >= 11:
+    elif xp >= 500 or check_count >= 21 or streak >= 11:
         return {
             "tier": 5,
             "title": "🛡️ ปรมาจารย์ค้ำดวง",
@@ -93,7 +93,7 @@ def get_rank_title(check_count: int = 1, streak: int = 1) -> dict:
             "color": "#f472b6",
             "perk": "สถิติสะท้อนความสม่ำเสมอ พลังดวงชะตาเข้มแข็ง เกณฑ์ร้ายกลับกลายเป็นดีอย่างอัศจรรย์ ✨"
         }
-    elif check_count >= 14 or streak >= 7:
+    elif xp >= 300 or check_count >= 14 or streak >= 7:
         return {
             "tier": 4,
             "title": "🔮 ศิษย์เอกแม่หมอ PLB",
@@ -101,7 +101,7 @@ def get_rank_title(check_count: int = 1, streak: int = 1) -> dict:
             "color": "#c084fc",
             "perk": "ตรวจดวงสม่ำเสมอ ดาวพฤหัสบดีเริ่มคุ้มครองชะตา มั่นใจในทุกการตัดสินใจสำคัญ 🌟"
         }
-    elif check_count >= 7 or streak >= 4:
+    elif xp >= 150 or check_count >= 7 or streak >= 4:
         return {
             "tier": 3,
             "title": "🌟 ผู้หยั่งรู้กระแสดวง",
@@ -109,7 +109,7 @@ def get_rank_title(check_count: int = 1, streak: int = 1) -> dict:
             "color": "#34d399",
             "perk": "เริ่มกุมจังหวะชีวิตได้คล่องแคล่ว โชคลาภเปิดรับอย่างเด่นชัด เช็กต่อเนื่องเพื่อก้าวสู่ระดับ 4!"
         }
-    elif check_count >= 3 or streak >= 2:
+    elif xp >= 50 or check_count >= 3 or streak >= 2:
         return {
             "tier": 2,
             "title": "⚡ นักสำรวจดวงชะตา",
@@ -127,14 +127,14 @@ def get_rank_title(check_count: int = 1, streak: int = 1) -> dict:
         }
 
 def save_user(line_user_id: str, data: dict):
-    """Save or update user profile while safely preserving check_count and streak."""
+    """Save or update user profile while safely preserving check_count, streak, and xp."""
     if not line_user_id:
         return False
     
     now = datetime.datetime.now().isoformat()
     existing = get_user(line_user_id) or {}
     
-    # Extract incoming check_count / streak / last_check_date from data or short keys
+    # Extract incoming check_count / streak / xp / last_check_date from data or short keys
     try:
         incoming_cc = int(data.get("check_count") or data.get("cc") or 0)
     except (ValueError, TypeError):
@@ -148,10 +148,17 @@ def save_user(line_user_id: str, data: dict):
         incoming_st = 1
     existing_st = int(existing.get("streak", 1))
     final_st = max(incoming_st, existing_st)
+
+    try:
+        incoming_xp = int(data.get("xp") or 0)
+    except (ValueError, TypeError):
+        incoming_xp = 0
+    existing_xp = int(existing.get("xp", 0))
+    final_xp = max(incoming_xp, existing_xp)
     
     final_ld = data.get("last_check_date") or data.get("ld") or existing.get("last_check_date", "")
     
-    rank_info = get_rank_title(final_cc if final_cc > 0 else 1, final_st)
+    rank_info = get_rank_title(final_cc if final_cc > 0 else 1, final_st, final_xp)
     
     # Merge data
     updated_profile = {
@@ -167,6 +174,7 @@ def save_user(line_user_id: str, data: dict):
         "registered": True,
         "check_count": final_cc if final_cc > 0 else 1,
         "streak": final_st,
+        "xp": final_xp,
         "level": rank_info["tier"],
         "last_check_date": final_ld,
         "history": existing.get("history") or data.get("history") or [],
@@ -182,7 +190,7 @@ def save_user(line_user_id: str, data: dict):
     return updated_profile
 
 def record_user_check(line_user_id: str, daily_score: int = 80):
-    """Increment user check/message count, record streak and daily score history."""
+    """Increment user check/message count, record streak, xp, and daily score history."""
     if not line_user_id:
         return None
     user = get_user(line_user_id)
@@ -196,6 +204,7 @@ def record_user_check(line_user_id: str, daily_score: int = 80):
             "registered": False,
             "check_count": 0,
             "streak": 1,
+            "xp": 5,
             "level": 1,
             "last_check_date": today_str,
             "history": [],
@@ -203,6 +212,7 @@ def record_user_check(line_user_id: str, daily_score: int = 80):
         }
     
     user["check_count"] = user.get("check_count", 0) + 1
+    user["xp"] = user.get("xp", 0) + 5
     last_date = user.get("last_check_date", "")
     current_streak = user.get("streak", 1)
     
@@ -224,7 +234,7 @@ def record_user_check(line_user_id: str, daily_score: int = 80):
     user["streak"] = current_streak
     user["last_check_date"] = today_str
     
-    rank_info = get_rank_title(user.get("check_count", 1), user.get("streak", 1))
+    rank_info = get_rank_title(user.get("check_count", 1), user.get("streak", 1), user.get("xp", 0))
     user["level"] = rank_info["tier"]
     
     # Keep score history (last 14 check records)

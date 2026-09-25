@@ -329,6 +329,62 @@
   <!-- Main Content -->
   <main class="flex-grow max-w-6xl w-full mx-auto px-3.5 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-5 relative z-10">
 
+    <!-- Gamified Astro XP & Level Progress Card (Stored 100% in Device Local Memory) -->
+    <div id="astroXpCard" class="bg-gradient-to-r from-slate-900/95 via-indigo-950/80 to-slate-900/95 border-2 border-amber-500/35 hover:border-amber-400/60 rounded-3xl p-4 sm:p-5 shadow-2xl backdrop-blur-md transition-all animate-fade-in relative overflow-hidden">
+      <!-- Glow ambient background -->
+      <div class="absolute -right-10 -top-10 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-10">
+        <!-- Rank Icon & Badges -->
+        <div class="flex items-center gap-3.5">
+          <div id="xpTierIcon" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/10 border-2 border-amber-400/50 flex items-center justify-center text-2xl shadow-lg ring-2 ring-amber-400/20 animate-pulse-gentle">
+            🌱
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span id="xpRankTitle" class="text-base sm:text-lg font-black text-amber-300 drop-shadow">ผู้เริ่มต้นสู่ดวงดาว</span>
+              <span id="xpTierBadge" class="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-200 font-bold">ระดับ 1</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold flex items-center gap-1">
+                <span>🔒</span> บันทึกในเครื่อง 100%
+              </span>
+            </div>
+            <div class="text-xs text-slate-300 flex items-center gap-2 mt-1 flex-wrap">
+              <span id="xpStreakBadge" class="text-amber-400 font-bold flex items-center gap-1">🔥 วันที่ 1 ติด</span>
+              <span>•</span>
+              <span id="xpVisitBadge" class="text-sky-300 font-semibold flex items-center gap-1">👁️ เข้าชม 1 ครั้ง</span>
+              <span>•</span>
+              <span id="xpPerkBrief" class="text-slate-400 text-[11px] hidden sm:inline">สะสมแต้มวาสนาผ่านการใช้งานจริง</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action / Details Button -->
+        <div class="flex items-center gap-2 self-start sm:self-center">
+          <button onclick="toggleXpModal(true)" class="px-3.5 py-2 text-xs font-bold text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 rounded-xl transition-all active:scale-95 flex items-center gap-1.5 shadow-md hover:border-amber-400">
+            <span>📜</span>
+            <span>คู่มือเลเวล & วิธีรับแต้ม</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- XP Progress Bar -->
+      <div class="mt-3.5 pt-3 border-t border-slate-800/80 relative z-10">
+        <div class="flex items-center justify-between text-xs font-medium mb-1.5">
+          <span class="text-slate-300 flex items-center gap-1.5">
+            <span class="text-amber-400">⚡ แต้มวาสนาสะสม:</span>
+            <strong id="xpCurrentText" class="text-amber-300 font-black text-sm">0</strong>
+            <span class="text-slate-400">/</span>
+            <span id="xpNextTierText" class="text-slate-400 font-medium">50 XP</span>
+          </span>
+          <span id="xpPercentText" class="text-amber-400 font-bold text-xs">0% สู่ระดับถัดไป</span>
+        </div>
+        <div class="w-full h-3 bg-slate-950/90 rounded-full overflow-hidden border border-slate-700/60 p-0.5 shadow-inner">
+          <div id="xpProgressBar" class="h-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-300 rounded-full transition-all duration-700 shadow-[0_0_15px_rgba(245,158,11,0.6)]" style="width: 5%;"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- Top Action Bar: Edit Birth Info + Date Navigation -->
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
       <div class="flex items-center gap-2">
@@ -1137,6 +1193,161 @@
         </div>
       </div>
     </div>
+  <!-- Floating XP Toast Container -->
+  <div id="xpToastContainer" class="fixed bottom-5 right-5 z-50 pointer-events-none flex flex-col gap-2 max-w-sm"></div>
+
+  <!-- Level Up Celebration Modal -->
+  <div id="levelUpModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
+    <div class="bg-gradient-to-b from-[#1e1b4b] via-[#0f172a] to-[#020617] border-2 border-amber-400 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center shadow-2xl relative overflow-hidden animate-bounce-gentle">
+      <div class="text-5xl sm:text-6xl mb-3" id="levelUpIcon">⚡</div>
+      <span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40 text-xs font-bold uppercase tracking-wider">🎉 เลเวลอัปสำเร็จ!</span>
+      <h3 id="levelUpTier" class="text-lg sm:text-xl font-black text-white mt-3">ยินดีด้วย! คุณเลื่อนระดับแล้ว</h3>
+      <p id="levelUpPerk" class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed"></p>
+      <div class="mt-6">
+        <button onclick="document.getElementById('levelUpModal').classList.add('hidden')" class="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 text-slate-950 font-black text-sm shadow-xl shadow-amber-500/30 hover:scale-105 active:scale-95 transition-all">
+          รับพลังมงคล & ดำเนินการต่อ ✨
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- XP & Level Guide Modal -->
+  <div id="xpModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md">
+    <div class="bg-slate-900 border-2 border-amber-400/50 rounded-3xl max-w-xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-fade-in">
+      <!-- Modal Header -->
+      <div class="p-4 sm:p-5 border-b border-slate-800 bg-slate-950/60 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">📜</span>
+          <div>
+            <h3 class="text-base sm:text-lg font-black text-amber-300">สมุดบันทึกวาสนา & ระดับดวงชะตา</h3>
+            <p class="text-xs text-slate-400">ระบบเก็บสถิติใน Local Memory ของเครื่องคุณโดยตรง 100%</p>
+          </div>
+        </div>
+        <button onclick="toggleXpModal(false)" class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 text-lg transition-all">✕</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-4 sm:p-5 overflow-y-auto space-y-4 text-xs sm:text-sm text-slate-300">
+        <!-- How to earn XP -->
+        <div class="p-4 bg-slate-950/80 rounded-2xl border border-slate-800 space-y-2.5">
+          <h4 class="font-bold text-amber-400 text-sm flex items-center gap-1.5">
+            <span>⚡</span> วิธีสะสมแต้มวาสนา (Experience Points)
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div class="p-2.5 bg-slate-900/90 rounded-xl border border-slate-800 flex items-center justify-between">
+              <span>🌟 เปิดดูดวงรายวัน (Daily Check-in)</span>
+              <span class="font-bold text-amber-300">+20 XP</span>
+            </div>
+            <div class="p-2.5 bg-slate-900/90 rounded-xl border border-slate-800 flex items-center justify-between">
+              <span>🥠 เสี่ยงเซียมซีประจำวัน</span>
+              <span class="font-bold text-amber-300">+15 XP</span>
+            </div>
+            <div class="p-2.5 bg-slate-900/90 rounded-xl border border-slate-800 flex items-center justify-between">
+              <span>🔮 อ่านเจาะลึก 4 หมวด (งาน/เงิน/รัก/สุขภาพ)</span>
+              <span class="font-bold text-amber-300">+5 XP/หมวด</span>
+            </div>
+            <div class="p-2.5 bg-slate-900/90 rounded-xl border border-slate-800 flex items-center justify-between">
+              <span>👕 ดูตารางสีเสื้อมงคล / ขอเลขเด็ด</span>
+              <span class="font-bold text-amber-300">+10 XP</span>
+            </div>
+            <div class="p-2.5 bg-slate-900/90 rounded-xl border border-slate-800 flex items-center justify-between">
+              <span>📍 อัปเดตสถานที่จรตามการเดินทาง</span>
+              <span class="font-bold text-amber-300">+15 XP</span>
+            </div>
+            <div class="p-2.5 bg-slate-900/90 rounded-xl border border-slate-800 flex items-center justify-between">
+              <span>📸 สร้างการ์ด Story / วอลเปเปอร์</span>
+              <span class="font-bold text-amber-300">+20 XP</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7 Tiers Table -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-amber-400 text-sm flex items-center gap-1.5">
+            <span>👑</span> เกียรติยศดวงชะตาทั้ง 7 ระดับ
+          </h4>
+          <div class="space-y-2">
+            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">🌱</span>
+                <div>
+                  <div class="font-bold text-slate-300 text-xs sm:text-sm">ระดับ 1: ผู้เริ่มต้นสู่ดวงดาว</div>
+                  <div class="text-[11px] text-slate-400">ก้าวแรกแห่งการเปิดดวงชะตา ขอต้อนรับสู่จักรวาล PLB โหราศาสตร์</div>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-slate-400">0 - 49 XP</span>
+            </div>
+            <div class="p-3 bg-slate-950/60 rounded-xl border border-sky-500/30 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">⚡</span>
+                <div>
+                  <div class="font-bold text-sky-300 text-xs sm:text-sm">ระดับ 2: นักสำรวจดวงชะตา</div>
+                  <div class="text-[11px] text-slate-400">เริ่มจับทางกระแสดาวได้ดีเยี่ยม เช็กต่อเนื่องทุกวันเพื่อสะสมแต้มวาสนา</div>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-sky-400">50 - 149 XP</span>
+            </div>
+            <div class="p-3 bg-slate-950/60 rounded-xl border border-emerald-500/30 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">🌟</span>
+                <div>
+                  <div class="font-bold text-emerald-300 text-xs sm:text-sm">ระดับ 3: ผู้หยั่งรู้กระแสดวง</div>
+                  <div class="text-[11px] text-slate-400">เริ่มกุมจังหวะชีวิตได้คล่องแคล่ว โชคลาภเปิดรับอย่างเด่นชัด</div>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-emerald-400">150 - 299 XP</span>
+            </div>
+            <div class="p-3 bg-slate-950/60 rounded-xl border border-purple-500/30 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">🔮</span>
+                <div>
+                  <div class="font-bold text-purple-300 text-xs sm:text-sm">ระดับ 4: ศิษย์เอกแม่หมอ PLB</div>
+                  <div class="text-[11px] text-slate-400">ตรวจดวงสม่ำเสมอ ดาวพฤหัสบดีเริ่มคุ้มครองชะตา มั่นใจในทุกการตัดสินใจ</div>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-purple-400">300 - 499 XP</span>
+            </div>
+            <div class="p-3 bg-slate-950/60 rounded-xl border border-pink-500/30 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">🛡️</span>
+                <div>
+                  <div class="font-bold text-pink-300 text-xs sm:text-sm">ระดับ 5: ปรมาจารย์ค้ำดวง</div>
+                  <div class="text-[11px] text-slate-400">พลังดวงชะตาเข้มแข็ง เกณฑ์ร้ายกลับกลายเป็นดีอย่างอัศจรรย์</div>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-pink-400">500 - 799 XP</span>
+            </div>
+            <div class="p-3 bg-slate-950/60 rounded-xl border border-blue-500/30 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">💎</span>
+                <div>
+                  <div class="font-bold text-blue-300 text-xs sm:text-sm">ระดับ 6: เทพพยากรณ์จักรวาล</div>
+                  <div class="text-[11px] text-slate-400">เกณฑ์วาสนาอยู่ในกลุ่มท็อป 3% ดึงดูดพลังมงคลและหยั่งรู้จังหวะโชคชะตา</div>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-blue-400">800 - 1,199 XP</span>
+            </div>
+            <div class="p-3 bg-slate-950/60 rounded-xl border border-amber-400/50 flex items-center justify-between bg-amber-500/5">
+              <div class="flex items-center gap-2.5">
+                <span class="text-xl">👑</span>
+                <div>
+                  <div class="font-bold text-amber-300 text-xs sm:text-sm">ระดับ 7: มหาจักรพรรดิ์สายมู</div>
+                  <div class="text-[11px] text-slate-300">เกียรติยศสูงสุดแห่งจักรวาล PLB สถิติของคุณอยู่ในกลุ่มท็อป 1%</div>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-amber-400">1,200+ XP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-slate-800 bg-slate-950/80 flex items-center justify-end">
+        <button onclick="toggleXpModal(false)" class="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition-all">
+          เข้าใจแล้ว
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Footer -->
@@ -1203,6 +1414,198 @@
       const saved = localStorage.getItem('plb_horo_birth_v4') || localStorage.getItem('plb_horo_birth_v3');
       if (saved) state.birth = { ...state.birth, ...JSON.parse(saved) };
     } catch(e) {}
+
+    // ==========================================
+    // ASTRO XP & GAMIFIED LEVEL ENGINE (LOCAL MEMORY)
+    // ==========================================
+    const ASTRO_TIERS = [
+      { tier: 1, minXp: 0, title: "ผู้เริ่มต้นสู่ดวงดาว", badge: "ระดับ 1", icon: "🌱", color: "#94a3b8", perk: "ก้าวแรกแห่งการเปิดดวงชะตา ขอต้อนรับสู่จักรวาล PLB โหราศาสตร์ครับ ✨" },
+      { tier: 2, minXp: 50, title: "นักสำรวจดวงชะตา", badge: "ระดับ 2", icon: "⚡", color: "#38bdf8", perk: "เริ่มจับทางกระแสดาวได้ดีเยี่ยม เช็กต่อเนื่องทุกวันเพื่อสะสมแต้มวาสนาสู่ขั้นถัดไป!" },
+      { tier: 3, minXp: 150, title: "ผู้หยั่งรู้กระแสดวง", badge: "ระดับ 3", icon: "🌟", color: "#34d399", perk: "เริ่มกุมจังหวะชีวิตได้คล่องแคล่ว โชคลาภเปิดรับอย่างเด่นชัด เช็กต่อเนื่องเพื่อก้าวสู่ระดับ 4!" },
+      { tier: 4, minXp: 300, title: "ศิษย์เอกแม่หมอ PLB", badge: "ระดับ 4", icon: "🔮", color: "#c084fc", perk: "ตรวจดวงสม่ำเสมอ ดาวพฤหัสบดีเริ่มคุ้มครองชะตา มั่นใจในทุกการตัดสินใจสำคัญ 🌟" },
+      { tier: 5, minXp: 500, title: "ปรมาจารย์ค้ำดวง", badge: "ระดับ 5", icon: "🛡️", color: "#f472b6", perk: "สถิติสะท้อนความสม่ำเสมอ พลังดวงชะตาเข้มแข็ง เกณฑ์ร้ายกลับกลายเป็นดีอย่างอัศจรรย์ ✨" },
+      { tier: 6, minXp: 800, title: "เทพพยากรณ์จักรวาล", badge: "ระดับ 6", icon: "💎", color: "#60a5fa", perk: "เกณฑ์วาสนาอยู่ในกลุ่มท็อป 3% ดึงดูดพลังมงคลและหยั่งรู้จังหวะโชคชะตาได้อย่างแม่นยำ 🔮" },
+      { tier: 7, minXp: 1200, title: "มหาจักรพรรดิ์สายมู", badge: "ระดับ 7", icon: "👑", color: "#fbbf24", perk: "เกียรติยศสูงสุดแห่งจักรวาล PLB สถิติของคุณอยู่ในกลุ่มท็อป 1% ผู้อยู่เหนือกระแสดาวชะตาอย่างแท้จริง ✨" }
+    ];
+
+    function getAstroTierInfo(xp) {
+      let currentTier = ASTRO_TIERS[0];
+      let nextTier = ASTRO_TIERS[1];
+      for (let i = 0; i < ASTRO_TIERS.length; i++) {
+        if (xp >= ASTRO_TIERS[i].minXp) {
+          currentTier = ASTRO_TIERS[i];
+          nextTier = ASTRO_TIERS[i + 1] || null;
+        }
+      }
+      return { currentTier, nextTier };
+    }
+
+    function renderAstroXpUI(xp, streak, visits) {
+      const { currentTier, nextTier } = getAstroTierInfo(xp);
+      
+      const iconEl = document.getElementById('xpTierIcon');
+      const titleEl = document.getElementById('xpRankTitle');
+      const badgeEl = document.getElementById('xpTierBadge');
+      const streakEl = document.getElementById('xpStreakBadge');
+      const visitEl = document.getElementById('xpVisitBadge');
+      const curXpEl = document.getElementById('xpCurrentText');
+      const nextXpEl = document.getElementById('xpNextTierText');
+      const pctEl = document.getElementById('xpPercentText');
+      const barEl = document.getElementById('xpProgressBar');
+
+      if (iconEl) iconEl.innerText = currentTier.icon;
+      if (titleEl) {
+        titleEl.innerText = currentTier.title;
+        titleEl.style.color = currentTier.color;
+      }
+      if (badgeEl) {
+        badgeEl.innerText = `ระดับ ${currentTier.tier}`;
+        badgeEl.style.borderColor = currentTier.color;
+        badgeEl.style.color = currentTier.color;
+      }
+      if (streakEl) streakEl.innerText = `🔥 วันที่ ${streak} ติด`;
+      if (visitEl) visitEl.innerText = `👁️ เข้าชม ${visits} ครั้ง`;
+      if (curXpEl) curXpEl.innerText = xp;
+
+      if (nextTier) {
+        const range = nextTier.minXp - currentTier.minXp;
+        const progress = Math.min(Math.max(xp - currentTier.minXp, 0), range);
+        const pct = Math.round((progress / range) * 100);
+        if (nextXpEl) nextXpEl.innerText = `${nextTier.minXp} XP (ขาดอีก ${nextTier.minXp - xp} XP)`;
+        if (pctEl) pctEl.innerText = `${pct}% สู่ระดับ ${nextTier.tier}`;
+        if (barEl) barEl.style.width = `${Math.max(pct, 5)}%`;
+      } else {
+        if (nextXpEl) nextXpEl.innerText = "ระดับสูงสุด 👑";
+        if (pctEl) pctEl.innerText = "เกณฑ์วาสนาเต็ม 100%";
+        if (barEl) barEl.style.width = "100%";
+      }
+
+      // Sync into profile in localStorage
+      try {
+        const prof = JSON.parse(localStorage.getItem('plb_user_profile') || localStorage.getItem('plb_horo_birth_v4') || '{}');
+        prof.xp = xp;
+        prof.level = currentTier.tier;
+        prof.streak = streak;
+        prof.check_count = visits;
+        localStorage.setItem('plb_user_profile', JSON.stringify(prof));
+        localStorage.setItem('plb_horo_birth_v4', JSON.stringify(prof));
+      } catch(e) {}
+    }
+
+    function initAstroXP() {
+      let xp = parseInt(localStorage.getItem('plb_user_xp') || '0', 10);
+      let visits = parseInt(localStorage.getItem('plb_visit_count') || '0', 10);
+      let streak = parseInt(localStorage.getItem('plb_reading_streak') || '1', 10);
+      const lastDate = localStorage.getItem('plb_last_visit_date') || '';
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      // Check URL parameters if incoming from LINE chat with existing state
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlXp = parseInt(urlParams.get('xp') || '0', 10);
+      const urlCc = parseInt(urlParams.get('cc') || '0', 10);
+      const urlSt = parseInt(urlParams.get('st') || '0', 10);
+      if (urlXp > xp) xp = urlXp;
+      if (urlCc > visits) visits = urlCc;
+      if (urlSt > streak) streak = urlSt;
+
+      if (lastDate !== todayStr) {
+        visits += 1;
+        localStorage.setItem('plb_visit_count', visits);
+        
+        if (lastDate) {
+          try {
+            const d1 = new Date(lastDate);
+            const d2 = new Date(todayStr);
+            const diffDays = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+            if (diffDays === 1) {
+              streak += 1;
+            } else if (diffDays > 1) {
+              streak = 1;
+            }
+          } catch (e) {
+            streak = 1;
+          }
+        } else {
+          streak = 1;
+        }
+        localStorage.setItem('plb_reading_streak', streak);
+        localStorage.setItem('plb_last_visit_date', todayStr);
+        localStorage.setItem('plb_user_xp', xp);
+
+        // Daily Check-in Bonus XP
+        setTimeout(() => {
+          addAstroXP(20, 'เช็กอินตรวจดวงรายวัน ✨', `daily_checkin_${todayStr}`);
+        }, 600);
+      }
+
+      renderAstroXpUI(xp, streak, visits);
+    }
+
+    function addAstroXP(points, reason, actionKey = null) {
+      if (actionKey) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const dailyKey = `plb_act_${todayStr}`;
+        let dailyActs = {};
+        try {
+          dailyActs = JSON.parse(localStorage.getItem(dailyKey) || '{}');
+        } catch(e) {}
+        if (dailyActs[actionKey]) {
+          return; // Already rewarded today
+        }
+        dailyActs[actionKey] = true;
+        try {
+          localStorage.setItem(dailyKey, JSON.stringify(dailyActs));
+        } catch(e) {}
+      }
+
+      let xp = parseInt(localStorage.getItem('plb_user_xp') || '0', 10);
+      const beforeTier = getAstroTierInfo(xp).currentTier;
+      xp += points;
+      localStorage.setItem('plb_user_xp', xp);
+
+      const afterTier = getAstroTierInfo(xp).currentTier;
+      const streak = parseInt(localStorage.getItem('plb_reading_streak') || '1', 10);
+      const visits = parseInt(localStorage.getItem('plb_visit_count') || '1', 10);
+
+      renderAstroXpUI(xp, streak, visits);
+      showXpToast(points, reason);
+
+      if (afterTier.tier > beforeTier.tier) {
+        showLevelUpCelebration(afterTier);
+      }
+    }
+
+    function showXpToast(points, reason) {
+      const container = document.getElementById('xpToastContainer');
+      if (!container) return;
+      const toast = document.createElement('div');
+      toast.className = "flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-slate-900/95 border border-amber-400 text-slate-100 text-xs font-bold shadow-2xl backdrop-blur-md transition-all";
+      toast.innerHTML = `<span class="text-amber-400 text-base">✨</span> <span class="text-amber-300 font-black">+${points} XP</span> <span class="text-slate-300 font-normal truncate max-w-[200px]">${reason}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        toast.style.transition = 'all 0.4s ease';
+        setTimeout(() => toast.remove(), 400);
+      }, 3000);
+    }
+
+    function showLevelUpCelebration(tier) {
+      const modal = document.getElementById('levelUpModal');
+      if (!modal) return;
+      document.getElementById('levelUpIcon').innerText = tier.icon;
+      document.getElementById('levelUpTier').innerText = `ยินดีด้วย! คุณเลื่อนระดับเป็น ${tier.title} (ระดับ ${tier.tier})`;
+      document.getElementById('levelUpPerk').innerText = tier.perk;
+      modal.classList.remove('hidden');
+    }
+
+    function toggleXpModal(show) {
+      const m = document.getElementById('xpModal');
+      if (m) {
+        if (show) m.classList.remove('hidden');
+        else m.classList.add('hidden');
+      }
+    }
 
     function initInputs() {
       // Populate 77 Provinces Dropdown for both birth and transit
@@ -1969,6 +2372,21 @@
       }
       renderCards();
 
+      if (typeof addAstroXP === 'function' && tab) {
+        const tabNames = {
+          all: 'ภาพรวมดวง',
+          career: 'การงาน & บารมี',
+          finance: 'การเงิน & โชคลาภ',
+          love: 'ความรัก & เสน่ห์',
+          health: 'สุขภาพ & อารมณ์',
+          shirt: 'ตารางสีเสื้อมงคล',
+          lucky: 'เลขเด็ด & ทิศมงคล'
+        };
+        const tName = tabNames[tab] || tab;
+        const todayStr = new Date().toISOString().split('T')[0];
+        addAstroXP(5, `อ่านเจาะลึกหมวด${tName} 🔮`, `tab_${tab}_${todayStr}`);
+      }
+
       // Smooth scroll so the user immediately sees the category content
       if (tab === 'lucky') {
         const el = document.getElementById('luckyBoostersSection');
@@ -2209,6 +2627,10 @@
       try {
         localStorage.setItem('plb_horo_birth_v4', JSON.stringify(state.birth));
       } catch(e) {}
+
+      if (typeof addAstroXP === 'function') {
+        addAstroXP(15, 'อัปเดตดวงชะตา & สถานที่จร 📍');
+      }
       
       toggleBirthForm();
       loadHoroscope();
@@ -3311,6 +3733,10 @@
         link.click();
         document.body.removeChild(link);
         setTimeout(() => URL.revokeObjectURL(blobUrl), 3000);
+
+        if (typeof addAstroXP === 'function') {
+          addAstroXP(20, 'สร้างการ์ดดวงแชร์สู่ดวงดาว 📸');
+        }
       }, 'image/png');
     }
 
@@ -3369,6 +3795,9 @@
 
     // Start
     initInputs();
+    if (typeof initAstroXP === 'function') {
+      initAstroXP();
+    }
     getLogoImage();
     loadHoroscope();
   
@@ -3469,6 +3898,11 @@
 
       document.getElementById('siamseeShakeView').classList.add('hidden');
       document.getElementById('siamseeResultCard').classList.remove('hidden');
+
+      if (typeof addAstroXP === 'function') {
+        const todayStr = new Date().toISOString().split('T')[0];
+        addAstroXP(15, `เสี่ยงเซียมซีใบที่ ${stickNum} 🥠`, `siamsee_${todayStr}`);
+      }
     }, 750);
   }
 

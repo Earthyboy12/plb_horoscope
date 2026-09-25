@@ -146,13 +146,21 @@ def get_postback_meta(user: dict) -> str:
         st = int(user.get("streak", 1))
     except (ValueError, TypeError):
         st = 1
+    try:
+        xp = int(user.get("xp", 0))
+    except (ValueError, TypeError):
+        xp = 0
+    try:
+        lvl = int(user.get("level", 1))
+    except (ValueError, TypeError):
+        lvl = 1
     ld = user.get("last_check_date", "")
     name = user.get("name", "ผู้ใช้")
-    return f"&b={b_date}&t={b_time}&p={b_prov}&tp={t_prov}&cc={cc}&st={st}&ld={ld}&n={name}"
+    return f"&b={b_date}&t={b_time}&p={b_prov}&tp={t_prov}&cc={cc}&st={st}&ld={ld}&n={name}&xp={xp}&lvl={lvl}"
 
 
 def make_liff_url(base_url: str, user: dict = None, extra_query: str = "") -> str:
-    """Build a LIFF URL embedding user id, check_count, streak, and birth chart parameters."""
+    """Build a LIFF URL embedding user id, check_count, streak, xp, and birth chart parameters."""
     if not base_url:
         return ""
     import urllib.parse
@@ -160,6 +168,8 @@ def make_liff_url(base_url: str, user: dict = None, extra_query: str = "") -> st
     uid = user.get("line_user_id", "")
     cc = user.get("check_count", 0)
     st = user.get("streak", 1)
+    xp = user.get("xp", 0)
+    lvl = user.get("level", 1)
     ld = user.get("last_check_date", "")
     n = urllib.parse.quote(str(user.get("name", "ผู้ใช้")))
     b = user.get("birth_date", "")
@@ -168,7 +178,7 @@ def make_liff_url(base_url: str, user: dict = None, extra_query: str = "") -> st
     tp = urllib.parse.quote(str(user.get("transit_province", user.get("birth_province", "กรุงเทพมหานคร"))))
     
     clean_base = base_url.split("?")[0]
-    res = f"{clean_base}?userId={uid}&cc={cc}&st={st}&ld={ld}&n={n}&b={b}&t={t}&p={p}&tp={tp}"
+    res = f"{clean_base}?userId={uid}&cc={cc}&st={st}&ld={ld}&n={n}&b={b}&t={t}&p={p}&tp={tp}&xp={xp}&lvl={lvl}"
     if extra_query:
         if extra_query.startswith("#"):
             res += extra_query
