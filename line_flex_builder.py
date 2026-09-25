@@ -7,6 +7,7 @@ Compatible with LINE Messaging API specifications.
 """
 
 import datetime
+import re
 
 def build_welcome_flex(liff_url: str) -> dict:
     """Build a welcoming onboarding card prompting the user to register birth info."""
@@ -751,7 +752,7 @@ def build_stats_flex(user: dict, horoscope: dict, days_history: list = None) -> 
                                         "paddingAll": "8px",
                                         "flex": 1,
                                         "contents": [
-                                            {"type": "text", "text": "🔢 ตรวจดวงสะสม", "size": "xxs", "color": "#94a3b8"},
+                                            {"type": "text", "text": "💬 สนทนา & ตรวจดวง", "size": "xxs", "color": "#94a3b8"},
                                             {"type": "text", "text": f"{check_count} ครั้ง", "size": "sm", "color": "#fbbf24", "weight": "bold"}
                                         ]
                                     },
@@ -763,7 +764,7 @@ def build_stats_flex(user: dict, horoscope: dict, days_history: list = None) -> 
                                         "paddingAll": "8px",
                                         "flex": 1,
                                         "contents": [
-                                            {"type": "text", "text": "🔥 ต่อเนื่อง", "size": "xxs", "color": "#94a3b8"},
+                                            {"type": "text", "text": "🔥 คุยต่อเนื่อง", "size": "xxs", "color": "#94a3b8"},
                                             {"type": "text", "text": f"{streak} วันติด", "size": "sm", "color": "#38bdf8", "weight": "bold"}
                                         ]
                                     },
@@ -1982,8 +1983,127 @@ def build_lucky_numbers_flex(user: dict, horoscope: dict, web_url: str = "https:
     }
 
 
+def get_color_style(raw_name: str) -> dict:
+    """Map Thai color name to rich color scheme with dark mode background, border and text."""
+    name = raw_name.lower().strip()
+    if any(k in name for k in ["เขียว", "ตอง", "มรกต"]):
+        return {"name": raw_name.strip(), "bg": "#064e3b", "border": "#10b981", "text": "#6ee7b7", "icon": "👕"}
+    if any(k in name for k in ["ส้ม", "อิฐ"]):
+        return {"name": raw_name.strip(), "bg": "#7c2d12", "border": "#f97316", "text": "#fdba74", "icon": "👕"}
+    if any(k in name for k in ["ทอง", "อำพัน"]):
+        return {"name": raw_name.strip(), "bg": "#713f12", "border": "#eab308", "text": "#fef08a", "icon": "👕"}
+    if any(k in name for k in ["เหลือง", "ครีม"]):
+        return {"name": raw_name.strip(), "bg": "#713f12", "border": "#facc15", "text": "#fef9c3", "icon": "👕"}
+    if any(k in name for k in ["ฟ้า", "คราม"]):
+        return {"name": raw_name.strip(), "bg": "#0c4a6e", "border": "#38bdf8", "text": "#bae6fd", "icon": "👕"}
+    if any(k in name for k in ["น้ำเงิน"]):
+        return {"name": raw_name.strip(), "bg": "#1e3a8a", "border": "#3b82f6", "text": "#bfdbfe", "icon": "👕"}
+    if any(k in name for k in ["ชมพู", "บานเย็น", "โรสโกลด์"]):
+        return {"name": raw_name.strip(), "bg": "#701a75", "border": "#ec4899", "text": "#fbcfe8", "icon": "👕"}
+    if any(k in name for k in ["ม่วง", "มะปราง"]):
+        return {"name": raw_name.strip(), "bg": "#4c1d95", "border": "#a855f7", "text": "#e9d5ff", "icon": "👕"}
+    if any(k in name for k in ["แดง", "ทับทิม", "เพลิง"]):
+        return {"name": raw_name.strip(), "bg": "#7f1d1d", "border": "#ef4444", "text": "#fecaca", "icon": "👕"}
+    if any(k in name for k in ["ขาว", "เงิน", "บรอนซ์", "นวล"]):
+        return {"name": raw_name.strip(), "bg": "#334155", "border": "#e2e8f0", "text": "#ffffff", "icon": "👕"}
+    if any(k in name for k in ["ดำ", "เทา", "ควัน"]):
+        return {"name": raw_name.strip(), "bg": "#18181b", "border": "#71717a", "text": "#e4e4e7", "icon": "👕"}
+    return {"name": raw_name.strip(), "bg": "#1e293b", "border": "#64748b", "text": "#f8fafc", "icon": "👕"}
+
+def parse_color_chips(color_inputs):
+    """Split color strings by delimiters and convert into styled chip dictionaries."""
+    raw_list = []
+    if isinstance(color_inputs, str):
+        raw_list = [color_inputs]
+    elif isinstance(color_inputs, (list, tuple)):
+        raw_list = list(color_inputs)
+        
+    extracted_names = []
+    for item in raw_list:
+        if not item:
+            continue
+        parts = re.split(r'[/,]|หรือ', str(item))
+        for p in parts:
+            cleaned = p.strip()
+            if cleaned:
+                extracted_names.append(cleaned)
+                
+    chips = []
+    for name in extracted_names:
+        chips.append(get_color_style(name))
+    return chips
+
+def make_color_swatches_box(color_inputs, is_avoid: bool = False) -> dict:
+    """Generate visual shirt chips/swatches in place of plain text."""
+    chips = parse_color_chips(color_inputs)
+    if not chips:
+        chips = [{"name": "ตามสะดวก", "bg": "#1e293b", "border": "#64748b", "text": "#f8fafc", "icon": "👕"}]
+        
+    rows = []
+    row = []
+    for c in chips:
+        icon_display = "⛔ 👕" if is_avoid else c.get("icon", "👕")
+        chip_box = {
+            "type": "box",
+            "layout": "horizontal",
+            "backgroundColor": c["bg"],
+            "cornerRadius": "14px",
+            "paddingStart": "10px",
+            "paddingEnd": "12px",
+            "paddingTop": "6px",
+            "paddingBottom": "6px",
+            "borderWidth": "1.5px",
+            "borderColor": c["border"],
+            "alignItems": "center",
+            "spacing": "xs",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": icon_display,
+                    "size": "xs",
+                    "flex": 0
+                },
+                {
+                    "type": "text",
+                    "text": c["name"],
+                    "color": c["text"],
+                    "weight": "bold",
+                    "size": "xs",
+                    "flex": 0
+                }
+            ]
+        }
+        row.append(chip_box)
+        if len(row) == 2:
+            rows.append({
+                "type": "box",
+                "layout": "horizontal",
+                "spacing": "sm",
+                "contents": row
+            })
+            row = []
+    if row:
+        rows.append({
+            "type": "box",
+            "layout": "horizontal",
+            "spacing": "sm",
+            "contents": row
+        })
+        
+    if len(rows) == 1:
+        rows[0]["margin"] = "sm"
+        return rows[0]
+    else:
+        return {
+            "type": "box",
+            "layout": "vertical",
+            "spacing": "xs",
+            "margin": "sm",
+            "contents": rows
+        }
+
 def build_lucky_colors_flex(user: dict, horoscope: dict, web_url: str = "https://plb-horoscope.vercel.app") -> dict:
-    """Build a specialized luxury Flex card for daily lucky shirt colors and astrology thaksa."""
+    """Build a specialized luxury Flex card for daily lucky shirt colors with visual color chips."""
     web_url = web_url or "https://plb-horoscope.vercel.app"
     pb_meta = get_postback_meta(user) if user else ""
     lucky_info = horoscope.get("luckyInfo", {})
@@ -2005,9 +2125,9 @@ def build_lucky_colors_flex(user: dict, horoscope: dict, web_url: str = "https:/
         "size": "mega",
         "hero": {
             "type": "image",
-            "url": f"{web_url}/bear_wizard.jpg",
+            "url": f"{web_url}/bear_wardrobe.jpg",
             "size": "full",
-            "aspectRatio": "20:13",
+            "aspectRatio": "16:9",
             "aspectMode": "cover"
         },
         "header": {
@@ -2072,7 +2192,7 @@ def build_lucky_colors_flex(user: dict, horoscope: dict, web_url: str = "https:/
                                 {"type": "text", "text": "🌟 ดีเยี่ยม", "size": "xxs", "color": "#93c5fd"}
                             ]
                         },
-                        {"type": "text", "text": " หรือ ".join(work_colors), "size": "sm", "color": "#f8fafc", "weight": "bold", "margin": "xs", "wrap": True}
+                        make_color_swatches_box(work_colors, is_avoid=False)
                     ]
                 },
                 {
@@ -2093,7 +2213,7 @@ def build_lucky_colors_flex(user: dict, horoscope: dict, web_url: str = "https:/
                                 {"type": "text", "text": "💵 รับทรัพย์", "size": "xxs", "color": "#86efac"}
                             ]
                         },
-                        {"type": "text", "text": " หรือ ".join(wealth_colors), "size": "sm", "color": "#fef08a", "weight": "bold", "margin": "xs", "wrap": True}
+                        make_color_swatches_box(wealth_colors, is_avoid=False)
                     ]
                 },
                 {
@@ -2114,7 +2234,7 @@ def build_lucky_colors_flex(user: dict, horoscope: dict, web_url: str = "https:/
                                 {"type": "text", "text": "💕 ผู้ใหญ่เอ็นดู", "size": "xxs", "color": "#fbcfe8"}
                             ]
                         },
-                        {"type": "text", "text": " หรือ ".join(love_colors), "size": "sm", "color": "#f8fafc", "weight": "bold", "margin": "xs", "wrap": True}
+                        make_color_swatches_box(love_colors, is_avoid=False)
                     ]
                 },
                 {
@@ -2135,9 +2255,10 @@ def build_lucky_colors_flex(user: dict, horoscope: dict, web_url: str = "https:/
                                 {"type": "text", "text": "⚠️ ห้ามใส่", "size": "xxs", "color": "#fca5a5", "weight": "bold"}
                             ]
                         },
-                        {"type": "text", "text": " หรือ ".join(avoid_colors), "size": "sm", "color": "#fee2e2", "weight": "bold", "margin": "xs", "wrap": True}
+                        make_color_swatches_box(avoid_colors, is_avoid=True)
                     ]
                 },
+
                 {
                     "type": "box",
                     "layout": "vertical",

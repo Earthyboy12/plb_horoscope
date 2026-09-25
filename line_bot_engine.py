@@ -389,6 +389,11 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
         text = message.get("text", "").strip()
         text_lower = text.lower()
         
+        # 💬 Count this message towards check_count, streak, and tier level
+        user = record_user_check(user_id) or get_user(user_id) or user
+        is_registered = bool(user and user.get("registered", False))
+        liff_url = make_liff_url(base_raw_liff, user or {"line_user_id": user_id})
+        
         # Check Natural Chat Registration / LIFF auto-messages e.g. "เกิด 12/08/2538 08:30 กทม"
         parsed_natal = parse_birth_info_from_text(text)
         if parsed_natal:
@@ -405,12 +410,11 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             user = save_user(user_id, parsed_natal)
             is_registered = True
             horoscope = compute_user_horoscope(user)
-            user = record_user_check(user_id, horoscope.get("overallScore", 80)) or get_user(user_id) or user
             summary_flex = build_daily_summary_flex(user, horoscope, liff_url, web_url)
             reply([
                 {
                     "type": "text",
-                    "text": f"🎉 บันทึกข้อมูลและผูกดวงชะตาสำเร็จแล้วครับ!\n📅 วันเกิด: {user.get('birth_date')}\n⏰ เวลา: {user.get('birth_time')} น.\n📍 จังหวัดเกิด: {user.get('birth_province')}\n🧭 สถานที่จร: {user.get('transit_province')}\n👑 สถิติวาสนาสะสม: {user.get('check_count', 1)} ครั้ง (ระดับ {user.get('check_count', 1)})\n\nนี่คือสรุปดวงประจำวันและลัคนาราศีเฉพาะตัวของคุณครับ ✨"
+                    "text": f"🎉 บันทึกข้อมูลและผูกดวงชะตาสำเร็จแล้วครับ!\n📅 วันเกิด: {user.get('birth_date')}\n⏰ เวลา: {user.get('birth_time')} น.\n📍 จังหวัดเกิด: {user.get('birth_province')}\n🧭 สถานที่จร: {user.get('transit_province')}\n👑 สนทนา & ตรวจดวงสะสม: {user.get('check_count', 1)} ครั้ง (ระดับ {user.get('level', 1)})\n\nนี่คือสรุปดวงประจำวันและลัคนาราศีเฉพาะตัวของคุณครับ ✨"
                 },
                 summary_flex
             ])
@@ -691,7 +695,6 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                 prompt_registration()
                 return
             horoscope = compute_user_horoscope(user)
-            user = record_user_check(user_id, horoscope.get("overallScore", 80)) or get_user(user_id) or user
             summary_flex = build_daily_summary_flex(user, horoscope, liff_url, web_url)
             reply([summary_flex])
             return
@@ -721,7 +724,6 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             prompt_registration()
         else:
             horoscope = compute_user_horoscope(user)
-            user = record_user_check(user_id, horoscope.get("overallScore", 80)) or get_user(user_id) or user
             summary_flex = build_daily_summary_flex(user, horoscope, liff_url, web_url)
             reply([summary_flex])
 
@@ -769,12 +771,16 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                 from api.user_store import _save_cache
             _save_cache()
         
+        # 💬 Count this postback interaction towards check_count, streak, and tier level
+        user = record_user_check(user_id) or get_user(user_id) or user
+        is_registered = bool(user and user.get("registered", False))
+        liff_url = make_liff_url(base_raw_liff, user or {"line_user_id": user_id})
+        
         if action == "daily_summary":
             if not user:
                 prompt_registration()
                 return
             horoscope = compute_user_horoscope(user)
-            user = record_user_check(user_id, horoscope.get("overallScore", 80)) or get_user(user_id) or user
             summary_flex = build_daily_summary_flex(user, horoscope, liff_url, web_url)
             reply([summary_flex])
             

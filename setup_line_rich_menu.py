@@ -110,17 +110,25 @@ def setup_rich_menu(access_token: str):
         return
 
     # Step 2: Upload Rich Menu Image
-    print("2. Uploading Rich Menu image (rich_menu.png)...")
-    if not os.path.exists(IMAGE_PATH):
-        print(f"❌ Error: Image file not found at {IMAGE_PATH}")
+    jpg_path = os.path.join(BASE_DIR, "rich_menu.jpg")
+    if os.path.exists(jpg_path) and os.path.getsize(jpg_path) < 1000000:
+        upload_img_path = jpg_path
+        content_type = "image/jpeg"
+    else:
+        upload_img_path = IMAGE_PATH
+        content_type = "image/png"
+
+    print(f"2. Uploading Rich Menu image ({os.path.basename(upload_img_path)}, {os.path.getsize(upload_img_path)} bytes)...")
+    if not os.path.exists(upload_img_path):
+        print(f"❌ Error: Image file not found at {upload_img_path}")
         return
 
-    with open(IMAGE_PATH, "rb") as f:
+    with open(upload_img_path, "rb") as f:
         img_bytes = f.read()
 
     img_headers = {
         "Authorization": f"Bearer {access_token}",
-        "Content-Type": "image/png"
+        "Content-Type": content_type
     }
     upload_url = f"https://api-data.line.me/v2/bot/richmenu/{rich_menu_id}/content"
     req_upload = urllib.request.Request(upload_url, data=img_bytes, headers=img_headers, method="POST")

@@ -67,104 +67,6 @@ def get_user(line_user_id: str):
         _load_cache()
     return _USER_CACHE.get(line_user_id)
 
-def save_user(line_user_id: str, data: dict):
-    """Save or update user profile while safely preserving check_count and streak."""
-    if not line_user_id:
-        return False
-    
-    now = datetime.datetime.now().isoformat()
-    existing = get_user(line_user_id) or {}
-    
-    # Extract incoming check_count / streak / last_check_date from data or short keys
-    try:
-        incoming_cc = int(data.get("check_count") or data.get("cc") or 0)
-    except (ValueError, TypeError):
-        incoming_cc = 0
-    existing_cc = int(existing.get("check_count", 0))
-    final_cc = max(incoming_cc, existing_cc)
-    
-    try:
-        incoming_st = int(data.get("streak") or data.get("st") or 1)
-    except (ValueError, TypeError):
-        incoming_st = 1
-    existing_st = int(existing.get("streak", 1))
-    final_st = max(incoming_st, existing_st)
-    
-    final_ld = data.get("last_check_date") or data.get("ld") or existing.get("last_check_date", "")
-    
-    # Merge data
-    updated_profile = {
-        "line_user_id": line_user_id,
-        "name": data.get("name") or data.get("n") or existing.get("name") or "ผู้ใช้",
-        "birth_date": data.get("birth_date") or data.get("birthDate") or data.get("b") or existing.get("birth_date", "1995-08-12"),
-        "birth_time": data.get("birth_time") or data.get("birthTime") or data.get("t") or existing.get("birth_time", "08:30"),
-        "birth_province": data.get("birth_province") or data.get("province") or data.get("p") or existing.get("birth_province", "กรุงเทพมหานคร"),
-        "birth_district": data.get("birth_district") or data.get("district") or existing.get("birth_district", "พระนคร"),
-        "calc_method": data.get("calc_method") or data.get("calcMethod") or existing.get("calc_method", "suriyayatra"),
-        "transit_province": data.get("transit_province") or data.get("transitProvince") or data.get("tp") or existing.get("transit_province") or data.get("birth_province") or "กรุงเทพมหานคร",
-        "transit_district": data.get("transit_district") or data.get("transitDistrict") or existing.get("transit_district") or data.get("birth_district") or "พระนคร",
-        "registered": True,
-        "check_count": final_cc,
-        "streak": final_st,
-        "last_check_date": final_ld,
-        "history": existing.get("history") or data.get("history") or [],
-        "created_at": existing.get("created_at", now),
-        "updated_at": now
-    }
-    
-    _USER_CACHE[line_user_id] = updated_profile
-    _save_cache()
-    
-    # Sync with Google Sheets Webhook asynchronously/safely
-    _sync_to_google_sheet("register", updated_profile)
-    return updated_profile
-
-def record_user_check(line_user_id: str, daily_score: int = 80):
-    """Increment user check count, record streak and daily score history."""
-    if not line_user_id:
-        return None
-    user = get_user(line_user_id)
-    if not user:
-        return None
-    
-    now_th = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
-    today_str = now_th.strftime("%Y-%m-%d")
-    
-    user["check_count"] = user.get("check_count", 0) + 1
-    last_date = user.get("last_check_date", "")
-    current_streak = user.get("streak", 1)
-    
-    if last_date == today_str:
-        pass  # Already checked today
-    elif last_date:
-        try:
-            last_dt = datetime.datetime.strptime(last_date, "%Y-%m-%d")
-            diff = (now_th.date() - last_dt.date()).days
-            if diff == 1:
-                current_streak += 1
-            elif diff > 1:
-                current_streak = 1
-        except Exception:
-            current_streak = 1
-    else:
-        current_streak = 1
-        
-    user["streak"] = current_streak
-    user["last_check_date"] = today_str
-    
-    # Keep score history (last 14 check records)
-    history = user.get("history", [])
-    history.append({
-        "date": today_str,
-        "score": daily_score,
-        "time": now_th.strftime("%H:%M")
-    })
-    user["history"] = history[-14:]
-    
-    _save_cache()
-    _sync_to_google_sheet("check_stats", user)
-    return user
-
 def get_rank_title(check_count: int = 1, streak: int = 1) -> dict:
     """Get playful astrological rank and badges based on check count & streak (7 Tiers)."""
     if check_count >= 50 or streak >= 21:
@@ -223,6 +125,122 @@ def get_rank_title(check_count: int = 1, streak: int = 1) -> dict:
             "color": "#94a3b8",
             "perk": "ก้าวแรกแห่งการเปิดดวงชะตา ขอต้อนรับสู่จักรวาล PLB โหราศาสตร์ครับ ✨"
         }
+
+def save_user(line_user_id: str, data: dict):
+    """Save or update user profile while safely preserving check_count and streak."""
+    if not line_user_id:
+        return False
+    
+    now = datetime.datetime.now().isoformat()
+    existing = get_user(line_user_id) or {}
+    
+    # Extract incoming check_count / streak / last_check_date from data or short keys
+    try:
+        incoming_cc = int(data.get("check_count") or data.get("cc") or 0)
+    except (ValueError, TypeError):
+        incoming_cc = 0
+    existing_cc = int(existing.get("check_count", 0))
+    final_cc = max(incoming_cc, existing_cc)
+    
+    try:
+        incoming_st = int(data.get("streak") or data.get("st") or 1)
+    except (ValueError, TypeError):
+        incoming_st = 1
+    existing_st = int(existing.get("streak", 1))
+    final_st = max(incoming_st, existing_st)
+    
+    final_ld = data.get("last_check_date") or data.get("ld") or existing.get("last_check_date", "")
+    
+    rank_info = get_rank_title(final_cc if final_cc > 0 else 1, final_st)
+    
+    # Merge data
+    updated_profile = {
+        "line_user_id": line_user_id,
+        "name": data.get("name") or data.get("n") or existing.get("name") or "ผู้ใช้",
+        "birth_date": data.get("birth_date") or data.get("birthDate") or data.get("b") or existing.get("birth_date", "1995-08-12"),
+        "birth_time": data.get("birth_time") or data.get("birthTime") or data.get("t") or existing.get("birth_time", "08:30"),
+        "birth_province": data.get("birth_province") or data.get("province") or data.get("p") or existing.get("birth_province", "กรุงเทพมหานคร"),
+        "birth_district": data.get("birth_district") or data.get("district") or existing.get("birth_district", "พระนคร"),
+        "calc_method": data.get("calc_method") or data.get("calcMethod") or existing.get("calc_method", "suriyayatra"),
+        "transit_province": data.get("transit_province") or data.get("transitProvince") or data.get("tp") or existing.get("transit_province") or data.get("birth_province") or "กรุงเทพมหานคร",
+        "transit_district": data.get("transit_district") or data.get("transitDistrict") or existing.get("transit_district") or data.get("birth_district") or "พระนคร",
+        "registered": True,
+        "check_count": final_cc if final_cc > 0 else 1,
+        "streak": final_st,
+        "level": rank_info["tier"],
+        "last_check_date": final_ld,
+        "history": existing.get("history") or data.get("history") or [],
+        "created_at": existing.get("created_at", now),
+        "updated_at": now
+    }
+    
+    _USER_CACHE[line_user_id] = updated_profile
+    _save_cache()
+    
+    # Sync with Google Sheets Webhook asynchronously/safely
+    _sync_to_google_sheet("register", updated_profile)
+    return updated_profile
+
+def record_user_check(line_user_id: str, daily_score: int = 80):
+    """Increment user check/message count, record streak and daily score history."""
+    if not line_user_id:
+        return None
+    user = get_user(line_user_id)
+    now_th = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+    today_str = now_th.strftime("%Y-%m-%d")
+    
+    if not user:
+        user = {
+            "line_user_id": line_user_id,
+            "name": "ผู้ใช้",
+            "registered": False,
+            "check_count": 0,
+            "streak": 1,
+            "level": 1,
+            "last_check_date": today_str,
+            "history": [],
+            "created_at": now_th.isoformat()
+        }
+    
+    user["check_count"] = user.get("check_count", 0) + 1
+    last_date = user.get("last_check_date", "")
+    current_streak = user.get("streak", 1)
+    
+    if last_date == today_str:
+        pass  # Already checked today
+    elif last_date:
+        try:
+            last_dt = datetime.datetime.strptime(last_date, "%Y-%m-%d")
+            diff = (now_th.date() - last_dt.date()).days
+            if diff == 1:
+                current_streak += 1
+            elif diff > 1:
+                current_streak = 1
+        except Exception:
+            current_streak = 1
+    else:
+        current_streak = 1
+        
+    user["streak"] = current_streak
+    user["last_check_date"] = today_str
+    
+    rank_info = get_rank_title(user.get("check_count", 1), user.get("streak", 1))
+    user["level"] = rank_info["tier"]
+    
+    # Keep score history (last 14 check records)
+    history = user.get("history", [])
+    if daily_score:
+        history.append({
+            "date": today_str,
+            "score": daily_score,
+            "time": now_th.strftime("%H:%M")
+        })
+    user["history"] = history[-14:]
+    
+    _USER_CACHE[line_user_id] = user
+    _save_cache()
+    _sync_to_google_sheet("check_stats", user)
+    return user
 
 def update_transit_location(line_user_id: str, transit_province: str, transit_district: str = ""):
     """Update current transit location for the user."""

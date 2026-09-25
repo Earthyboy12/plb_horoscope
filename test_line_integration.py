@@ -105,9 +105,28 @@ def test_all():
 
     parsed3 = parse_birth_info_from_text("สวัสดีครับ วันนี้ดวงเป็นไงบ้าง")
     assert parsed3 is None
-    print("   Chat Birth Parser: PASS")
+    print("9. Testing Lucky Colors Visual Swatches Flex Card...")
+    from line_flex_builder import build_lucky_colors_flex
+    colors_flex = build_lucky_colors_flex(user_with_check, horoscope_cm)
+    assert colors_flex["type"] == "flex"
+    assert "bear_wardrobe.jpg" in json.dumps(colors_flex, ensure_ascii=False)
+    assert "👕" in json.dumps(colors_flex, ensure_ascii=False)
+    print("   Lucky Colors Visual Swatches Flex Card: PASS")
 
-    print("\n🎉 ALL 8 TESTS PASSED SUCCESSFULLY! 🔮")
+    print("10. Testing Interaction / Message Counting for Unregistered & Registered Users...")
+    temp_uid = "U_test_counter_9999"
+    u1 = record_user_check(temp_uid)
+    assert u1["check_count"] == 1
+    assert u1["streak"] == 1
+    u2 = record_user_check(temp_uid)
+    assert u2["check_count"] == 2
+    assert u2["streak"] == 1  # Same day streak should not jump
+    assert u2["level"] >= 1
+    print(f"   Unregistered/new user count: {u2['check_count']}, level: {u2['level']}")
+    print("   Interaction / Message Counting: PASS")
+
+    print("\n🎉 ALL 10 TESTS PASSED SUCCESSFULLY! 🔮")
 
 if __name__ == "__main__":
     test_all()
+
