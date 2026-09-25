@@ -823,16 +823,65 @@ def broadcast_line_message(messages: list, access_token: str = "") -> dict:
         print(f"[LineBotEngine] Error broadcasting to LINE: {e}")
         return {"success": False, "error": str(e), "method": "broadcast"}
 
-def send_noon_reminder_broadcast(web_url: str = "https://plb-horoscope.vercel.app", channel_access_token: str = "") -> dict:
-    """Send midday noon reminder to all LINE OA friends, with fallback to registered users."""
+def send_noon_reminder_broadcast(web_url: str = "https://plb-horoscope.vercel.app", channel_access_token: str = "", force: bool = False) -> dict:
+    """
+    Send midday noon reminder to all LINE OA friends.
+    Guards:
+      1. Time Guard: Only sends between 11:30 and 12:59 Thailand Time (UTC+7), unless force=True.
+      2. Deduplication Guard: Only sends ONCE per calendar day, unless force=True.
+    """
+    import tempfile
+    now_th = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+    today_str = now_th.strftime("%Y-%m-%d")
+    current_hour = now_th.hour
+    current_time_str = now_th.strftime("%H:%M:%S")
+
+    # Guard 1: Time Window Check (must be around 12:00 PM, hour 11 or 12)
+    if not force and current_hour not in (11, 12):
+        print(f"[NoonReminder] Skipped: Outside noon window ({current_time_str}). Only runs around 12:00 PM.")
+        return {
+            "success": True,
+            "skipped": True,
+            "reason": f"อยู่นอกช่วงเวลาเที่ยง (ขณะนี้เวลา {current_time_str} น.) ระบบจะส่งเฉพาะเวลา 12:00 น. เท่านั้น",
+            "current_time": current_time_str,
+            "scheduled_time": "12:00:00"
+        }
+
+    # Guard 2: Deduplication Check (Only once per day)
+    lock_file = os.path.join(tempfile.gettempdir(), "plb_last_noon_broadcast.txt")
+    last_sent = ""
+    if os.path.exists(lock_file):
+        try:
+            with open(lock_file, "r", encoding="utf-8") as f:
+                last_sent = f.read().strip()
+        except Exception:
+            pass
+
+    if not force and last_sent == today_str:
+        print(f"[NoonReminder] Skipped: Already sent today ({today_str}).")
+        return {
+            "success": True,
+            "skipped": True,
+            "reason": f"วันนี้ ({today_str}) ได้ส่งข้อความเตือนตอนเที่ยงเรียบร้อยแล้ว ไม่ส่งซ้ำครับ",
+            "date": today_str
+        }
+
     channel_access_token = channel_access_token or get_channel_access_token()
     web_url = web_url or os.environ.get("APP_URL", "https://plb-horoscope.vercel.app")
     flex_card = build_noon_reminder_flex(web_url)
 
+    def mark_sent():
+        try:
+            with open(lock_file, "w", encoding="utf-8") as f:
+                f.write(today_str)
+        except Exception:
+            pass
+
     # 1. Attempt broadcast to all friends
     b_res = broadcast_line_message([flex_card], channel_access_token)
     if b_res.get("success"):
-        return {"success": True, "method": "broadcast", "status": b_res.get("status")}
+        mark_sent()
+        return {"success": True, "method": "broadcast", "status": b_res.get("status"), "date": today_str}
 
     # 2. If broadcast failed (e.g. quota or restriction), fallback to pushing to registered users
     print(f"[NoonReminder] Broadcast failed: {b_res.get('error')}. Falling back to registered user store push...")
@@ -848,9 +897,13 @@ def send_noon_reminder_broadcast(web_url: str = "https://plb-horoscope.vercel.ap
             if push_line_message(uid, [flex_card], channel_access_token):
                 pushed_count += 1
 
+    if pushed_count > 0:
+        mark_sent()
+
     return {
         "success": pushed_count > 0,
         "method": "user_store_push",
         "pushed_count": pushed_count,
+        "date": today_str,
         "broadcast_error": b_res.get("error")
     }

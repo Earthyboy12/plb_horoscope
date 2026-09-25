@@ -49,9 +49,11 @@ class HoroscopeHandler(http.server.SimpleHTTPRequestHandler):
             return super().do_GET()
         elif parsed.path in ("/api/cron/noon-reminder", "/cron/noon-reminder"):
             try:
+                qs = urllib.parse.parse_qs(parsed.query)
+                is_force = qs.get("force", ["false"])[0].lower() in ("true", "1")
                 channel_access_token = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN") or get_channel_access_token()
                 web_url = os.environ.get("APP_URL", "https://plb-horoscope.vercel.app")
-                res = send_noon_reminder_broadcast(web_url, channel_access_token)
+                res = send_noon_reminder_broadcast(web_url, channel_access_token, force=is_force)
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json; charset=utf-8")
                 self.send_header("Access-Control-Allow-Origin", "*")
