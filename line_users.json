@@ -10,121 +10,39 @@
     "transit_province": "เชียงใหม่",
     "transit_district": "อำเภอเมืองเชียงใหม่",
     "registered": true,
-    "check_count": 5,
-    "streak": 1,
-    "last_check_date": "2026-09-24",
-    "created_at": "2026-09-24T13:42:29.454052",
-    "updated_at": "2026-09-24T16:23:12.051072",
+    "check_count": 6,
+    "streak": 2,
+    "last_check_date": "2026-09-25",
     "history": [
       {
         "date": "2026-09-24",
         "score": 85,
         "time": "16:23"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "09:32"
       }
-    ]
+    ],
+    "created_at": "2026-09-24T13:42:29.454052",
+    "updated_at": "2026-09-25T09:32:15.747979"
   },
-  "U_test_user_sim_99": {
-    "line_user_id": "U_test_user_sim_99",
+  "test_user_earth": {
+    "line_user_id": "test_user_earth",
     "name": "ผู้ใช้",
     "birth_date": "1995-08-12",
     "birth_time": "08:30",
     "birth_province": "กรุงเทพมหานคร",
     "birth_district": "พระนคร",
     "calc_method": "suriyayatra",
-    "transit_province": "กรุงเทพมหานคร",
-    "transit_district": "พระนคร",
-    "registered": true,
-    "check_count": 1,
-    "streak": 1,
-    "last_check_date": "2026-09-24",
-    "created_at": "2026-09-24T14:21:58.459863",
-    "updated_at": "2026-09-24T14:21:58.459863",
-    "history": [
-      {
-        "date": "2026-09-24",
-        "score": 80,
-        "time": "14:22"
-      }
-    ]
-  },
-  "U_test_reg_endpoint_1": {
-    "line_user_id": "U_test_reg_endpoint_1",
-    "name": "เทสต์ผู้ใช้",
-    "birth_date": "1996-03-15",
-    "birth_time": "10:00",
-    "birth_province": "เชียงใหม่",
-    "birth_district": "อำเภอเมืองเชียงใหม่",
-    "calc_method": "suriyayatra",
     "transit_province": "เชียงใหม่",
     "transit_district": "อำเภอเมืองเชียงใหม่",
-    "registered": true,
-    "check_count": 1,
-    "streak": 1,
-    "last_check_date": "2026-09-24",
-    "created_at": "2026-09-24T14:22:51.141955",
-    "updated_at": "2026-09-24T14:22:51.141955",
-    "history": [
-      {
-        "date": "2026-09-24",
-        "score": 80,
-        "time": "14:22"
-      }
-    ]
-  },
-  "U_test_cat_user": {
-    "line_user_id": "U_test_cat_user",
-    "name": "ทดสอบ",
-    "birth_date": "1995-08-12",
-    "birth_time": "08:30",
-    "birth_province": "กรุงเทพมหานคร",
-    "birth_district": "พระนคร",
-    "calc_method": "suriyayatra",
-    "transit_province": "กรุงเทพมหานคร",
-    "transit_district": "พระนคร",
-    "registered": true,
-    "check_count": 4,
-    "streak": 1,
-    "last_check_date": "2026-09-24",
-    "created_at": "2026-09-24T16:19:40.008518",
-    "updated_at": "2026-09-24T16:19:40.008518",
-    "history": [
-      {
-        "date": "2026-09-24",
-        "score": 82,
-        "time": "16:20"
-      },
-      {
-        "date": "2026-09-24",
-        "score": 82,
-        "time": "16:22"
-      },
-      {
-        "date": "2026-09-24",
-        "score": 85,
-        "time": "16:32"
-      },
-      {
-        "date": "2026-09-24",
-        "score": 82,
-        "time": "16:33"
-      }
-    ]
-  },
-  "U_test_user_scenario": {
-    "line_user_id": "U_test_user_scenario",
-    "name": "ผู้ใช้ทดสอบ",
-    "birth_date": "1995-08-12",
-    "birth_time": "08:30",
-    "birth_province": "กรุงเทพมหานคร",
-    "birth_district": "พระนคร",
-    "calc_method": "suriyayatra",
-    "transit_province": "กรุงเทพมหานคร",
-    "transit_district": "พระนคร",
     "registered": true,
     "check_count": 0,
     "streak": 1,
     "last_check_date": "",
-    "created_at": "2026-09-24T16:23:20.288072",
-    "updated_at": "2026-09-24T16:23:20.288072"
+    "created_at": "2026-09-25T08:34:07.970311",
+    "updated_at": "2026-09-25T08:34:07.970311"
   }
 }

@@ -225,7 +225,7 @@ class HoroscopeHandler(http.server.SimpleHTTPRequestHandler):
                 if channel_access_token and user_id.startswith("U"):
                     try:
                         horoscope = compute_user_horoscope(user)
-                        record_user_check(user_id, horoscope.get("overallScore", 80))
+                        user = record_user_check(user_id, horoscope.get("overallScore", 80)) or get_user(user_id) or user
                         summary_flex = build_daily_summary_flex(
                             user, horoscope,
                             f"https://liff.line.me/{liff_id}?userId={user_id}" if liff_id else f"{web_url}/liff-register.html?userId={user_id}",

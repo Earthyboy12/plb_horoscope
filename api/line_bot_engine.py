@@ -142,7 +142,16 @@ def parse_birth_info_from_text(text: str):
                 t_dist = "พระนคร" if p == "กรุงเทพมหานคร" else f"อำเภอเมือง{p}"
                 break
     
-    return {
+    cc = 0
+    m_cc = re.search(r'\bcc=(\d+)\b', cleaned)
+    if m_cc:
+        cc = int(m_cc.group(1))
+    st = 1
+    m_st = re.search(r'\bst=(\d+)\b', cleaned)
+    if m_st:
+        st = int(m_st.group(1))
+
+    res = {
         "birth_date": bdate,
         "birth_time": btime,
         "birth_province": prov,
@@ -152,6 +161,11 @@ def parse_birth_info_from_text(text: str):
         "calc_method": "suriyayatra",
         "registered": True
     }
+    if cc > 0:
+        res["check_count"] = cc
+    if st > 1:
+        res["streak"] = st
+    return res
 
 DEFAULT_FEEDBACK_WEBHOOK = "https://script.google.com/macros/s/AKfycbwBA-NdVNPQSC_M-a_dMWinkH1-5zSADD0xxkXJkE42TYIa-fvQNGMrVoq2Yu5zJ1_-6A/exec"
 DEFAULT_CHANNEL_ID = "2011723219"
@@ -362,7 +376,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             user = save_user(user_id, parsed_natal)
             is_registered = True
             horoscope = compute_user_horoscope(user)
-            record_user_check(user_id, horoscope.get("overallScore", 80))
+            user = record_user_check(user_id, horoscope.get("overallScore", 80)) or get_user(user_id) or user
             summary_flex = build_daily_summary_flex(user, horoscope, liff_url, web_url)
             reply([
                 {
@@ -379,6 +393,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                 prompt_registration()
                 return
             horoscope = compute_user_horoscope(user)
+            user = get_user(user_id) or user
             stats_flex = build_stats_flex(user, horoscope)
             reply([stats_flex])
             return
@@ -515,7 +530,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                 return
             h = compute_user_horoscope(user)
             asc_name = h["natalChart"]["ascendant"]["signName"]
-            flex = build_category_flex("career", h["categories"]["career"], asc_name, h["date"])
+            flex = build_category_flex("career", h["categories"]["career"], asc_name, h["date"], user=user)
             reply([flex])
             return
 
@@ -525,7 +540,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                 return
             h = compute_user_horoscope(user)
             asc_name = h["natalChart"]["ascendant"]["signName"]
-            flex = build_category_flex("finance", h["categories"]["finance"], asc_name, h["date"])
+            flex = build_category_flex("finance", h["categories"]["finance"], asc_name, h["date"], user=user)
             reply([flex])
             return
 
@@ -535,7 +550,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                 return
             h = compute_user_horoscope(user)
             asc_name = h["natalChart"]["ascendant"]["signName"]
-            flex = build_category_flex("love", h["categories"]["love"], asc_name, h["date"])
+            flex = build_category_flex("love", h["categories"]["love"], asc_name, h["date"], user=user)
             reply([flex])
             return
 
@@ -545,13 +560,13 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                 return
             h = compute_user_horoscope(user)
             asc_name = h["natalChart"]["ascendant"]["signName"]
-            flex = build_category_flex("health", h["categories"]["health"], asc_name, h["date"])
+            flex = build_category_flex("health", h["categories"]["health"], asc_name, h["date"], user=user)
             reply([flex])
             return
 
         # Check Category selection menu (Button 2 in Rich Menu)
         if any(k in text for k in ["เลือกหมวด", "หมวดหมู่", "หมวด", "2"]):
-            reply([build_category_menu_flex()])
+            reply([build_category_menu_flex(web_url, user=user)])
             return
 
         # Main Daily Horoscope Summary (Button 1)
@@ -560,7 +575,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                 prompt_registration()
                 return
             horoscope = compute_user_horoscope(user)
-            record_user_check(user_id, horoscope.get("overallScore", 80))
+            user = record_user_check(user_id, horoscope.get("overallScore", 80)) or get_user(user_id) or user
             summary_flex = build_daily_summary_flex(user, horoscope, liff_url, web_url)
             reply([summary_flex])
             return
@@ -590,7 +605,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             prompt_registration()
         else:
             horoscope = compute_user_horoscope(user)
-            record_user_check(user_id, horoscope.get("overallScore", 80))
+            user = record_user_check(user_id, horoscope.get("overallScore", 80)) or get_user(user_id) or user
             summary_flex = build_daily_summary_flex(user, horoscope, liff_url, web_url)
             reply([summary_flex])
 
@@ -601,22 +616,49 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
         params = dict(urllib.parse.parse_qsl(data_str))
         action = params.get("action")
         
+        # Extract stateless metadata
+        try:
+            incoming_cc = int(params.get("cc", 0))
+        except (ValueError, TypeError):
+            incoming_cc = 0
+        try:
+            incoming_st = int(params.get("st", 1))
+        except (ValueError, TypeError):
+            incoming_st = 1
+        incoming_ld = params.get("ld", "")
+        user_name = params.get("n", "")
+
         # Re-hydrate user from stateless postback metadata if missing
         if not user and params.get("b"):
             user = save_user(user_id, {
+                "name": user_name or "ผู้ใช้",
                 "birth_date": params.get("b"),
                 "birth_time": params.get("t", "08:30"),
                 "birth_province": params.get("p", "กรุงเทพมหานคร"),
-                "transit_province": params.get("tp", params.get("p", "กรุงเทพมหานคร"))
+                "transit_province": params.get("tp", params.get("p", "กรุงเทพมหานคร")),
+                "check_count": incoming_cc,
+                "streak": incoming_st,
+                "last_check_date": incoming_ld
             })
             is_registered = True
+        elif user and incoming_cc > user.get("check_count", 0):
+            # Sync user check_count if postback carried a higher accumulated count
+            user["check_count"] = incoming_cc
+            user["streak"] = max(user.get("streak", 1), incoming_st)
+            if incoming_ld:
+                user["last_check_date"] = incoming_ld
+            try:
+                from user_store import _save_cache
+            except ImportError:
+                from api.user_store import _save_cache
+            _save_cache()
         
         if action == "daily_summary":
             if not user:
                 prompt_registration()
                 return
             horoscope = compute_user_horoscope(user)
-            record_user_check(user_id, horoscope.get("overallScore", 80))
+            user = record_user_check(user_id, horoscope.get("overallScore", 80)) or get_user(user_id) or user
             summary_flex = build_daily_summary_flex(user, horoscope, liff_url, web_url)
             reply([summary_flex])
             
@@ -625,11 +667,12 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                 prompt_registration()
                 return
             horoscope = compute_user_horoscope(user)
+            user = get_user(user_id) or user
             stats_flex = build_stats_flex(user, horoscope)
             reply([stats_flex])
             
         elif action == "select_category":
-            reply([build_category_menu_flex()])
+            reply([build_category_menu_flex(web_url, user=user)])
             
         elif action == "category":
             cat_name = params.get("cat", "career")
@@ -639,7 +682,23 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             h = compute_user_horoscope(user)
             asc_name = h["natalChart"]["ascendant"]["signName"]
             cat_data = h["categories"].get(cat_name, h["categories"]["overall"])
-            flex = build_category_flex(cat_name, cat_data, asc_name, h["date"])
+            flex = build_category_flex(cat_name, cat_data, asc_name, h["date"], user=user)
+            reply([flex])
+
+        elif action == "lucky_numbers":
+            if not user:
+                prompt_registration()
+                return
+            h = compute_user_horoscope(user)
+            flex = build_lucky_numbers_flex(user, h, web_url)
+            reply([flex])
+
+        elif action == "lucky_colors":
+            if not user:
+                prompt_registration()
+                return
+            h = compute_user_horoscope(user)
+            flex = build_lucky_colors_flex(user, h, web_url)
             reply([flex])
             
         elif action == "change_transit":

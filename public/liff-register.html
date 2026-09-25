@@ -760,7 +760,7 @@
         const dist = u.birthDistrict || u.birth_district || u.district || "";
         const tProv = u.transitProvince || u.transit_province || prov;
 
-        latestLineChatMsg = `เกิด ${bDate} ${bTime} ${prov} ${dist} จร ${tProv}`;
+        latestLineChatMsg = `เกิด ${bDate} ${bTime} ${prov} ${dist} จร ${tProv}` + (checkCount > 0 ? ` cc=${checkCount} st=${streak}` : '');
         goToLineChat();
       } else {
         alert("กรุณากรอกข้อมูลดวงชะตาและกดบันทึกด้านล่างก่อนครับ ✨");
@@ -805,6 +805,16 @@
       const uName = document.getElementById('nameInput').value.trim() || "ผู้ใช้";
       const uId = document.getElementById('lineUserId').value || localStorage.getItem('plb_line_user_id') || `guest_${Date.now()}`;
 
+      // Retrieve existing check_count and streak from localStorage if present
+      let existingProfile = {};
+      try {
+        existingProfile = JSON.parse(localStorage.getItem('plb_user_profile') || localStorage.getItem('plb_horo_birth_v4') || '{}');
+      } catch (e) {}
+
+      const checkCount = existingProfile.check_count || existingProfile.cc || 0;
+      const streak = existingProfile.streak || existingProfile.st || 1;
+      const lastCheckDate = existingProfile.last_check_date || existingProfile.ld || "";
+
       const payload = {
         action: "register_natal",
         line_user_id: uId,
@@ -823,6 +833,9 @@
         transit_province: tProv,
         transitDistrict: tDist,
         transit_district: tDist,
+        check_count: checkCount,
+        streak: streak,
+        last_check_date: lastCheckDate,
         registered: true
       };
 

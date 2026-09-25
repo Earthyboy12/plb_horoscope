@@ -106,6 +106,26 @@ def make_progress_bar(score: int, fill_color: str = "#fbbf24", bg_color: str = "
         ]
     }
 
+def get_postback_meta(user: dict) -> str:
+    """Generate compact postback metadata preserving birth chart and user stats across stateless requests."""
+    if not user:
+        return ""
+    b_date = user.get("birth_date", "1995-08-12")
+    b_time = user.get("birth_time", "08:30")
+    b_prov = user.get("birth_province", "กรุงเทพมหานคร")
+    t_prov = user.get("transit_province", b_prov)
+    try:
+        cc = int(user.get("check_count", 1))
+    except (ValueError, TypeError):
+        cc = 1
+    try:
+        st = int(user.get("streak", 1))
+    except (ValueError, TypeError):
+        st = 1
+    ld = user.get("last_check_date", "")
+    name = user.get("name", "ผู้ใช้")
+    return f"&b={b_date}&t={b_time}&p={b_prov}&tp={t_prov}&cc={cc}&st={st}&ld={ld}&n={name}"
+
 def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", web_url: str = "https://plb-horoscope.vercel.app") -> dict:
     """Build an Ultra-Premium Royal Gold & Obsidian themed Daily Summary Flex Card."""
     from user_store import get_rank_title
@@ -144,12 +164,8 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
     streak = user.get("streak", 1)
     rank = get_rank_title(check_count, streak)
     
-    # Stateless postback fallback payload
-    b_date = user.get("birth_date", "1995-08-12")
-    b_time = user.get("birth_time", "08:30")
-    b_prov = user.get("birth_province", "กรุงเทพมหานคร")
-    t_prov = user.get("transit_province", b_prov)
-    pb_meta = f"&b={b_date}&t={b_time}&p={b_prov}&tp={t_prov}"
+    # Stateless postback metadata preserving stats
+    pb_meta = get_postback_meta(user)
 
     # Visual gauge color based on score
     gauge_color = "#fbbf24" if overall_score >= 85 else ("#38bdf8" if overall_score >= 75 else "#a78bfa")
@@ -555,12 +571,8 @@ def build_stats_flex(user: dict, horoscope: dict, days_history: list = None) -> 
             ]
         })
 
-    # Stateless postback metadata
-    b_date = user.get("birth_date", "1995-08-12")
-    b_time = user.get("birth_time", "08:30")
-    b_prov = user.get("birth_province", "กรุงเทพมหานคร")
-    t_prov = user.get("transit_province", b_prov)
-    pb_meta = f"&b={b_date}&t={b_time}&p={b_prov}&tp={t_prov}"
+    # Stateless postback metadata preserving stats
+    pb_meta = get_postback_meta(user)
 
     return {
         "type": "flex",
@@ -766,9 +778,10 @@ def build_stats_flex(user: dict, horoscope: dict, days_history: list = None) -> 
         }
     }
 
-def build_category_menu_flex(web_url: str = "https://plb-horoscope.vercel.app") -> dict:
+def build_category_menu_flex(web_url: str = "https://plb-horoscope.vercel.app", user: dict = None) -> dict:
     """Build an interactive luxury card to choose horoscope categories."""
     web_url = web_url or "https://plb-horoscope.vercel.app"
+    pb_meta = get_postback_meta(user) if user else ""
     return {
         "type": "flex",
         "altText": "🔮 เลือกหมวดดูดวงเจาะลึก (การงาน, การเงิน, ความรัก, สุขภาพ)",
@@ -812,9 +825,10 @@ def build_category_menu_flex(web_url: str = "https://plb-horoscope.vercel.app") 
                         "color": "#1d4ed8",
                         "height": "sm",
                         "action": {
-                            "type": "message",
+                            "type": "postback" if pb_meta else "message",
                             "label": "💼 ดูหมวดการงาน & ธุรกิจ",
-                            "text": "การงาน"
+                            "data": f"action=category&cat=career{pb_meta}" if pb_meta else "การงาน",
+                            "displayText": "การงาน"
                         }
                     },
                     {
@@ -823,9 +837,10 @@ def build_category_menu_flex(web_url: str = "https://plb-horoscope.vercel.app") 
                         "color": "#047857",
                         "height": "sm",
                         "action": {
-                            "type": "message",
+                            "type": "postback" if pb_meta else "message",
                             "label": "💰 ดูหมวดการเงิน & โชคลาภ",
-                            "text": "การเงิน"
+                            "data": f"action=category&cat=finance{pb_meta}" if pb_meta else "การเงิน",
+                            "displayText": "การเงิน"
                         }
                     },
                     {
@@ -834,9 +849,10 @@ def build_category_menu_flex(web_url: str = "https://plb-horoscope.vercel.app") 
                         "color": "#be185d",
                         "height": "sm",
                         "action": {
-                            "type": "message",
+                            "type": "postback" if pb_meta else "message",
                             "label": "❤️ ดูหมวดความรัก & เสน่ห์",
-                            "text": "ความรัก"
+                            "data": f"action=category&cat=love{pb_meta}" if pb_meta else "ความรัก",
+                            "displayText": "ความรัก"
                         }
                     },
                     {
@@ -845,9 +861,10 @@ def build_category_menu_flex(web_url: str = "https://plb-horoscope.vercel.app") 
                         "color": "#b45309",
                         "height": "sm",
                         "action": {
-                            "type": "message",
+                            "type": "postback" if pb_meta else "message",
                             "label": "🩺 ดูหมวดสุขภาพ & เตือนภัย",
-                            "text": "สุขภาพ"
+                            "data": f"action=category&cat=health{pb_meta}" if pb_meta else "สุขภาพ",
+                            "displayText": "สุขภาพ"
                         }
                     },
                     {
@@ -856,9 +873,10 @@ def build_category_menu_flex(web_url: str = "https://plb-horoscope.vercel.app") 
                         "color": "#d97706",
                         "height": "sm",
                         "action": {
-                            "type": "message",
+                            "type": "postback" if pb_meta else "message",
                             "label": "🎰 ขอเลขเด็ด & เลขมงคล",
-                            "text": "ขอเลขเด็ด"
+                            "data": f"action=lucky_numbers{pb_meta}" if pb_meta else "ขอเลขเด็ด",
+                            "displayText": "ขอเลขเด็ด"
                         }
                     },
                     {
@@ -867,9 +885,10 @@ def build_category_menu_flex(web_url: str = "https://plb-horoscope.vercel.app") 
                         "color": "#4f46e5",
                         "height": "sm",
                         "action": {
-                            "type": "message",
+                            "type": "postback" if pb_meta else "message",
                             "label": "👕 ตารางสีเสื้อมงคล",
-                            "text": "สีเสื้อมงคล"
+                            "data": f"action=lucky_colors{pb_meta}" if pb_meta else "สีเสื้อมงคล",
+                            "displayText": "สีเสื้อมงคล"
                         }
                     }
                 ]
@@ -911,7 +930,8 @@ def build_category_menu_flex(web_url: str = "https://plb-horoscope.vercel.app") 
         "quickReply": get_category_quick_reply()
     }
 
-def build_category_flex(category_key: str, category_data: dict, asc_name: str, date_str: str) -> dict:
+def build_category_flex(category_key: str, category_data: dict, asc_name: str, date_str: str, user: dict = None) -> dict:
+    pb_meta = get_postback_meta(user) if user else ""
     """Build a detailed single-category horoscope flex message in Royal Obsidian & Gold theme."""
     CAT_NAMES = {
         "career": ("💼 การงาน & ธุรกิจ", "#3b82f6", "#1d4ed8"),
@@ -1103,9 +1123,10 @@ def build_category_flex(category_key: str, category_data: dict, asc_name: str, d
                         "color": "#d97706",
                         "height": "sm",
                         "action": {
-                            "type": "message",
+                            "type": "postback" if pb_meta else "message",
                             "label": "🔮 เลือกหมวดอื่น",
-                            "text": "เลือกหมวดอยากจะดูหมวดไหน"
+                            "data": f"action=select_category{pb_meta}" if pb_meta else "เลือกหมวดอยากจะดูหมวดไหน",
+                            "displayText": "เลือกหมวดอยากจะดูหมวดไหน"
                         }
                     },
                     {
@@ -1119,9 +1140,10 @@ def build_category_flex(category_key: str, category_data: dict, asc_name: str, d
                                 "color": "#1e293b",
                                 "height": "sm",
                                 "action": {
-                                    "type": "message",
+                                    "type": "postback" if pb_meta else "message",
                                     "label": "🌟 สรุปดวงรวม",
-                                    "text": "สรุปดวงประจำวัน"
+                                    "data": f"action=daily_summary{pb_meta}" if pb_meta else "สรุปดวงประจำวัน",
+                                    "displayText": "สรุปดวงประจำวัน"
                                 },
                                 "flex": 1
                             },
@@ -1131,9 +1153,10 @@ def build_category_flex(category_key: str, category_data: dict, asc_name: str, d
                                 "color": "#065f46",
                                 "height": "sm",
                                 "action": {
-                                    "type": "message",
+                                    "type": "postback" if pb_meta else "message",
                                     "label": "📊 สถิติ & กิมมิก",
-                                    "text": "สถิติ"
+                                    "data": f"action=stats{pb_meta}" if pb_meta else "สถิติ",
+                                    "displayText": "สถิติดวงย้อนหลัง"
                                 },
                                 "flex": 1
                             }
@@ -1506,6 +1529,7 @@ def build_share_flex(web_url: str = "https://plb-horoscope.vercel.app") -> dict:
 def build_lucky_numbers_flex(user: dict, horoscope: dict, web_url: str = "https://plb-horoscope.vercel.app") -> dict:
     """Build a specialized luxury Flex card for lucky numbers and lottery."""
     web_url = web_url or "https://plb-horoscope.vercel.app"
+    pb_meta = get_postback_meta(user) if user else ""
     lucky_info = horoscope.get("luckyInfo", {})
     nums = lucky_info.get("luckyNumbers", [9, 5, 1, 8])
     if len(nums) < 4:
@@ -1746,9 +1770,10 @@ def build_lucky_numbers_flex(user: dict, horoscope: dict, web_url: str = "https:
                             "color": "#4f46e5",
                             "height": "sm",
                             "action": {
-                                "type": "message",
+                                "type": "postback" if pb_meta else "message",
                                 "label": "👕 ดูสีเสื้อมงคล",
-                                "text": "สีเสื้อมงคล"
+                                "data": f"action=lucky_colors{pb_meta}" if pb_meta else "สีเสื้อมงคล",
+                                "displayText": "สีเสื้อมงคล"
                             },
                             "flex": 1
                         },
@@ -1758,9 +1783,10 @@ def build_lucky_numbers_flex(user: dict, horoscope: dict, web_url: str = "https:
                             "color": "#d97706",
                             "height": "sm",
                             "action": {
-                                "type": "message",
+                                "type": "postback" if pb_meta else "message",
                                 "label": "💰 ดูดวงการเงิน",
-                                "text": "การเงิน"
+                                "data": f"action=category&cat=finance{pb_meta}" if pb_meta else "การเงิน",
+                                "displayText": "การเงิน"
                             },
                             "flex": 1
                         }
@@ -1777,9 +1803,10 @@ def build_lucky_numbers_flex(user: dict, horoscope: dict, web_url: str = "https:
                             "color": "#1e293b",
                             "height": "sm",
                             "action": {
-                                "type": "message",
+                                "type": "postback" if pb_meta else "message",
                                 "label": "🌟 สรุปดวงวันนี้",
-                                "text": "สรุปดวงประจำวัน"
+                                "data": f"action=daily_summary{pb_meta}" if pb_meta else "สรุปดวงประจำวัน",
+                                "displayText": "สรุปดวงประจำวัน"
                             },
                             "flex": 1
                         },
@@ -1822,6 +1849,7 @@ def build_lucky_numbers_flex(user: dict, horoscope: dict, web_url: str = "https:
 def build_lucky_colors_flex(user: dict, horoscope: dict, web_url: str = "https://plb-horoscope.vercel.app") -> dict:
     """Build a specialized luxury Flex card for daily lucky shirt colors and astrology thaksa."""
     web_url = web_url or "https://plb-horoscope.vercel.app"
+    pb_meta = get_postback_meta(user) if user else ""
     lucky_info = horoscope.get("luckyInfo", {})
     user_name = user.get("name", "ผู้ใช้") if user else "ผู้ใช้"
     asc_name = horoscope.get("natalChart", {}).get("ascendant", {}).get("signName", "เมษ")
@@ -2005,9 +2033,10 @@ def build_lucky_colors_flex(user: dict, horoscope: dict, web_url: str = "https:/
                             "color": "#d97706",
                             "height": "sm",
                             "action": {
-                                "type": "message",
+                                "type": "postback" if pb_meta else "message",
                                 "label": "🎰 ขอเลขเด็ด",
-                                "text": "ขอเลขเด็ด"
+                                "data": f"action=lucky_numbers{pb_meta}" if pb_meta else "ขอเลขเด็ด",
+                                "displayText": "ขอเลขเด็ด"
                             },
                             "flex": 1
                         },
@@ -2017,9 +2046,10 @@ def build_lucky_colors_flex(user: dict, horoscope: dict, web_url: str = "https:/
                             "color": "#1d4ed8",
                             "height": "sm",
                             "action": {
-                                "type": "message",
+                                "type": "postback" if pb_meta else "message",
                                 "label": "💼 ดูหมวดการงาน",
-                                "text": "การงาน"
+                                "data": f"action=category&cat=career{pb_meta}" if pb_meta else "การงาน",
+                                "displayText": "การงาน"
                             },
                             "flex": 1
                         }
@@ -2036,9 +2066,10 @@ def build_lucky_colors_flex(user: dict, horoscope: dict, web_url: str = "https:/
                             "color": "#1e293b",
                             "height": "sm",
                             "action": {
-                                "type": "message",
+                                "type": "postback" if pb_meta else "message",
                                 "label": "🌟 สรุปดวงวันนี้",
-                                "text": "สรุปดวงประจำวัน"
+                                "data": f"action=daily_summary{pb_meta}" if pb_meta else "สรุปดวงประจำวัน",
+                                "displayText": "สรุปดวงประจำวัน"
                             },
                             "flex": 1
                         },
