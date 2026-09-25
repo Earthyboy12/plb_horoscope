@@ -1543,20 +1543,28 @@
         return;
       }
 
-      function getColorChipStyle(colorStr) {
+      function getColorChipStyle(colorStr, isAvoid = false) {
         const c = String(colorStr || '').toLowerCase();
-        if (/เขียว|ตอง|มรกต/.test(c)) return { bg: '#064e3b', border: '#10b981', text: '#a7f3d0' };
-        if (/ส้ม|อิฐ/.test(c)) return { bg: '#7c2d12', border: '#f97316', text: '#fed7aa' };
-        if (/ทอง|อำพัน/.test(c)) return { bg: '#713f12', border: '#eab308', text: '#fef08a' };
-        if (/เหลือง|ครีม/.test(c)) return { bg: '#713f12', border: '#facc15', text: '#fef9c3' };
-        if (/ฟ้า|คราม/.test(c)) return { bg: '#0c4a6e', border: '#38bdf8', text: '#bae6fd' };
-        if (/น้ำเงิน/.test(c)) return { bg: '#1e3a8a', border: '#3b82f6', text: '#bfdbfe' };
-        if (/ชมพู|บานเย็น|โรสโกลด์/.test(c)) return { bg: '#701a75', border: '#ec4899', text: '#fbcfe8' };
-        if (/ม่วง|มะปราง/.test(c)) return { bg: '#4c1d95', border: '#a855f7', text: '#e9d5ff' };
-        if (/แดง|ทับทิม|เพลิง/.test(c)) return { bg: '#7f1d1d', border: '#ef4444', text: '#fecaca' };
-        if (/ขาว|เงิน|บรอนซ์|นวล/.test(c)) return { bg: '#334155', border: '#e2e8f0', text: '#ffffff' };
-        if (/ดำ|เทา|ควัน/.test(c)) return { bg: '#18181b', border: '#71717a', text: '#e4e4e7' };
-        return { bg: '#1e293b', border: '#64748b', text: '#f8fafc' };
+        if (isAvoid) {
+          if (/ดำ|เทา/.test(c)) return { bg: '#18181b', border: '#ef4444', text: '#fca5a5', key: 'black' };
+          if (/ม่วง/.test(c)) return { bg: '#3b0764', border: '#ef4444', text: '#fca5a5', key: 'purple' };
+          if (/แดง/.test(c)) return { bg: '#450a0a', border: '#ef4444', text: '#fca5a5', key: 'red' };
+          if (/เขียว/.test(c)) return { bg: '#064e3b', border: '#ef4444', text: '#fca5a5', key: 'green' };
+          if (/ขาว/.test(c)) return { bg: '#1e293b', border: '#ef4444', text: '#fca5a5', key: 'white' };
+          return { bg: '#450a0a', border: '#ef4444', text: '#fca5a5', key: 'avoid' };
+        }
+        if (/เขียว|ตอง|มรกต/.test(c)) return { bg: '#064e3b', border: '#10b981', text: '#a7f3d0', key: 'green' };
+        if (/ส้ม|อิฐ/.test(c)) return { bg: '#7c2d12', border: '#f97316', text: '#fed7aa', key: 'orange' };
+        if (/ทอง|อำพัน/.test(c)) return { bg: '#713f12', border: '#eab308', text: '#fef08a', key: 'gold' };
+        if (/เหลือง|ครีม/.test(c)) return { bg: '#713f12', border: '#facc15', text: '#fef9c3', key: 'yellow' };
+        if (/ฟ้า|คราม/.test(c)) return { bg: '#0c4a6e', border: '#38bdf8', text: '#bae6fd', key: 'blue' };
+        if (/น้ำเงิน/.test(c)) return { bg: '#1e3a8a', border: '#3b82f6', text: '#bfdbfe', key: 'navy' };
+        if (/ชมพู|บานเย็น|โรสโกลด์/.test(c)) return { bg: '#701a75', border: '#ec4899', text: '#fbcfe8', key: 'pink' };
+        if (/ม่วง|มะปราง/.test(c)) return { bg: '#4c1d95', border: '#a855f7', text: '#e9d5ff', key: 'purple' };
+        if (/แดง|ทับทิม|เพลิง/.test(c)) return { bg: '#7f1d1d', border: '#ef4444', text: '#fecaca', key: 'red' };
+        if (/ขาว|เงิน|บรอนซ์|นวล/.test(c)) return { bg: '#334155', border: '#e2e8f0', text: '#ffffff', key: 'white' };
+        if (/ดำ|เทา|ควัน/.test(c)) return { bg: '#18181b', border: '#71717a', text: '#e4e4e7', key: 'black' };
+        return { bg: '#1e293b', border: '#64748b', text: '#f8fafc', key: 'gold' };
       }
 
       function renderColorChips(colorArr, isAvoid = false) {
@@ -1573,11 +1581,10 @@
         if (items.length === 0) return '';
         return `<div class="flex flex-wrap gap-2 pt-1.5">
           ${items.map(name => {
-            const s = getColorChipStyle(name);
-            const icon = isAvoid ? '⛔ 👕' : '👕';
-            return `<div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs sm:text-sm font-bold shadow-md transition-transform hover:scale-105"
+            const s = getColorChipStyle(name, isAvoid);
+            return `<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs sm:text-sm font-bold shadow-md transition-transform hover:scale-105"
                          style="background-color: ${s.bg}; border-color: ${s.border}; color: ${s.text};">
-              <span>${icon}</span>
+              <img src="/shirts/shirt_${s.key}.png" alt="${name}" class="w-5 h-5 object-contain inline-block drop-shadow animate-pulse-gentle">
               <span>${name}</span>
             </div>`;
           }).join('')}
