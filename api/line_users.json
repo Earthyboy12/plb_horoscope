@@ -116,7 +116,7 @@
       }
     ],
     "created_at": "2026-09-25T10:59:39.685258",
-    "updated_at": "2026-09-25T10:59:39.823288"
+    "updated_at": "2026-09-25T11:05:55.191292"
   },
   "U_stateless_tester_api": {
     "line_user_id": "U_stateless_tester_api",
@@ -206,5 +206,207 @@
     ],
     "created_at": "2026-09-25T10:59:39.828132",
     "updated_at": "2026-09-25T10:59:39.978999"
+  },
+  "U_stateless_tester_root_1790309170465": {
+    "line_user_id": "U_stateless_tester_root_1790309170465",
+    "name": "ผู้ใช้",
+    "birth_date": "1995-08-12",
+    "birth_time": "08:30",
+    "birth_province": "กรุงเทพมหานคร",
+    "birth_district": "พระนคร",
+    "calc_method": "suriyayatra",
+    "transit_province": "เชียงใหม่",
+    "transit_district": "อำเภอเมืองเชียงใหม่",
+    "registered": true,
+    "check_count": 1,
+    "streak": 1,
+    "last_check_date": "2026-09-25",
+    "history": [
+      {
+        "date": "2026-09-25",
+        "score": 80,
+        "time": "11:06"
+      }
+    ],
+    "created_at": "2026-09-25T11:06:10.465710",
+    "updated_at": "2026-09-25T11:06:10.489295"
+  },
+  "U_stateless_tester_root_1790309203521": {
+    "line_user_id": "U_stateless_tester_root_1790309203521",
+    "name": "ผู้ใช้",
+    "birth_date": "1995-08-12",
+    "birth_time": "08:30",
+    "birth_province": "กรุงเทพมหานคร",
+    "birth_district": "พระนคร",
+    "calc_method": "suriyayatra",
+    "transit_province": "เชียงใหม่",
+    "transit_district": "อำเภอเมืองเชียงใหม่",
+    "registered": true,
+    "check_count": 50,
+    "streak": 1,
+    "last_check_date": "2026-09-25",
+    "history": [
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      }
+    ],
+    "created_at": "2026-09-25T11:06:43.522600",
+    "updated_at": "2026-09-25T11:06:43.694310"
+  },
+  "U_stateless_tester_api_1790309203699": {
+    "line_user_id": "U_stateless_tester_api_1790309203699",
+    "name": "ผู้ใช้",
+    "birth_date": "1995-08-12",
+    "birth_time": "08:30",
+    "birth_province": "กรุงเทพมหานคร",
+    "birth_district": "พระนคร",
+    "calc_method": "suriyayatra",
+    "transit_province": "เชียงใหม่",
+    "transit_district": "อำเภอเมืองเชียงใหม่",
+    "registered": true,
+    "check_count": 50,
+    "streak": 1,
+    "last_check_date": "2026-09-25",
+    "history": [
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:06"
+      }
+    ],
+    "created_at": "2026-09-25T11:06:43.699552",
+    "updated_at": "2026-09-25T11:06:43.866880"
   }
 }

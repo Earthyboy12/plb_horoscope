@@ -348,7 +348,7 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                         "layout": "vertical",
                         "margin": "md",
                         "contents": [
-                            {"type": "text", "text": "🏛️ จตุสดมภ์โชคลาภ 4 ด้าน:", "size": "xxs", "color": "#fbbf24", "weight": "bold"},
+                            {"type": "text", "text": "🏛️ จตุสดมภ์โชคลาภ 4 ด้าน (แตะดูเจาะลึก):", "size": "xxs", "color": "#fbbf24", "weight": "bold"},
                             {
                                 "type": "box",
                                 "layout": "horizontal",
@@ -363,8 +363,14 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                                         "cornerRadius": "8px",
                                         "paddingAll": "8px",
                                         "flex": 1,
+                                        "action": {
+                                            "type": "postback",
+                                            "label": "การงาน",
+                                            "data": f"action=category_career{pb_meta}",
+                                            "displayText": "การงาน"
+                                        },
                                         "contents": [
-                                            {"type": "text", "text": f"💼 งาน {career.get('score', 80)}%", "size": "xxs", "color": "#93c5fd", "weight": "bold"},
+                                            {"type": "text", "text": f"💼 งาน {career.get('score', 80)}% ›", "size": "xxs", "color": "#93c5fd", "weight": "bold"},
                                             {"type": "text", "text": career.get("summary", "งานก้าวหน้า"), "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xs"}
                                         ]
                                     },
@@ -376,8 +382,14 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                                         "cornerRadius": "8px",
                                         "paddingAll": "8px",
                                         "flex": 1,
+                                        "action": {
+                                            "type": "postback",
+                                            "label": "การเงิน",
+                                            "data": f"action=category_finance{pb_meta}",
+                                            "displayText": "การเงิน"
+                                        },
                                         "contents": [
-                                            {"type": "text", "text": f"💰 เงิน {finance.get('score', 80)}%", "size": "xxs", "color": "#fef08a", "weight": "bold"},
+                                            {"type": "text", "text": f"💰 เงิน {finance.get('score', 80)}% ›", "size": "xxs", "color": "#fef08a", "weight": "bold"},
                                             {"type": "text", "text": finance.get("summary", "เงินคล่องตัว"), "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xs"}
                                         ]
                                     }
@@ -397,8 +409,14 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                                         "cornerRadius": "8px",
                                         "paddingAll": "8px",
                                         "flex": 1,
+                                        "action": {
+                                            "type": "postback",
+                                            "label": "ความรัก",
+                                            "data": f"action=category_love{pb_meta}",
+                                            "displayText": "ความรัก"
+                                        },
                                         "contents": [
-                                            {"type": "text", "text": f"❤️ รัก {love.get('score', 80)}%", "size": "xxs", "color": "#f472b6", "weight": "bold"},
+                                            {"type": "text", "text": f"❤️ รัก {love.get('score', 80)}% ›", "size": "xxs", "color": "#f472b6", "weight": "bold"},
                                             {"type": "text", "text": love.get("summary", "เสน่ห์เมตตา"), "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xs"}
                                         ]
                                     },
@@ -410,8 +428,14 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                                         "cornerRadius": "8px",
                                         "paddingAll": "8px",
                                         "flex": 1,
+                                        "action": {
+                                            "type": "postback",
+                                            "label": "สุขภาพ",
+                                            "data": f"action=category_health{pb_meta}",
+                                            "displayText": "สุขภาพ"
+                                        },
                                         "contents": [
-                                            {"type": "text", "text": f"🩺 กาย {health.get('score', 80)}%", "size": "xxs", "color": "#86efac", "weight": "bold"},
+                                            {"type": "text", "text": f"🩺 กาย {health.get('score', 80)}% ›", "size": "xxs", "color": "#86efac", "weight": "bold"},
                                             {"type": "text", "text": health.get("summary", "พลังชีวาสดใส"), "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xs"}
                                         ]
                                     }
@@ -471,6 +495,7 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                 "paddingAll": "12px",
                 "spacing": "xs",
                 "contents": [
+                    # 1. PROMINENT PRIMARY CTA: เลือกหมวดอยากจะดูหมวดไหน
                     {
                         "type": "button",
                         "style": "primary",
@@ -478,11 +503,12 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                         "height": "sm",
                         "action": {
                             "type": "postback",
-                            "label": "📊 สถิติดวงย้อนหลัง & กิมมิกดวง",
-                            "data": f"action=stats{pb_meta}",
-                            "displayText": "สถิติดวงย้อนหลัง"
+                            "label": "🔮 เลือกหมวดอยากจะดูหมวดไหน",
+                            "data": f"action=select_category{pb_meta}",
+                            "displayText": "เลือกหมวดอยากจะดูหมวดไหน"
                         }
                     },
+                    # 2. SECONDARY SPLIT ROW: สถิติดวงย้อนหลัง & เปลี่ยนสถานที่จร
                     {
                         "type": "box",
                         "layout": "horizontal",
@@ -495,9 +521,9 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                                 "height": "sm",
                                 "action": {
                                     "type": "postback",
-                                    "label": "🔮 เจาะลึกรายหมวด",
-                                    "data": f"action=select_category{pb_meta}",
-                                    "displayText": "เลือกหมวดอยากจะดูหมวดไหน"
+                                    "label": "📊 สถิติดวงย้อนหลัง",
+                                    "data": f"action=stats{pb_meta}",
+                                    "displayText": "สถิติดวงย้อนหลัง"
                                 },
                                 "flex": 1
                             },
@@ -549,6 +575,15 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                     }
                 ]
             }
+        },
+        "quickReply": {
+            "items": [
+                {"type": "action", "action": {"type": "message", "label": "🔮 เลือกหมวดดูดวง", "text": "เลือกหมวดอยากจะดูหมวดไหน"}},
+                {"type": "action", "action": {"type": "message", "label": "📊 สถิติดวง", "text": "สถิติ"}},
+                {"type": "action", "action": {"type": "message", "label": "🎰 ขอเลขเด็ด", "text": "ขอเลขเด็ด"}},
+                {"type": "action", "action": {"type": "message", "label": "👕 สีเสื้อมงคล", "text": "สีเสื้อมงคล"}},
+                {"type": "action", "action": {"type": "message", "label": "📍 เปลี่ยนที่จร", "text": "เปลี่ยนสถานที่จร"}}
+            ]
         }
     }
 
@@ -824,7 +859,7 @@ def build_stats_flex(user: dict, horoscope: dict, days_history: list = None) -> 
                                 "height": "sm",
                                 "action": {
                                     "type": "postback",
-                                    "label": "🔮 เจาะลึกรายหมวด",
+                                    "label": "🔮 เลือกหมวดดูดวง",
                                     "data": f"action=select_category{pb_meta}",
                                     "displayText": "เลือกหมวดอยากจะดูหมวดไหน"
                                 },
