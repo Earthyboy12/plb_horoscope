@@ -233,3 +233,8 @@ def _sync_to_google_sheet(action_type: str, data: dict):
     import threading
     threading.Thread(target=_do_sync, daemon=True).start()
 
+
+def get_all_users() -> dict:
+    """Return dictionary of all registered users."""
+    _load_cache()
+    return dict(_USER_CACHE)

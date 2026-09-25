@@ -2077,3 +2077,199 @@ def build_lucky_colors_flex(user: dict, horoscope: dict, web_url: str = "https:/
         "contents": bubble,
         "quickReply": quick_reply
     }
+
+
+def build_noon_reminder_flex(web_url: str = "https://plb-horoscope.vercel.app") -> dict:
+    """Build cute polar bear midday noon reminder and invitation flex card."""
+    web_url = web_url or "https://plb-horoscope.vercel.app"
+    bubble = {
+        "type": "bubble",
+        "size": "mega",
+        "hero": {
+            "type": "image",
+            "url": f"{web_url}/bear_fortune.jpg",
+            "size": "full",
+            "aspectRatio": "20:13",
+            "aspectMode": "cover"
+        },
+        "header": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "16px",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {"type": "text", "text": "🍱 พักเที่ยงเติมพลัง & เช็กดวงบ่ายนี้ ✨", "weight": "bold", "color": "#fbbf24", "size": "md", "flex": 1},
+                        {"type": "text", "text": "PLB โหราศาสตร์", "color": "#94a3b8", "size": "xxs", "align": "end"}
+                    ]
+                },
+                {
+                    "type": "text",
+                    "text": "เติมความสดใสยามบ่าย วาสนาเปิดรับทรัพย์ 🐻‍❄️💖",
+                    "color": "#cbd5e1",
+                    "size": "xs",
+                    "margin": "xs"
+                }
+            ]
+        },
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#070b19",
+            "paddingAll": "16px",
+            "spacing": "sm",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#1e1b4b",
+                    "cornerRadius": "12px",
+                    "paddingAll": "12px",
+                    "borderColor": "#6366f1",
+                    "borderWidth": "1px",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "พักสายตาสักนิด ทานข้าวเที่ยงให้อร่อยนะคร้าบ! 🍱\nบ่ายนี้ดาวศุภเคราะห์โคจรหนุนนำ แวะมาเช็กดวง เลขเด่น และสีเสื้อมงคลเสริมพลังใจกันน้า 🐻‍❄️✨",
+                            "size": "xs",
+                            "color": "#e0e7ff",
+                            "wrap": True
+                        }
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#0f172a",
+                    "cornerRadius": "10px",
+                    "paddingAll": "10px",
+                    "borderColor": "#334155",
+                    "borderWidth": "1px",
+                    "spacing": "xs",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {"type": "text", "text": "🎰 เลขเด่นประจำวัน:", "size": "xxs", "color": "#fbbf24", "weight": "bold", "flex": 2},
+                                {"type": "text", "text": "คำนวณตามมหาทักษาเปิดทรัพย์", "size": "xxs", "color": "#f8fafc", "flex": 3}
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {"type": "text", "text": "👕 สีเสื้อมงคล:", "size": "xxs", "color": "#818cf8", "weight": "bold", "flex": 2},
+                                {"type": "text", "text": "เสริมเดช เสริมศรี เสริมมนตรีบ่ายนี้", "size": "xxs", "color": "#f8fafc", "flex": 3}
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {"type": "text", "text": "🌟 สรุปดวงแม่นยำ:", "size": "xxs", "color": "#34d399", "weight": "bold", "flex": 2},
+                                {"type": "text", "text": "ตำแหน่งดาวจริงตามพิกัดจังหวัดของคุณ", "size": "xxs", "color": "#f8fafc", "flex": 3}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "text",
+                    "text": "💡 กดปุ่มด้านล่างเพื่อดูดวง หรือชวนเพื่อน ๆ มาดูดวงด้วยกันได้เลยครับ 👇",
+                    "size": "xxs",
+                    "color": "#94a3b8",
+                    "wrap": True,
+                    "margin": "xs"
+                }
+            ]
+        },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "14px",
+            "spacing": "xs",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "spacing": "xs",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "style": "primary",
+                            "color": "#d97706",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "🌟 สรุปดวงวันนี้",
+                                "text": "สรุปดวงประจำวัน"
+                            },
+                            "flex": 1
+                        },
+                        {
+                            "type": "button",
+                            "style": "primary",
+                            "color": "#059669",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "🎰 ขอเลขเด็ด",
+                                "text": "ขอเลขเด็ด"
+                            },
+                            "flex": 1
+                        }
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "spacing": "xs",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "style": "secondary",
+                            "color": "#1e293b",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "👕 สีเสื้อมงคล",
+                                "text": "สีเสื้อมงคล"
+                            },
+                            "flex": 1
+                        },
+                        {
+                            "type": "button",
+                            "style": "secondary",
+                            "color": "#1e293b",
+                            "height": "sm",
+                            "action": {
+                                "type": "uri",
+                                "label": "👥 ชวนเพื่อนดูดวง",
+                                "uri": "https://line.me/R/nv/recommendOA/@374xcoto"
+                            },
+                            "flex": 1
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+
+    return {
+        "type": "flex",
+        "altText": "🍱 พักเที่ยงแล้ว ทานข้าวให้อร่อยนะคร้าบ! อย่าลืมแวะเช็กดวงบ่ายนี้กับน้องหมี PLB 🐻‍❄️✨",
+        "contents": bubble,
+        "quickReply": {
+            "items": [
+                {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวงวันนี้", "text": "สรุปดวงวันนี้"}},
+                {"type": "action", "action": {"type": "message", "label": "🎰 ขอเลขเด็ด", "text": "ขอเลขเด็ด"}},
+                {"type": "action", "action": {"type": "message", "label": "👕 สีเสื้อมงคล", "text": "สีเสื้อมงคล"}},
+                {"type": "action", "action": {"type": "message", "label": "🔮 เลือกหมวด", "text": "เลือกหมวดอยากจะดูหมวดไหน"}},
+                {"type": "action", "action": {"type": "uri", "label": "👥 ชวนเพื่อนดูดวง", "uri": "https://line.me/R/nv/recommendOA/@374xcoto"}}
+            ]
+        }
+    }

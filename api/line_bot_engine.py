@@ -28,6 +28,7 @@ try:
         build_lucky_numbers_flex,
         build_lucky_colors_flex,
         build_feedback_flex,
+        build_noon_reminder_flex,
         build_donation_flex,
         build_share_flex,
         build_stats_flex,
@@ -44,6 +45,7 @@ except ImportError:
         build_lucky_numbers_flex,
         build_lucky_colors_flex,
         build_feedback_flex,
+        build_noon_reminder_flex,
         build_donation_flex,
         build_share_flex,
         build_stats_flex,
@@ -390,6 +392,18 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
         # Check Share LINE OA command
         if any(k in text for k in ["แชร์", "ชวนเพื่อน", "แชร์ให้เพื่อน", "share", "ชวน"]):
             reply([build_share_flex()])
+            return
+
+        # Check Noon Daily Reminder test command
+        if any(k in text for k in ["ทดสอบพุชเที่ยง", "พุชเที่ยง", "ดวงตอนเที่ยง", "เตือนตอนเที่ยง"]):
+            noon_flex = build_noon_reminder_flex(web_url)
+            reply([
+                {
+                    "type": "text",
+                    "text": "🍱 นี่คือตัวอย่างการ์ดข้อความเชิญชวนดูดวงตอนเที่ยง (Noon Daily Reminder) ที่จะส่งแจ้งเตือนทุกวันเวลา 12:00 น. ครับ 🐻‍❄️✨"
+                },
+                noon_flex
+            ])
             return
 
         # Check Transit Location Change command e.g. "จร เชียงใหม่" หรือ "เปลี่ยนสถานที่จร"
@@ -779,3 +793,64 @@ def _forward_comment_to_sheet(user_id: str, name: str, comment: str, user: dict 
 
     record_feedback_unified(payload)
 
+
+
+def broadcast_line_message(messages: list, access_token: str = "") -> dict:
+    """Broadcast messages to all friends of the LINE Official Account."""
+    access_token = access_token or get_channel_access_token()
+    if not access_token or not messages:
+        return {"success": False, "error": "Missing access token or messages"}
+
+    url = "https://api.line.me/v2/bot/message/broadcast"
+    payload = {"messages": messages}
+    try:
+        data = json.dumps(payload, ensure_ascii=False).encode('utf-8')
+        req = urllib.request.Request(
+            url,
+            data=data,
+            headers={
+                "Content-Type": "application/json; charset=utf-8",
+                "Authorization": f"Bearer {access_token}"
+            }
+        )
+        with urllib.request.urlopen(req, timeout=10) as response:
+            return {"success": response.status == 200, "status": response.status, "method": "broadcast"}
+    except urllib.error.HTTPError as he:
+        err_msg = he.read().decode('utf-8')
+        print(f"[LineBotEngine] Broadcast HTTPError {he.code}: {err_msg}")
+        return {"success": False, "status": he.code, "error": err_msg, "method": "broadcast"}
+    except Exception as e:
+        print(f"[LineBotEngine] Error broadcasting to LINE: {e}")
+        return {"success": False, "error": str(e), "method": "broadcast"}
+
+def send_noon_reminder_broadcast(web_url: str = "https://plb-horoscope.vercel.app", channel_access_token: str = "") -> dict:
+    """Send midday noon reminder to all LINE OA friends, with fallback to registered users."""
+    channel_access_token = channel_access_token or get_channel_access_token()
+    web_url = web_url or os.environ.get("APP_URL", "https://plb-horoscope.vercel.app")
+    flex_card = build_noon_reminder_flex(web_url)
+
+    # 1. Attempt broadcast to all friends
+    b_res = broadcast_line_message([flex_card], channel_access_token)
+    if b_res.get("success"):
+        return {"success": True, "method": "broadcast", "status": b_res.get("status")}
+
+    # 2. If broadcast failed (e.g. quota or restriction), fallback to pushing to registered users
+    print(f"[NoonReminder] Broadcast failed: {b_res.get('error')}. Falling back to registered user store push...")
+    try:
+        from user_store import get_all_users
+    except ImportError:
+        from api.user_store import get_all_users
+
+    users = get_all_users()
+    pushed_count = 0
+    for uid in users.keys():
+        if uid.startswith("U"):
+            if push_line_message(uid, [flex_card], channel_access_token):
+                pushed_count += 1
+
+    return {
+        "success": pushed_count > 0,
+        "method": "user_store_push",
+        "pushed_count": pushed_count,
+        "broadcast_error": b_res.get("error")
+    }
