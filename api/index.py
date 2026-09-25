@@ -20,7 +20,8 @@ try:
     from line_bot_engine import (
         verify_signature,
         handle_line_event,
-    send_noon_reminder_broadcast,
+        send_morning_reminder_broadcast,
+        send_noon_reminder_broadcast,
         push_line_message,
         compute_user_horoscope,
         get_channel_access_token
@@ -32,7 +33,8 @@ except ImportError:
     from api.line_bot_engine import (
         verify_signature,
         handle_line_event,
-    send_noon_reminder_broadcast,
+        send_morning_reminder_broadcast,
+        send_noon_reminder_broadcast,
         push_line_message,
         compute_user_horoscope,
         get_channel_access_token
@@ -77,21 +79,26 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(resp, ensure_ascii=False).encode('utf-8'))
             return
 
-        if 'noon-reminder' in check_str or 'cron/noon' in check_str:
+        if 'morning-reminder' in check_str or 'cron/morning' in check_str or 'noon-reminder' in check_str or 'cron/noon' in check_str:
             try:
                 parsed_url = urllib.parse.urlparse(self.path)
                 qs = urllib.parse.parse_qs(parsed_url.query)
                 is_force = qs.get("force", ["false"])[0].lower() in ("true", "1")
                 channel_access_token = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN") or get_channel_access_token()
                 web_url = os.environ.get("APP_URL", "https://plb-horoscope.vercel.app")
-                res = send_noon_reminder_broadcast(web_url, channel_access_token, force=is_force)
+                if 'morning' in check_str:
+                    res = send_morning_reminder_broadcast(web_url, channel_access_token, force=is_force)
+                    act_name = "morning_reminder_cron"
+                else:
+                    res = send_noon_reminder_broadcast(web_url, channel_access_token, force=is_force)
+                    act_name = "noon_reminder_cron"
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.send_cors_headers()
                 self.end_headers()
                 self.wfile.write(json.dumps({
                     "status": "ok",
-                    "action": "noon_reminder_cron",
+                    "action": act_name,
                     "timestamp": datetime.datetime.now().isoformat(),
                     "result": res
                 }, ensure_ascii=False).encode('utf-8'))

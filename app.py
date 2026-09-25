@@ -24,6 +24,7 @@ from user_store import get_user, save_user, update_transit_location, record_user
 from line_bot_engine import (
     verify_signature,
     handle_line_event,
+    send_morning_reminder_broadcast,
     send_noon_reminder_broadcast,
     push_line_message,
     compute_user_horoscope,
@@ -47,20 +48,25 @@ class HoroscopeHandler(http.server.SimpleHTTPRequestHandler):
         elif parsed.path == "/liff-register.html" or parsed.path == "/liff":
             self.path = "/liff-register.html"
             return super().do_GET()
-        elif parsed.path in ("/api/cron/noon-reminder", "/cron/noon-reminder"):
+        elif parsed.path in ("/api/cron/morning-reminder", "/cron/morning-reminder", "/api/cron/noon-reminder", "/cron/noon-reminder"):
             try:
                 qs = urllib.parse.parse_qs(parsed.query)
                 is_force = qs.get("force", ["false"])[0].lower() in ("true", "1")
                 channel_access_token = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN") or get_channel_access_token()
                 web_url = os.environ.get("APP_URL", "https://plb-horoscope.vercel.app")
-                res = send_noon_reminder_broadcast(web_url, channel_access_token, force=is_force)
+                if "morning" in parsed.path:
+                    res = send_morning_reminder_broadcast(web_url, channel_access_token, force=is_force)
+                    act_name = "morning_reminder_cron"
+                else:
+                    res = send_noon_reminder_broadcast(web_url, channel_access_token, force=is_force)
+                    act_name = "noon_reminder_cron"
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json; charset=utf-8")
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(json.dumps({
                     "status": "ok",
-                    "action": "noon_reminder_cron",
+                    "action": act_name,
                     "timestamp": datetime.datetime.now().isoformat(),
                     "result": res
                 }, ensure_ascii=False).encode("utf-8"))

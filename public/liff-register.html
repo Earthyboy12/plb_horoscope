@@ -4,7 +4,372 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ลงทะเบียนดวงชะตา & สถานที่จร - PLB โหราศาสตร์</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com">
+  // ===========================================================================
+  // RETENTION SYSTEM: SIAMSEE ORACLE, LUCKY WALLPAPERS, & STORY SHORTCUTS
+  // ===========================================================================
+
+  const SIAMSEE_CLIENT_DATA = {
+    1: { title: "เทวาประสิทธิ์มหาลาภ", grade: "ยอดเยี่ยม (ดีมาก 🌟🌟🌟)", poem: "ใบที่หนึ่ง พึงคิด พินิจจิต\nเทวฤทธิ์ สถิตมั่น บันดาลผล\nลาภลอยเด่น เงินทอง ไหลหลั่งดล\nจะสุขล้น สมหวัง ดั่งใจปอง", work: "การงานรุ่งโรจน์ ได้รับการสนับสนุนจากผู้ใหญ่ เจรจาราบรื่นสำเร็จทุกประการ", wealth: "การเงินคล่องตัว มีเกณฑ์ได้ลาภลอย หรือเงินก้อนที่รอคอยมานาน", love: "คนโสดจะได้พบคนถูกใจที่มีฐานะดี คนมีคู่รักใคร่ปรองดองเข้าใจกัน", health: "สุขภาพแข็งแรง สดชื่นกระปรี้กระเปร่า ไร้โรคภัยเบียดเบียน", caution: "อย่าประมาทเรื่องคำพูดกับคนใกล้ชิด รักษาความดีไว้เป็นเกราะคุ้มครอง" },
+    2: { title: "นาวาลอยล่องตามลม", grade: "ดีมาก (ราบรื่น 🌟🌟)", poem: "ใบที่สอง ต้องจิตต์ คิดการใหญ่\nแล่นเรือไป ตามสายชล ผลประเสริฐ\nอุปสรรค ผ่อนคลาย มลายเตลิด\nความรุ่งเรือง บังเกิด สู่ชีวา", work: "งานโปรเจกต์ที่ติดขัดจะเริ่มคลี่คลาย มีโอกาสขยับขยายหรือเดินทางแล้วได้ดี", wealth: "รายได้เข้ามาสม่ำเสมอ หมุนเงินได้ทัน ไม่มีปัญหาหนี้สินรบกวน", love: "ความรักเรียบง่ายแต่มั่นคง มีโอกาสได้เดินทางท่องเที่ยวร่วมกัน", health: "ระวังเรื่องภูมิแพ้อากาศหรือหวัดเล็กน้อย พักผ่อนให้เพียงพอ", caution: "ทำอะไรตามขั้นตอน อย่าใจร้อนลัดวงจรจะสำเร็จยั่งยืน" },
+    3: { title: "ปักหลักมั่นคงดั่งขุนเขา", grade: "ดีเยี่ยม (มั่นคง 🌟🌟🌟)", poem: "ใบที่สาม ความเพียร จะเรียนผล\nสร้างตัวตน ดั่งภูผา สง่าศรี\nศัตรูพ่าย มิตรรัก ภักดีมี\nตลอดปี มีสุข ไร้ทุกข์ภัย", work: "หน้าที่การงานมั่นคง ได้รับความไว้วางใจให้คุมงานสำคัญ มีเกณฑ์เลื่อนขั้น", wealth: "มีเกณฑ์ได้ทรัพย์สินชิ้นใหญ่ เช่น ที่ดิน บ้าน หรือยานพาหนะ", love: "คู่ครองเป็นหลักยึดเหนี่ยวจิตใจ ช่วยเหลือเกื้อกูลกันสร้างอนาคต", health: "ระวังอาการปวดเมื่อยหลังหรือไหล่จากการทำงานหนัก ยืดเหยียดบ้าง", caution: "หนักแน่นเข้าไว้ อย่าหวั่นไหวกับคำนินทาของคนรอบข้าง" },
+    4: { title: "แสงทองส่องสว่างนำทาง", grade: "ดีมาก (มีทางออก 🌟🌟)", poem: "ใบที่สี่ ที่มืดมน จะพ้นผ่าน\nสุริยาน ส่องหล้า พาสดใส\nปัญหาใด ติดขัด จัดการได้\nเริ่มต้นใหม่ รุ่งโรจน์ ชัชวาล", work: "ปัญหาที่ค้างคาจะพบทางออก มีกัลยาณมิตรหรือที่ปรึกษาเข้ามาช่วยชี้แนะ", wealth: "เริ่มมีช่องทางสร้างรายได้ใหม่ ๆ การลงทุนเริ่มเห็นผลกำไร", love: "คนโสดเปิดใจแล้วจะพบคนอบอุ่น คนมีคู่ปรับความเข้าใจกันได้ดี", health: "สุขภาพจิตดีขึ้น ความเครียดลดลง ร่างกายฟื้นตัวได้ไว", caution: "อย่าลังเลเมื่อโอกาสมาถึง กล้าตัดสินใจแล้วลงมือทำทันที" },
+    5: { title: "เกษตรสมบูรณ์ผลิดอกออกผล", grade: "ดีเยี่ยม (รับทรัพย์ 🌟🌟🌟)", poem: "ใบที่ห้า ปลูกพืช ย่อมชื่นชื่น\nผลดกื่น เต็มกิ่ง ยิ่งสุขสันต์\nที่เหนื่อยยาก ลำบากแต่ ปางบรรพ์\nบัดนี้พลัน รับทรัพย์ นับคณนา", work: "สิ่งที่ลงทุนลงแรงไว้เริ่มผลิดอกออกผล ได้รับคำชมและผลตอบแทนคุ้มค่า", wealth: "การเงินโดดเด่นมาก ค้าขายกำไรดี มีเงินเก็บเพิ่มพูน", love: "ความรักสุกงอม อาจมีข่าวดีเรื่องงานมงคลหรือสมาชิกใหม่", health: "ระวังเรื่องน้ำหนักตัวหรือตามใจปากเกินไป ควบคุมอาหารหวานมัน", caution: "แบ่งปันทำบุญทำทานเพื่อเสริมบารมีและต่อยอดโชคลาภ" },
+    6: { title: "เต่าทองขึ้นฝั่งพ้นภัย", grade: "ปานกลางถึงดี (ปลอดภัย 🌟)", poem: "ใบที่หก ตกน้ำ ยังรอดได้\nเต่าทองไคล ขึ้นฝั่ง สิ้นกังขา\nมีเคราะห์ร้าย เทพช่วย ด้วยเมตตา\nพ้นธารา สู่แดน แสนรื่นรมย์", work: "ระวังเรื่องเอกสารสัญญาหรือข้อผิดพลาดเล็กน้อย แต่จะผ่านพ้นไปได้ด้วยดี", wealth: "รายจ่ายค่อนข้างเยอะ ให้วางแผนงบประมาณรอบคอบ อย่าเพิ่งให้ใครยืมเงิน", love: "คนโสดยังต้องดูใจไปก่อน คนมีคู่ควรพูดจากันด้วยเหตุผลมากกว่าอารมณ์", health: "ระวังอุบัติเหตุจากการลื่นล้ม หรืออาการเจ็บข้อเท้า", caution: "มีสติทุกย่างก้าว อย่าด่วนตัดสินใจเรื่องสำคัญโดยไม่ไตร่ตรอง" },
+    7: { title: "นกการเวกส่งเสียงประสาน", grade: "ดีมาก (วาจามหาเสน่ห์ 🌟🌟)", poem: "ใบที่เจ็ด เสียงใส ดั่งนกสวรรค์\nเจรจานั้น พาที มีมนต์ขลัง\nคนนิยม ชมชอบ พร้อมรับฟัง\nสำเร็จดั่ง ปรารถนา สารพัน", work: "งานด้านการขาย การพูด การเจรจา หรือการตลาดโดดเด่นมาก ได้รับความเชื่อถือ", wealth: "เงินทองไหลมาจากคำพูดและการติดต่อสื่อสาร มีลูกค้ารายใหม่เข้ามา", love: "เสน่ห์แรง มีคนเข้ามาทักทายและอยากทำความรู้จักหลายคน", health: "ระวังเรื่องเจ็บคอ เสียงแห้ง หรือร้อนใน ดื่มน้ำอุ่นมาก ๆ", caution: "พูดแต่สิ่งที่เป็นความจริงและเป็นประโยชน์ จะดึงดูดโชคลาภไม่ขาดสาย" },
+    8: { title: "พุทธานุภาพคุ้มเกล้า", grade: "ยอดเยี่ยม (แคล้วคลาด 🌟🌟🌟)", poem: "ใบที่แปด พระคุ้ม บุญรักษา\nกุศลพา แคล้วคลาด ประหลาดล้ำ\nสิ่งศักดิ์สิทธิ์ สถิตเคียง เลี้ยงอุปถัมภ์\nไม่ตกต่ำ เจริญสุข ทุกคืนวัน", work: "แม้มีคนอิจฉาหรือคิดร้ายก็ทำอะไรไม่ได้ ความดีจะปกป้องและหนุนให้ก้าวหน้า", wealth: "มีโชคจากการทำบุญหรือสิ่งศักดิ์สิทธิ์ให้ลาภ ได้เงินมาอย่างอัศจรรย์", love: "เจอเนื้อคู่ที่มีศีลเสมอกัน ชวนกันทำบุญสร้างบารมี", health: "โรคภัยไข้เจ็บที่เคยเป็นจะทุเลาลง สุขภาพกายใจเบิกบาน", caution: "หมั่นสวดมนต์ไหว้พระ อุทิศส่วนกุศลให้เจ้ากรรมนายเวรเป็นนิจ" },
+    9: { title: "มังกรผงาดเหนือเมฆา", grade: "ดีเลิศ (บารมีสูง 🌟🌟🌟)", poem: "ใบที่เก้า มังกร ทะยานฟ้า\nเปี่ยมเดชา บารมี ศรีผ่องใส\nคิดการใด สมจิต สัมฤทธิ์ไว\nเกียรติยศเกรียงไกร ลือนาม", work: "มีโอกาสได้รับตำแหน่งใหญ่ หรือได้รับเกียรติบัตร รางวัล ความสำเร็จยิ่งใหญ่", wealth: "การเงินฐานะดีขึ้นอย่างก้าวกระโดด ลงทุนสิ่งใดได้กำไรเกินคาด", love: "คนรักให้เกียรติและสนับสนุนในทุกด้าน เป็นคู่บุญบารมี", health: "ระวังเรื่องสายตาล้าจากการใช้หน้าจอนาน พักสายตาเป็นระยะ", caution: "ยิ่งสูงยิ่งต้องอ่อนน้อมถ่อมตน จะมีผู้คนรักใคร่และค้ำชูยืนยาว" },
+    10: { title: "สายธารรินไหลชุ่มฉ่ำ", grade: "ดี (สุขสงบ 🌟🌟)", poem: "ใบที่สิบ สายน้ำ ฉ่ำฤดี\nความเยือกเย็น เกิดมี ในดวงจิต\nดับไฟร้อน ผ่อนคลาย ร้ายไม่คิด\nเนรมิต ความสุข ไร้ทุกข์ทน", work: "บรรยากาศในที่ทำงานราบรื่น ได้รับความร่วมมือที่ดีจากเพื่อนร่วมงาน", wealth: "การเงินมีกินมีใช้ไม่ขัดสน รายได้คงที่ เหมาะแก่การออมเงิน", love: "ความรักราบรื่นเข้าใจกันดี ไร้เรื่องทะเลาะเบาะแว้ง", health: "สุขภาพโดยรวมดี ระวังเพียงเรื่องระบบทางเดินปัสสาวะ ดื่มน้ำเยอะ ๆ", caution: "ใจเย็นเข้าไว้ การใช้ความประนีประนอมจะชนะทุกสถานการณ์" },
+    11: { title: "ต้นไม้ใหญ่รับลมฝน", grade: "ปานกลาง (ต้องอดทน 🌟)", poem: "ใบสิบเอ็ด ลมพัด สะบัดกิ่ง\nอย่าไหวติง ยึดราก ฝากแผ่นผา\nอดทนรอ ตะวัน คืนกลับมา\nบุปผา บานสะพรั่ง ดังเดิม", work: "อาจเจอแรงกดดันหรือภาระงานที่เพิ่มขึ้น ขอให้อดทนแล้วจะผ่านไปได้ด้วยดี", wealth: "งดการเสี่ยงโชคก้อนโต ชะลอการลงทุนใหญ่ เน้นเก็บรักษาเงินสดไว้ก่อน", love: "ควรระวังเรื่องอารมณ์หงุดหงิดใส่กัน ให้เวลากันและกันสักนิด", health: "ระวังเรื่องความเครียดสะสม ปวดหัว ไมเกรน ควรหางานอดิเรกผ่อนคลาย", caution: "ความอดทนคือยาวิเศษ ฟ้าหลังฝนย่อมสดใสเสมอ" },
+    12: { title: "แก้วสารพัดนึกสมหวัง", grade: "ยอดเยี่ยม (สมปรารถนา 🌟🌟🌟)", poem: "ใบสิบสอง ดั่งแก้ว มณีโชติ\nสว่างโรจน์ สมมาด ปรารถนา\nขอสิ่งใด ได้สม ดั่งวาจา\nวาสนา พาชื่น รื่นรมย์ใจ", work: "งานที่ตั้งใจทำจะประสบความสำเร็จเกินเป้า การสอบแข่งขันจะได้ผลดีเยี่ยม", wealth: "โชคลาภโดดเด่นมาก มีเงินทองไหลมาเทมา หยิบจับอะไรก็เป็นเงินเป็นทอง", love: "ความรักสมหวัง คนที่แอบชอบเริ่มมีใจตอบ คนมีคู่รักหวานชื่น", health: "สุขภาพดีเยี่ยม แข็งแรงสดใสทั้งกายและใจ", caution: "รักษาความกตัญญูต่อผู้มีพระคุณ จะช่วยให้บารมีคงอยู่ยืนยาว" }
+  };
+
+  // Fill 13 to 28
+  const EXT_THEMES_CLIENT = [
+    [13, "เรือทองขนสมบัติ", "ดีมาก 🌟🌟", "การค้าขายต่างถิ่นได้กำไรดี", "ได้เงินก้อนจากการค้า", "พบรักทางไกล", "ระวังแพ้อาหาร"],
+    [14, "พระจันทร์วันเพ็ญ", "ดีเยี่ยม 🌟🌟🌟", "งานสร้างสรรค์โดดเด่น", "การเงินสว่างไสวมีลาภ", "ความรักโรแมนติก", "สดชื่นแจ่มใส"],
+    [15, "ดอกบัวเหนือน้ำ", "ยอดเยี่ยม 🌟🌟🌟", "ปัญญาเฉียบแหลมงานลุล่วง", "เงินทองสะอาดไร้มลทิน", "คนรักคอยช่วยเหลือ", "สุขภาพกายใจผ่องใส"],
+    [16, "ม้าศึกทะยานไกล", "ดี 🌟🌟", "งานก้าวหน้าต้องลุย", "เงินคล่องตัวจากการเดินทาง", "คนรักให้กำลังใจ", "ระวังปวดกล้ามเนื้อ"],
+    [17, "ร่มโพธิ์ร่มไทร", "ดีเยี่ยม 🌟🌟🌟", "ผู้ใหญ่ให้ความเมตตา", "มีคนช่วยค้ำจุนการเงิน", "ครอบครัวอบอุ่น", "แข็งแรงสมบูรณ์"],
+    [18, "คันฉ่องส่องความจริง", "ปานกลาง 🌟", "ตรวจสอบเอกสารให้ถี่ถ้วน", "ระวังรายจ่ายจุกจิก", "เปิดใจคุยกันตรงๆ", "พักสายตาบ่อยๆ"],
+    [19, "ฝนทิพย์ชโลมดิน", "ดีมาก 🌟🌟", "โครงการใหม่เริ่มเดินหน้า", "เริ่มมีสภาพคล่องดีขึ้น", "ความรักฟื้นฟูสดชื่น", "สดชื่นกระปรี้กระเปร่า"],
+    [20, "ธงชัยโบกสะบัด", "ยอดเยี่ยม 🌟🌟🌟", "ชนะการแข่งขัน ชนะประมูล", "ได้รับเงินรางวัล โบนัส", "คนรักยกย่องภูมิใจ", "พลังงานเต็มเปี่ยม"],
+    [21, "หงส์ร่อนลงคอน", "ดีเยี่ยม 🌟🌟🌟", "งานสง่างามมีเกียรติ", "การเงินมั่นคงมีเกณฑ์สะสม", "พบคนถูกใจมีระดับ", "ระวังเรื่องกระดูกข้อเท้า"],
+    [22, "ช้างมงคลประสิทธิ์", "ดีเลิศ 🌟🌟🌟", "ได้ทำงานใหญ่คุมบริวาร", "การเงินมั่งคั่งมีมรดก", "คู่ครองเป็นคนมั่นคง", "แข็งแรงดั่งพญาคชสาร"],
+    [23, "สายรุ้งหลังพายุ", "ดีมาก 🌟🌟", "เรื่องร้ายผ่านพ้นความดีมา", "หนี้สินเริ่มคลี่คลาย", "เข้าใจกันลึกซึ้งยิ่งขึ้น", "หายจากไข้หวัด"],
+    [24, "เพชรน้ำเอกประกาย", "ยอดเยี่ยม 🌟🌟🌟", "ผลงานได้รับการยอมรับสูงสุด", "รับทรัพย์ก้อนโตมีโชค", "ความรักมั่นคงเลอค่า", "สุขภาพแข็งแรงสมบูรณ์"],
+    [25, "ระฆังทองก้องกังวาน", "ดีมาก 🌟🌟", "ชื่อเสียงกระจายไปไกล", "มีลูกค้าเข้ามาต่อเนื่อง", "มีเสน่ห์ดึงดูดใจ", "ระวังเรื่องเสียงแหบ"],
+    [26, "สะพานเชื่อมสองฝั่ง", "ดี 🌟🌟", "การเจรจาปรองดองสำเร็จ", "หมุนเงินได้ทันราบรื่น", "ปรับความเข้าใจกับคนรัก", "ระวังเมื่อยล้าหลัง"],
+    [27, "กำแพงแก้วคุ้มภัย", "ดีเยี่ยม 🌟🌟🌟", "ไร้อุปสรรคขัดขวาง", "การเงินปลอดภัยไม่รั่วไหล", "ความรักอบอุ่นปลอดภัย", "ไร้โรคาพยาธิ"],
+    [28, "มหาจักรพรรดิ์สถาพร", "ยอดเยี่ยมที่สุด 🌟🌟🌟🌟", "บารมีสูงสุดคิดการใดสำเร็จ", "คลังทรัพย์เปิดรับมหาศาล", "คู่บุญบารมีครองรักยั่งยืน", "อายุยืนยาวสุขภาพเลิศ"]
+  ];
+
+  EXT_THEMES_CLIENT.forEach(([idx, title, grade, w, m, l, h]) => {
+    SIAMSEE_CLIENT_DATA[idx] = {
+      title, grade,
+      poem: `ใบที่ ${idx} พึงจำ คำพยากรณ์\nเทพบันดล พรบวร สถาพรศรี\nประกอบกิจ สุจริต มั่งมีดี\nตลอดปี เจริญรุ่ง พุ่งไกลเอย`,
+      work: `${w} ดำเนินตามแผนอย่างมั่นใจและรอบคอบ`,
+      wealth: `${m} มีเกณฑ์รับทรัพย์และโชคลาภเข้ามาต่อเนื่อง`,
+      love: `${l} ถนอมน้ำใจกันแล้วชีวิตคู่จะราบรื่น`,
+      health: `${h} ดื่มน้ำมาก ๆ และพักผ่อนให้เพียงพอ`,
+      caution: "ตั้งมั่นในศีลธรรมและวาจาสุจริต จะเป็นมงคลคุ้มกายตลอดไป"
+    };
+  });
+
+  function toggleSiamseeModal(show) {
+    const m = document.getElementById('siamseeModal');
+    if (!m) return;
+    if (show) {
+      resetSiamsee();
+      m.classList.remove('hidden');
+    } else {
+      m.classList.add('hidden');
+    }
+  }
+
+  function shakeSiamsee() {
+    const cyl = document.getElementById('siamseeCylinder');
+    const sticks = document.getElementById('bambooSticks');
+    const btn = document.getElementById('btnShakeSiamsee');
+    if (!cyl) return;
+
+    if (btn) btn.disabled = true;
+    cyl.classList.add('animate-wiggle', 'scale-110');
+    if (sticks) sticks.style.transform = 'translateY(-14px)';
+
+    if (navigator.vibrate) {
+      try { navigator.vibrate([40, 50, 40]); } catch(e) {}
+    }
+
+    setTimeout(() => {
+      cyl.classList.remove('animate-wiggle', 'scale-110');
+      if (sticks) sticks.style.transform = 'translateY(0)';
+      if (btn) btn.disabled = false;
+
+      // Pick stick 1-28
+      const stickNum = Math.floor(Math.random() * 28) + 1;
+      const data = SIAMSEE_CLIENT_DATA[stickNum] || SIAMSEE_CLIENT_DATA[1];
+
+      document.getElementById('siamseeStickNum').textContent = `ใบที่ ${stickNum}`;
+      document.getElementById('siamseeTitle').textContent = data.title;
+      document.getElementById('siamseeGrade').textContent = data.grade;
+      document.getElementById('siamseePoem').textContent = data.poem;
+      document.getElementById('siamseeWork').textContent = data.work;
+      document.getElementById('siamseeWealth').textContent = data.wealth;
+      document.getElementById('siamseeLove').textContent = data.love;
+      document.getElementById('siamseeHealth').textContent = data.health;
+      document.getElementById('siamseeCaution').textContent = data.caution;
+
+      document.getElementById('siamseeShakeView').classList.add('hidden');
+      document.getElementById('siamseeResultCard').classList.remove('hidden');
+    }, 750);
+  }
+
+  function resetSiamsee() {
+    const shakeView = document.getElementById('siamseeShakeView');
+    const resCard = document.getElementById('siamseeResultCard');
+    if (shakeView) shakeView.classList.remove('hidden');
+    if (resCard) resCard.classList.add('hidden');
+  }
+
+  // --- Lucky Wallpapers System ---
+  function getUserAstroStats() {
+    let checkCount = 1;
+    let streak = 1;
+    let name = "ผู้มีวาสนา";
+    let lagna = "เมษ";
+
+    try {
+      const stored = localStorage.getItem('plb_user_profile');
+      if (stored) {
+        const u = JSON.parse(stored);
+        checkCount = parseInt(u.check_count || u.cc || 1);
+        streak = parseInt(u.streak || u.st || 1);
+        if (u.name) name = u.name;
+      }
+    } catch(e) {}
+
+    try {
+      if (window.state && state.data && state.data.natalChart) {
+        lagna = state.data.natalChart.ascendant.sign_th || lagna;
+        const b = state.data.natalChart.birthInfo;
+        if (b && b.name) name = b.name;
+      }
+    } catch(e) {}
+
+    return { checkCount, streak, name, lagna };
+  }
+
+  function toggleWallpapersModal(show) {
+    const m = document.getElementById('wallpapersModal');
+    if (!m) return;
+    if (show) {
+      updateWallpapersUI();
+      m.classList.remove('hidden');
+    } else {
+      m.classList.add('hidden');
+    }
+  }
+
+  function updateWallpapersUI() {
+    const { checkCount, streak, name } = getUserAstroStats();
+    const statsEl = document.getElementById('wallUserStats');
+    if (statsEl) {
+      statsEl.textContent = `คุณ ${name} • ตรวจดวงสะสม ${checkCount} ครั้ง • เช็กต่อเนื่อง ${streak} วันติด`;
+    }
+
+    const tiers = [
+      { id: 1, reqChecks: 7, reqStreak: 4, name: "มหาเศรษฐีเปิดทางรวย", color: "#10b981" },
+      { id: 2, reqChecks: 14, reqStreak: 7, name: "เลื่อนขั้นมหาอำนาจบารมี", color: "#3b82f6" },
+      { id: 3, reqChecks: 21, reqStreak: 11, name: "มหาเสน่ห์เมตตามหานิยม", color: "#ec4899" },
+      { id: 4, reqChecks: 50, reqStreak: 21, name: "มหาจักรพรรดิ์นพเคราะห์ 9 ทิศ", color: "#fbbf24" }
+    ];
+
+    tiers.forEach(t => {
+      const isUnlocked = checkCount >= t.reqChecks || streak >= t.reqStreak;
+      const card = document.getElementById(`wallCard${t.id}`);
+      const badge = document.getElementById(`wallBadge${t.id}`);
+      const prog = document.getElementById(`wallProg${t.id}`);
+      const btn = document.getElementById(`btnDownWall${t.id}`);
+
+      if (isUnlocked) {
+        if (card) {
+          card.classList.remove('border-slate-800', 'bg-slate-900/90');
+          card.classList.add('border-emerald-500/60', 'bg-[#06281e]/80', 'shadow-xl');
+        }
+        if (badge) {
+          badge.className = "text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/40";
+          badge.textContent = "🔓 ปลดล็อกแล้ว!";
+        }
+        if (prog) {
+          prog.textContent = `✓ สะสมสำเร็จ (${checkCount}/${t.reqChecks} ครั้ง)`;
+          prog.className = "text-[11px] text-emerald-300 font-bold";
+        }
+        if (btn) {
+          btn.disabled = false;
+          btn.className = "px-4 py-2 rounded-xl text-xs font-black shadow-lg transition-all active:scale-95 bg-gradient-to-r from-emerald-400 to-teal-400 text-slate-950 hover:brightness-110 cursor-pointer flex items-center gap-1";
+          btn.innerHTML = "<span>📲</span> <span>ดาวน์โหลด HD</span>";
+        }
+      } else {
+        if (prog) prog.textContent = `${checkCount}/${t.reqChecks} ครั้ง (หรือ ${streak}/${t.reqStreak} วันติด)`;
+      }
+    });
+  }
+
+  function downloadLuckyWallpaper(tier) {
+    const canvas = document.getElementById('wallpaperRenderCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = 1080;
+    const H = 2400; // Optimal 9:20 modern mobile wallpaper
+    canvas.width = W;
+    canvas.height = H;
+
+    const { name, lagna } = getUserAstroStats();
+
+    // Palettes
+    let topColor = '#064e3b', midColor = '#022c22', botColor = '#030712';
+    let accentColor = '#34d399', goldColor = '#fbbf24';
+    let titleText = 'มหาเศรษฐีเปิดทางรวย';
+    let blessText = 'มั่งคั่ง ร่ำรวย เงินทองไหลมาเทมา คลังทรัพย์เปิดรับโชค';
+
+    if (tier === 2) {
+      topColor = '#1e3a8a'; midColor = '#0f172a'; botColor = '#020617';
+      accentColor = '#38bdf8'; goldColor = '#93c5fd';
+      titleText = 'เลื่อนขั้นมหาอำนาจบารมี';
+      blessText = 'หน้าที่การงานก้าวหน้า มหาอำนาจ ชนะอุปสรรค ผู้ใหญ่อุปถัมภ์';
+    } else if (tier === 3) {
+      topColor = '#831843'; midColor = '#3b0764'; botColor = '#030712';
+      accentColor = '#f472b6'; goldColor = '#fbcfe8';
+      titleText = 'มหาเสน่ห์เมตตามหานิยม';
+      blessText = 'มหาเสน่ห์ เมตตามหานิยม คนรักคนเมตตา วาสนาเกื้อหนุน';
+    } else if (tier === 4) {
+      topColor = '#451a03'; midColor = '#1e1b4b'; botColor = '#020617';
+      accentColor = '#fbbf24'; goldColor = '#fef08a';
+      titleText = 'มหาจักรพรรดิ์นพเคราะห์';
+      blessText = 'บารมีเก้าทิศ คุ้มครองรอบด้าน แคล้วคลาดปลอดภัย สมปรารถนาสารพัดนึก';
+    }
+
+    // 1. Celestial Gradient Background
+    const bg = ctx.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0, topColor);
+    bg.addColorStop(0.45, midColor);
+    bg.addColorStop(1, botColor);
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    // 2. Stars
+    ctx.save();
+    let rndSeed = 77;
+    function simpleRnd() { rndSeed = (rndSeed * 9301 + 49297) % 233280; return rndSeed / 233280; }
+    for (let i = 0; i < 180; i++) {
+      const sx = simpleRnd() * W;
+      const sy = simpleRnd() * H;
+      const sr = 0.8 + simpleRnd() * 2.5;
+      const sa = 0.25 + simpleRnd() * 0.7;
+      ctx.beginPath();
+      ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${sa})`;
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // 3. Sacred Center Mandala Yantra
+    const cy = H * 0.46;
+    ctx.save();
+    ctx.strokeStyle = goldColor;
+    ctx.lineWidth = 2.5;
+
+    // Center Sacred Circles
+    for (let r of [160, 240, 320, 380]) {
+      ctx.beginPath();
+      ctx.arc(W / 2, cy, r, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    // Dashed Ring
+    ctx.setLineDash([12, 14]);
+    ctx.beginPath();
+    ctx.arc(W / 2, cy, 350, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 8 Sacred Radial Rays
+    for (let i = 0; i < 8; i++) {
+      const angle = (i * Math.PI) / 4;
+      ctx.beginPath();
+      ctx.moveTo(W / 2 + Math.cos(angle) * 160, cy + Math.sin(angle) * 160);
+      ctx.lineTo(W / 2 + Math.cos(angle) * 380, cy + Math.sin(angle) * 380);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // 4. Sacred Runes & Symbols in center
+    ctx.save();
+    ctx.font = 'bold 90px "Prompt", sans-serif';
+    ctx.fillStyle = goldColor;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('ॐ', W / 2, cy - 25);
+
+    ctx.font = 'bold 36px "Prompt", sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('นะ ชา ลี ติ', W / 2, cy + 55);
+    ctx.restore();
+
+    // 5. Outer Frame
+    ctx.save();
+    ctx.strokeStyle = `rgba(251, 191, 36, 0.4)`;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(36, 36, W - 72, H - 72);
+    ctx.strokeStyle = `rgba(255, 255, 255, 0.15)`;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(46, 46, W - 92, H - 92);
+    ctx.restore();
+
+    // 6. Typography - Top App Stamp
+    ctx.save();
+    ctx.font = '500 28px "Prompt", sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+    ctx.textAlign = 'center';
+    ctx.fillText('PLB THAI ASTROLOGY • โหราศาสตร์ไทย', W / 2, 220);
+    ctx.restore();
+
+    // 7. Typography - Bottom Blessings
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.font = 'bold 56px "Prompt", sans-serif';
+    ctx.fillStyle = goldColor;
+    ctx.fillText(titleText, W / 2, H * 0.73);
+
+    ctx.font = '400 30px "Prompt", sans-serif';
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillText(blessText, W / 2, H * 0.77);
+
+    // Personal Signature
+    ctx.font = 'bold 34px "Prompt", sans-serif';
+    ctx.fillStyle = accentColor;
+    ctx.fillText(`เจ้าชะตา: คุณ ${name} • ลัคนาราศี${lagna}`, W / 2, H * 0.83);
+
+    ctx.font = '300 24px "Prompt", sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.fillText('วอลเปเปอร์มงคลเฉพาะบุคคล • ปลดล็อกความเฮงสู่หน้าจอมือถือ', W / 2, H * 0.87);
+    ctx.restore();
+
+    // Trigger instant download
+    try {
+      const dataUrl = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `PLB_Lucky_Wallpaper_Tier${tier}_${lagna}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch(e) {
+      alert("สามารถแตะค้างที่รูปภาพเพื่อบันทึกวอลเปเปอร์ได้ครับ");
+    }
+  }
+
+  // Hook for category navigation tabs
+  const origSetCategoryTab = window.setCategoryTab;
+  window.setCategoryTab = function(tab) {
+    if (tab === 'siamsee') {
+      toggleSiamseeModal(true);
+      return;
+    }
+    if (tab === 'wallpapers') {
+      toggleWallpapersModal(true);
+      return;
+    }
+    if (tab === 'story') {
+      toggleExportModal(true);
+      return;
+    }
+    if (typeof origSetCategoryTab === 'function') {
+      origSetCategoryTab(tab);
+    }
+  };
+
+</script>
   <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -407,6 +772,17 @@
           <span>🔮</span>
           <span>เปิดดูสรุปดวงในแชต LINE ทันที</span>
         </button>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" onclick="toggleSiamseeModal(true)" class="py-2.5 px-3 rounded-xl bg-indigo-900/80 hover:bg-indigo-800 text-indigo-200 font-bold text-xs border border-indigo-500/40 flex items-center justify-center gap-1.5 transition-all active:scale-95">
+            <span>🥠</span>
+            <span>เสี่ยงเซียมซีประจำวัน</span>
+          </button>
+          <button type="button" onclick="toggleWallpapersModal(true)" class="py-2.5 px-3 rounded-xl bg-emerald-900/80 hover:bg-emerald-800 text-emerald-200 font-bold text-xs border border-emerald-500/40 flex items-center justify-center gap-1.5 transition-all active:scale-95">
+            <span>🎁</span>
+            <span>วอลเปเปอร์สายมู</span>
+          </button>
+        </div>
+
         <button onclick="window.location.href='/'" class="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold text-xs border border-amber-500/30 flex items-center justify-center gap-2">
           <span>📱</span>
           <span>เปิดดูดวงแบบละเอียดบนหน้าเว็บ (Web App)</span>
@@ -1004,5 +1380,258 @@
       initLiff();
     });
   </script>
+
+  <!-- Interactive Digital Siamsee Modal -->
+  <div id="siamseeModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md">
+    <div class="bg-gradient-to-b from-[#1e1b4b] via-[#0f172a] to-[#030712] border-2 border-indigo-500/50 rounded-3xl w-full max-w-xl max-h-[94vh] flex flex-col shadow-2xl overflow-hidden ring-1 ring-indigo-400/30">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-indigo-500/30 p-4 sm:p-5 bg-[#030712]/60">
+        <div class="flex items-center gap-2.5">
+          <span class="text-3xl drop-shadow">🥠</span>
+          <div>
+            <h3 class="text-base sm:text-lg font-black text-amber-300 flex items-center gap-1.5">
+              เซียมซีพยากรณ์ เทพประทานพร
+            </h3>
+            <p class="text-xs text-indigo-200">ตั้งจิตอธิษฐานแล้วเขย่ากระบอกเซียมซีลุ้นดวงชะตาวันนี้</p>
+          </div>
+        </div>
+        <button onclick="toggleSiamseeModal(false)" class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 text-lg transition-all">✕</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 text-center">
+        <!-- Cylinder Animation Container -->
+        <div id="siamseeShakeView" class="py-6 flex flex-col items-center justify-center">
+          <!-- 3D Cylindrical Container -->
+          <div id="siamseeCylinder" onclick="shakeSiamsee()" class="relative cursor-pointer group transition-all duration-300">
+            <!-- Glow effect -->
+            <div class="absolute -inset-4 bg-gradient-to-r from-amber-500/20 via-indigo-500/30 to-purple-500/20 rounded-full blur-xl group-hover:opacity-100 opacity-60 transition-opacity"></div>
+            <!-- Cylinder Body -->
+            <div class="relative w-28 h-44 sm:w-32 sm:h-52 bg-gradient-to-b from-[#b45309] via-[#78350f] to-[#451a03] border-4 border-amber-400 rounded-t-3xl rounded-b-2xl shadow-2xl flex flex-col items-center justify-between p-3 overflow-hidden">
+              <!-- Bamboo sticks peeking out -->
+              <div id="bambooSticks" class="w-full flex items-end justify-center gap-1.5 pt-1 transition-transform duration-500">
+                <div class="w-2.5 h-16 bg-gradient-to-b from-amber-200 to-amber-600 rounded-t-sm shadow"></div>
+                <div class="w-2.5 h-20 bg-gradient-to-b from-amber-100 to-amber-500 rounded-t-sm shadow -mt-2"></div>
+                <div class="w-2.5 h-18 bg-gradient-to-b from-amber-200 to-amber-600 rounded-t-sm shadow"></div>
+                <div class="w-2.5 h-22 bg-gradient-to-b from-yellow-200 to-amber-500 rounded-t-sm shadow -mt-3 animate-pulse"></div>
+                <div class="w-2.5 h-17 bg-gradient-to-b from-amber-200 to-amber-600 rounded-t-sm shadow"></div>
+              </div>
+              <!-- Emblem on Cylinder -->
+              <div class="my-auto text-center">
+                <div class="w-12 h-12 rounded-full border-2 border-amber-300 flex items-center justify-center bg-amber-950/70 text-amber-300 font-black text-xs shadow-inner">
+                  เซียมซี
+                </div>
+                <span class="text-[10px] text-amber-200 font-bold block mt-1">PLB มงคล</span>
+              </div>
+              <div class="w-full h-3 bg-amber-950/90 rounded border-t border-amber-400/50"></div>
+            </div>
+          </div>
+
+          <!-- Instructions & Action Button -->
+          <div class="mt-6 space-y-2">
+            <p class="text-xs sm:text-sm text-slate-300 font-medium max-w-sm mx-auto">
+              ตั้งสมาธิ นึกถึงสิ่งที่ปรารถนา แล้วกดปุ่มเพื่อเขย่าเซียมซี
+            </p>
+            <button id="btnShakeSiamsee" onclick="shakeSiamsee()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 text-slate-950 font-black text-sm shadow-xl shadow-amber-500/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 mx-auto">
+              <span>🥠</span>
+              <span>เขย่ากระบอกเซียมซี</span>
+              <span>✨</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Result Parchment Card (Hidden by default) -->
+        <div id="siamseeResultCard" class="hidden text-left bg-gradient-to-b from-[#111827] via-[#0b0f19] to-[#030712] border-2 border-amber-400/60 rounded-3xl p-5 sm:p-6 shadow-2xl relative overflow-hidden">
+          <div class="flex items-center justify-between border-b border-amber-500/30 pb-3 mb-4">
+            <div>
+              <span id="siamseeStickNum" class="text-xs px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40 font-black">
+                ใบที่ ๑
+              </span>
+              <h4 id="siamseeTitle" class="text-base sm:text-lg font-black text-amber-200 mt-1">
+                เทวาประสิทธิ์มหาลาภ
+              </h4>
+            </div>
+            <span id="siamseeGrade" class="text-xs font-bold px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">
+              ยอดเยี่ยม 🌟🌟🌟
+            </span>
+          </div>
+
+          <!-- Poem Box -->
+          <div class="p-3.5 bg-indigo-950/40 border border-indigo-500/30 rounded-2xl mb-4 text-center">
+            <p id="siamseePoem" class="text-xs sm:text-sm font-semibold text-amber-100 whitespace-pre-line leading-relaxed italic">
+              พึงคิด พินิจจิต เทวฤทธิ์ สถิตมั่น...
+            </p>
+          </div>
+
+          <!-- 4 Pillars Breakdown -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs mb-4">
+            <div class="p-2.5 bg-slate-900/90 rounded-xl border border-slate-800">
+              <span class="font-bold text-sky-400 block mb-0.5">💼 การงาน:</span>
+              <p id="siamseeWork" class="text-slate-300">-</p>
+            </div>
+            <div class="p-2.5 bg-slate-900/90 rounded-xl border border-slate-800">
+              <span class="font-bold text-amber-400 block mb-0.5">💰 การเงิน:</span>
+              <p id="siamseeWealth" class="text-slate-300">-</p>
+            </div>
+            <div class="p-2.5 bg-slate-900/90 rounded-xl border border-slate-800">
+              <span class="font-bold text-pink-400 block mb-0.5">💖 ความรัก:</span>
+              <p id="siamseeLove" class="text-slate-300">-</p>
+            </div>
+            <div class="p-2.5 bg-slate-900/90 rounded-xl border border-slate-800">
+              <span class="font-bold text-emerald-400 block mb-0.5">🩺 สุขภาพ:</span>
+              <p id="siamseeHealth" class="text-slate-300">-</p>
+            </div>
+          </div>
+
+          <!-- Caution -->
+          <div class="p-2.5 bg-amber-950/30 border border-amber-500/30 rounded-xl text-xs mb-4">
+            <span class="font-bold text-amber-400">⚠️ ข้อคิดเตือนใจประจำวัน:</span>
+            <span id="siamseeCaution" class="text-slate-200 ml-1">-</span>
+          </div>
+
+          <!-- Reset Button -->
+          <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-800 flex-wrap">
+            <button onclick="resetSiamsee()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-amber-300 flex items-center gap-1.5 transition-all">
+              <span>🔄</span> <span>เขย่าใหม่อีกครั้ง</span>
+            </button>
+            <button onclick="toggleSiamseeModal(false)" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white transition-all">
+              รับคำทำนาย ✨
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Lucky Wallpapers Showcase & Download Modal -->
+  <div id="wallpapersModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md">
+    <div class="bg-gradient-to-b from-[#0f172a] via-[#090d16] to-[#030712] border-2 border-amber-500/50 rounded-3xl w-full max-w-4xl max-h-[94vh] flex flex-col shadow-2xl overflow-hidden ring-1 ring-amber-400/30">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-amber-500/30 p-4 sm:p-5 bg-[#030712]/70">
+        <div class="flex items-center gap-2.5">
+          <span class="text-3xl drop-shadow">🎁</span>
+          <div>
+            <h3 class="text-base sm:text-lg font-black text-amber-300 flex items-center gap-1.5">
+              คลังวอลเปเปอร์สายมูมหาเฮง (Lucky Wallpapers)
+            </h3>
+            <p class="text-xs text-slate-300">สะสมสถิติดูดวงต่อเนื่องเพื่อปลดล็อกวอลเปเปอร์มือถือความละเอียดสูง (HD)</p>
+          </div>
+        </div>
+        <button onclick="toggleWallpapersModal(false)" class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 text-lg transition-all">✕</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
+        <!-- User Stats Header Banner -->
+        <div class="p-4 bg-gradient-to-r from-amber-950/50 via-slate-900 to-indigo-950/50 border border-amber-500/40 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div>
+            <span class="text-xs text-amber-400 font-bold block">สถิติวาสนาปัจจุบันของคุณ:</span>
+            <h4 class="text-base font-black text-white mt-0.5" id="wallUserStats">
+              ตรวจดวงสะสม 0 ครั้ง • เช็กต่อเนื่อง 1 วันติด
+            </h4>
+          </div>
+          <div class="text-[11px] text-slate-300 bg-slate-950/80 px-3 py-1.5 rounded-xl border border-slate-800">
+            🔒 ระบบปลดล็อกอัตโนมัติบนเครื่องของคุณ 100%
+          </div>
+        </div>
+
+        <!-- 4 Tiers of Wallpapers Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="wallpaperCardsGrid">
+          <!-- Tier 1: 7 Days / Checks -->
+          <div id="wallCard1" class="p-4 rounded-2xl border transition-all flex flex-col justify-between bg-slate-900/90 border-slate-800">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-2xl">💰</span>
+                <span id="wallBadge1" class="text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-slate-800 text-slate-400">
+                  🔒 สะสมครบ 7 ครั้ง
+                </span>
+              </div>
+              <h5 class="text-sm font-black text-amber-300">วอลเปเปอร์มหาเศรษฐีเปิดทางรวย</h5>
+              <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                โทนมรกตทองคำ เสริมดวงโชคลาภ ทรัพย์สินไหลมาเทมา คลังการเงินเปิดกว้าง
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+              <span class="text-[11px] text-slate-400" id="wallProg1">0/7 ครั้ง</span>
+              <button id="btnDownWall1" onclick="downloadLuckyWallpaper(1)" disabled class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-500 cursor-not-allowed">
+                🔒 ยังไม่ปลดล็อก
+              </button>
+            </div>
+          </div>
+
+          <!-- Tier 2: 14 Days / Checks -->
+          <div id="wallCard2" class="p-4 rounded-2xl border transition-all flex flex-col justify-between bg-slate-900/90 border-slate-800">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-2xl">💼</span>
+                <span id="wallBadge2" class="text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-slate-800 text-slate-400">
+                  🔒 สะสมครบ 14 ครั้ง
+                </span>
+              </div>
+              <h5 class="text-sm font-black text-sky-300">วอลเปเปอร์เลื่อนขั้นมหาอำนาจบารมี</h5>
+              <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                โทนไพลินน้ำเงินสว่าง เสริมหน้าที่การงาน ชนะการแข่งขัน ผู้ใหญ่อุปถัมภ์
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+              <span class="text-[11px] text-slate-400" id="wallProg2">0/14 ครั้ง</span>
+              <button id="btnDownWall2" onclick="downloadLuckyWallpaper(2)" disabled class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-500 cursor-not-allowed">
+                🔒 ยังไม่ปลดล็อก
+              </button>
+            </div>
+          </div>
+
+          <!-- Tier 3: 21 Days / Checks -->
+          <div id="wallCard3" class="p-4 rounded-2xl border transition-all flex flex-col justify-between bg-slate-900/90 border-slate-800">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-2xl">💖</span>
+                <span id="wallBadge3" class="text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-slate-800 text-slate-400">
+                  🔒 สะสมครบ 21 ครั้ง
+                </span>
+              </div>
+              <h5 class="text-sm font-black text-pink-300">วอลเปเปอร์มหาเสน่ห์เมตตามหานิยม</h5>
+              <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                โทนทับทิมชมพูดารา เสริมความรัก เสน่ห์ดึงดูดใจ ใครเห็นใครรักเอ็นดู
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+              <span class="text-[11px] text-slate-400" id="wallProg3">0/21 ครั้ง</span>
+              <button id="btnDownWall3" onclick="downloadLuckyWallpaper(3)" disabled class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-500 cursor-not-allowed">
+                🔒 ยังไม่ปลดล็อก
+              </button>
+            </div>
+          </div>
+
+          <!-- Tier 4: 50 Days / Checks -->
+          <div id="wallCard4" class="p-4 rounded-2xl border transition-all flex flex-col justify-between bg-slate-900/90 border-slate-800">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-2xl">👑</span>
+                <span id="wallBadge4" class="text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-slate-800 text-slate-400">
+                  🔒 สะสมครบ 50 ครั้ง
+                </span>
+              </div>
+              <h5 class="text-sm font-black text-yellow-300">วอลเปเปอร์มหาจักรพรรดิ์นพเคราะห์ 9 ทิศ</h5>
+              <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                โทนจักรพรรดิ์ทองคำนิลกาฬ บารมีเก้าทิศ คุ้มครองรอบด้าน สมปรารถนาสารพัดนึก
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+              <span class="text-[11px] text-slate-400" id="wallProg4">0/50 ครั้ง</span>
+              <button id="btnDownWall4" onclick="downloadLuckyWallpaper(4)" disabled class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-500 cursor-not-allowed">
+                🔒 ยังไม่ปลดล็อก
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hidden Canvas for Rendering Wallpapers -->
+        <canvas id="wallpaperRenderCanvas" class="hidden" width="1080" height="2400"></canvas>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

@@ -6,6 +6,8 @@ Produces pixel-perfect, dark cosmic & luxury gold themed Flex Messages.
 Compatible with LINE Messaging API specifications.
 """
 
+import datetime
+
 def build_welcome_flex(liff_url: str) -> dict:
     """Build a welcoming onboarding card prompting the user to register birth info."""
     return {
@@ -2347,3 +2349,1000 @@ def build_noon_reminder_flex(web_url: str = "https://plb-horoscope.vercel.app") 
             ]
         }
     }
+
+
+# ==============================================================================
+# RETENTION FEATURES: MORNING ROUTINE, LOTTERY SPECIAL, SIAMSEE, & WALLPAPERS
+# ==============================================================================
+
+def build_morning_reminder_flex(web_url: str = "https://plb-horoscope.vercel.app") -> dict:
+    """Build refreshing 07:00 AM Morning Routine reminder flex card."""
+    web_url = web_url or "https://plb-horoscope.vercel.app"
+    now_th = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+    thai_days = ["จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์", "อาทิตย์"]
+    thai_months = ["", "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+                   "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"]
+    day_name = thai_days[now_th.weekday()]
+    date_str = f"วัน{day_name}ที่ {now_th.day} {thai_months[now_th.month]} {now_th.year + 543}"
+
+    bubble = {
+        "type": "bubble",
+        "size": "mega",
+        "hero": {
+            "type": "image",
+            "url": f"{web_url}/bear_fortune.jpg",
+            "size": "full",
+            "aspectRatio": "20:13",
+            "aspectMode": "cover"
+        },
+        "header": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "16px",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {"type": "text", "text": "☀️ อรุณสวัสดิ์รับทรัพย์ยามเช้า 07:00 น.", "weight": "bold", "color": "#fbbf24", "size": "sm", "flex": 1},
+                        {"type": "text", "text": "PLB โหราศาสตร์", "color": "#94a3b8", "size": "xxs", "align": "end"}
+                    ]
+                },
+                {"type": "text", "text": f"เปิดดวงเสริมพลังใจ {date_str} ✨", "color": "#e2e8f0", "size": "xs", "margin": "xs"}
+            ]
+        },
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "16px",
+            "spacing": "md",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#1e1b4b",
+                    "cornerRadius": "12px",
+                    "paddingAll": "12px",
+                    "borderColor": "#6366f1",
+                    "borderWidth": "1px",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "ตื่นเช้ามาเติมพลังใจ รับพลังบวกจากดาวศุภเคราะห์วันนี้กันครับ! 🌤️\nเลือกใส่เสื้อสีมงคลก่อนออกจากบ้าน พร้อมเช็กดวงชะตาและฤกษ์เวลาทองของวันนี้ได้เลยน้า 🐻‍❄️✨",
+                            "size": "xs",
+                            "color": "#e0e7ff",
+                            "wrap": True
+                        }
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#0f172a",
+                    "cornerRadius": "10px",
+                    "paddingAll": "10px",
+                    "borderColor": "#334155",
+                    "borderWidth": "1px",
+                    "spacing": "xs",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {"type": "text", "text": "👕 สีเสื้อมงคลวันนี้:", "size": "xxs", "color": "#818cf8", "weight": "bold", "flex": 2},
+                                {"type": "text", "text": "ใส่ถูกโฉลก เสริมทรัพย์ เสน่ห์ อำนาจ", "size": "xxs", "color": "#f8fafc", "flex": 3}
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {"type": "text", "text": "⏰ ฤกษ์นาทีทอง:", "size": "xxs", "color": "#34d399", "weight": "bold", "flex": 2},
+                                {"type": "text", "text": "ช่วงเวลาดาวหนุนนำ เหมาะคุยงาน เจรจา", "size": "xxs", "color": "#f8fafc", "flex": 3}
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {"type": "text", "text": "🎰 เลขเด่นประจำวัน:", "size": "xxs", "color": "#fbbf24", "weight": "bold", "flex": 2},
+                                {"type": "text", "text": "คำนวณตามสูตรมหาทักษาเทวราช", "size": "xxs", "color": "#f8fafc", "flex": 3}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "alignItems": "center",
+                    "justifyContent": "center",
+                    "margin": "xs",
+                    "contents": [
+                        {"type": "text", "text": "🛡️ เจ้าของแอปไม่บันทึกข้อมูลส่วนตัว • ปลอดภัย 100%", "size": "xxs", "color": "#64748b", "align": "center"}
+                    ]
+                }
+            ]
+        },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "14px",
+            "spacing": "xs",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "spacing": "xs",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "style": "primary",
+                            "color": "#4f46e5",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "👕 สีเสื้อมงคล",
+                                "text": "สีเสื้อมงคล"
+                            },
+                            "flex": 1
+                        },
+                        {
+                            "type": "button",
+                            "style": "primary",
+                            "color": "#d97706",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "🌟 สรุปดวงวันนี้",
+                                "text": "สรุปดวงประจำวัน"
+                            },
+                            "flex": 1
+                        }
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "spacing": "xs",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "style": "secondary",
+                            "color": "#065f46",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "🎰 ขอเลขเด็ด",
+                                "text": "ขอเลขเด็ด"
+                            },
+                            "flex": 1
+                        },
+                        {
+                            "type": "button",
+                            "style": "secondary",
+                            "color": "#1e293b",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "🥠 เสี่ยงเซียมซี",
+                                "text": "เซียมซี"
+                            },
+                            "flex": 1
+                        }
+                    ]
+                },
+                {
+                    "type": "button",
+                    "style": "secondary",
+                    "color": "#1e293b",
+                    "height": "sm",
+                    "margin": "xs",
+                    "action": {
+                        "type": "uri",
+                        "label": "👥 ชวนเพื่อนดูดวงยามเช้า",
+                        "uri": "https://line.me/R/nv/recommendOA/@374xcoto"
+                    }
+                }
+            ]
+        }
+    }
+
+    return {
+        "type": "flex",
+        "altText": f"☀️ อรุณสวัสดิ์ครับ! เช็กสีเสื้อมงคล & ดวงประจำวัน {date_str} กับน้องหมี PLB 🐻‍❄️✨",
+        "contents": bubble,
+        "quickReply": {
+            "items": [
+                {"type": "action", "action": {"type": "message", "label": "👕 สีเสื้อมงคล", "text": "สีเสื้อมงคล"}},
+                {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวงวันนี้", "text": "สรุปดวงประจำวัน"}},
+                {"type": "action", "action": {"type": "message", "label": "🎰 ขอเลขเด็ด", "text": "ขอเลขเด็ด"}},
+                {"type": "action", "action": {"type": "message", "label": "🥠 เสี่ยงเซียมซี", "text": "เซียมซี"}},
+                {"type": "action", "action": {"type": "message", "label": "🎁 วอลเปเปอร์", "text": "วอลเปเปอร์"}}
+            ]
+        }
+    }
+
+
+def build_lottery_special_flex(web_url: str = "https://plb-horoscope.vercel.app") -> dict:
+    """Build high-energy Special Edition Lottery Flex Card for 1st & 16th of month."""
+    web_url = web_url or "https://plb-horoscope.vercel.app"
+    now_th = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+    thai_months = ["", "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+                   "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"]
+    date_str = f"งวดประจำวันที่ {now_th.day} {thai_months[now_th.month]} {now_th.year + 543}"
+
+    bubble = {
+        "type": "bubble",
+        "size": "mega",
+        "hero": {
+            "type": "image",
+            "url": f"{web_url}/bear_fortune.jpg",
+            "size": "full",
+            "aspectRatio": "20:13",
+            "aspectMode": "cover"
+        },
+        "header": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#052e16",
+            "paddingAll": "16px",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {"type": "text", "text": "🎫 พิเศษ! วันแห่งโชคลาภมหาศาล", "weight": "bold", "color": "#fef08a", "size": "sm", "flex": 1},
+                        {"type": "text", "text": "มหาลาภ 1 & 16", "color": "#86efac", "size": "xxs", "align": "end", "weight": "bold"}
+                    ]
+                },
+                {"type": "text", "text": f"เปิดขุมทรัพย์ดาวเศรษฐี {date_str} 💰✨", "color": "#bbf7d0", "size": "xs", "margin": "xs"}
+            ]
+        },
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "16px",
+            "spacing": "md",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#14532d",
+                    "cornerRadius": "12px",
+                    "paddingAll": "12px",
+                    "borderColor": "#22c55e",
+                    "borderWidth": "1px",
+                    "contents": [
+                        {
+                            "type": "text",
+                            "text": "วันนี้วันแห่งความหวังและเศรษฐีใหม่! 🎉\nน้องหมี PLB รวมเลขเทวราช ทิศเปิดทรัพย์ และเคล็ดลับดึงดูดโชคใหญ่ตามตำแหน่งดวงดาวมาให้แล้ว ขอให้เฮง ๆ ปัง ๆ รวย ๆ ถูกรางวัลใหญ่ถ้วนหน้าครับ! 🐻‍❄️💰",
+                            "size": "xs",
+                            "color": "#f0fdf4",
+                            "wrap": True
+                        }
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#0f172a",
+                    "cornerRadius": "10px",
+                    "paddingAll": "10px",
+                    "borderColor": "#334155",
+                    "borderWidth": "1px",
+                    "spacing": "xs",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {"type": "text", "text": "🔢 เลขเด่นงวดนี้:", "size": "xxs", "color": "#fbbf24", "weight": "bold", "flex": 2},
+                                {"type": "text", "text": "คำนวณตามดาวพระเคราะห์ประจำงวด", "size": "xxs", "color": "#f8fafc", "flex": 3}
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {"type": "text", "text": "🧭 ทิศมหาราชรับทรัพย์:", "size": "xxs", "color": "#38bdf8", "weight": "bold", "flex": 2},
+                                {"type": "text", "text": "หันหน้ารับพลังโชคลาภก่อนหยิบสลาก", "size": "xxs", "color": "#f8fafc", "flex": 3}
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {"type": "text", "text": "⏰ ฤกษ์เวลาเสี่ยงโชค:", "size": "xxs", "color": "#4ade80", "weight": "bold", "flex": 2},
+                                {"type": "text", "text": "ช่วงเวลาดาวจันทร์ส่งกระแสการเงิน", "size": "xxs", "color": "#f8fafc", "flex": 3}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#172554",
+                    "cornerRadius": "10px",
+                    "paddingAll": "10px",
+                    "borderColor": "#3b82f6",
+                    "borderWidth": "1px",
+                    "contents": [
+                        {"type": "text", "text": "💡 คาถาเปิดคลังทรัพย์เสริมโชค:", "size": "xxs", "color": "#93c5fd", "weight": "bold"},
+                        {"type": "text", "text": "ตั้งจิตสงบ ตั้งนะโม 3 จบ แล้วสวด 'นะชาลีติ ประสิทธิลาภา' 9 จบ เพื่อเปิดประตูวาสนาและดึงดูดทรัพย์เข้ากระเป๋าครับ ✨", "size": "xxs", "color": "#e0e7ff", "wrap": True, "margin": "xs"}
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "alignItems": "center",
+                    "justifyContent": "center",
+                    "margin": "xs",
+                    "contents": [
+                        {"type": "text", "text": "🛡️ เจ้าของแอปไม่บันทึกข้อมูลส่วนตัว • ปลอดภัย 100%", "size": "xxs", "color": "#64748b", "align": "center"}
+                    ]
+                }
+            ]
+        },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "14px",
+            "spacing": "xs",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "spacing": "xs",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "style": "primary",
+                            "color": "#059669",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "🎰 ขอเลขเด็ดงวดนี้",
+                                "text": "ขอเลขเด็ด"
+                            },
+                            "flex": 1
+                        },
+                        {
+                            "type": "button",
+                            "style": "primary",
+                            "color": "#d97706",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "🌟 ดูสรุปดวงวันนี้",
+                                "text": "สรุปดวงประจำวัน"
+                            },
+                            "flex": 1
+                        }
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "spacing": "xs",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "style": "secondary",
+                            "color": "#4338ca",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "👕 สีเสื้อมงคลเรียกทรัพย์",
+                                "text": "สีเสื้อมงคล"
+                            },
+                            "flex": 1
+                        },
+                        {
+                            "type": "button",
+                            "style": "secondary",
+                            "color": "#1e293b",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "🥠 เสี่ยงเซียมซีมหาลาภ",
+                                "text": "เซียมซี"
+                            },
+                            "flex": 1
+                        }
+                    ]
+                },
+                {
+                    "type": "button",
+                    "style": "secondary",
+                    "color": "#1e293b",
+                    "height": "sm",
+                    "margin": "xs",
+                    "action": {
+                        "type": "uri",
+                        "label": "👥 ส่งต่อโชคลาภให้เพื่อน",
+                        "uri": "https://line.me/R/nv/recommendOA/@374xcoto"
+                    }
+                }
+            ]
+        }
+    }
+
+    return {
+        "type": "flex",
+        "altText": f"🎫 พิเศษวันหวยออก! เปิดขุมทรัพย์เลขเด็ด & ทิศรับทรัพย์ {date_str} กับน้องหมี PLB 💰✨",
+        "contents": bubble,
+        "quickReply": {
+            "items": [
+                {"type": "action", "action": {"type": "message", "label": "🎰 ขอเลขเด็ด", "text": "ขอเลขเด็ด"}},
+                {"type": "action", "action": {"type": "message", "label": "👕 สีเสื้อมงคล", "text": "สีเสื้อมงคล"}},
+                {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวงวันนี้", "text": "สรุปดวงประจำวัน"}},
+                {"type": "action", "action": {"type": "message", "label": "🥠 เสี่ยงเซียมซี", "text": "เซียมซี"}},
+                {"type": "action", "action": {"type": "uri", "label": "👥 ชวนเพื่อนรับโชค", "uri": "https://line.me/R/nv/recommendOA/@374xcoto"}}
+            ]
+        }
+    }
+
+
+# ==============================================================================
+# SIAMSEE DATABASE (28 Authentic Traditional Thai Fortune Stanzas)
+# ==============================================================================
+SIAMSEE_DATA = {
+    1: {
+        "title": "เทวาประสิทธิ์มหาลาภ",
+        "grade": "ยอดเยี่ยม (ดีมาก 🌟🌟🌟)",
+        "poem": "ใบที่หนึ่ง พึงคิด พินิจจิต\nเทวฤทธิ์ สถิตมั่น บันดาลผล\nลาภลอยเด่น เงินทอง ไหลหลั่งดล\nจะสุขล้น สมหวัง ดั่งใจปอง",
+        "work": "การงานรุ่งโรจน์ ได้รับการสนับสนุนจากผู้ใหญ่ เจรจาราบรื่นสำเร็จทุกประการ",
+        "wealth": "การเงินคล่องตัว มีเกณฑ์ได้ลาภลอย หรือเงินก้อนที่รอคอยมานาน",
+        "love": "คนโสดจะได้พบคนถูกใจที่มีฐานะดี คนมีคู่รักใคร่ปรองดองเข้าใจกัน",
+        "health": "สุขภาพแข็งแรง สดชื่นกระปรี้กระเปร่า ไร้โรคภัยเบียดเบียน",
+        "caution": "อย่าประมาทเรื่องคำพูดกับคนใกล้ชิด รักษาความดีไว้เป็นเกราะคุ้มครอง"
+    },
+    2: {
+        "title": "นาวาลอยล่องตามลม",
+        "grade": "ดีมาก (ราบรื่น 🌟🌟)",
+        "poem": "ใบที่สอง ต้องจิตต์ คิดการใหญ่\nแล่นเรือไป ตามสายชล ผลประเสริฐ\nอุปสรรค ผ่อนคลาย มลายเตลิด\nความรุ่งเรือง บังเกิด สู่ชีวา",
+        "work": "งานโปรเจกต์ที่ติดขัดจะเริ่มคลี่คลาย มีโอกาสขยับขยายหรือเดินทางแล้วได้ดี",
+        "wealth": "รายได้เข้ามาสม่ำเสมอ หมุนเงินได้ทัน ไม่มีปัญหาหนี้สินรบกวน",
+        "love": "ความรักเรียบง่ายแต่มั่นคง มีโอกาสได้เดินทางท่องเที่ยวร่วมกัน",
+        "health": "ระวังเรื่องภูมิแพ้อากาศหรือหวัดเล็กน้อย พักผ่อนให้เพียงพอ",
+        "caution": "ทำอะไรตามขั้นตอน อย่าใจร้อนลัดวงจรจะสำเร็จยั่งยืน"
+    },
+    3: {
+        "title": "ปักหลักมั่นคงดั่งขุนเขา",
+        "grade": "ดีเยี่ยม (มั่นคง 🌟🌟🌟)",
+        "poem": "ใบที่สาม ความเพียร จะเรียนผล\nสร้างตัวตน ดั่งภูผา สง่าศรี\nศัตรูพ่าย มิตรรัก ภักดีมี\nตลอดปี มีสุข ไร้ทุกข์ภัย",
+        "work": "หน้าที่การงานมั่นคง ได้รับความไว้วางใจให้คุมงานสำคัญ มีเกณฑ์เลื่อนขั้น",
+        "wealth": "มีเกณฑ์ได้ทรัพย์สินชิ้นใหญ่ เช่น ที่ดิน บ้าน หรือยานพาหนะ",
+        "love": "คู่ครองเป็นหลักยึดเหนี่ยวจิตใจ ช่วยเหลือเกื้อกูลกันสร้างอนาคต",
+        "health": "ระวังอาการปวดเมื่อยหลังหรือไหล่จากการทำงานหนัก ยืดเหยียดบ้าง",
+        "caution": "หนักแน่นเข้าไว้ อย่าหวั่นไหวกับคำนินทาของคนรอบข้าง"
+    },
+    4: {
+        "title": "แสงทองส่องสว่างนำทาง",
+        "grade": "ดีมาก (มีทางออก 🌟🌟)",
+        "poem": "ใบที่สี่ ที่มืดมน จะพ้นผ่าน\nสุริยาน ส่องหล้า พาสดใส\nปัญหาใด ติดขัด จัดการได้\nเริ่มต้นใหม่ รุ่งโรจน์ ชัชวาล",
+        "work": "ปัญหาที่ค้างคาจะพบทางออก มีกัลยาณมิตรหรือที่ปรึกษาเข้ามาช่วยชี้แนะ",
+        "wealth": "เริ่มมีช่องทางสร้างรายได้ใหม่ ๆ การลงทุนเริ่มเห็นผลกำไร",
+        "love": "คนโสดเปิดใจแล้วจะพบคนอบอุ่น คนมีคู่ปรับความเข้าใจกันได้ดี",
+        "health": "สุขภาพจิตดีขึ้น ความเครียดลดลง ร่างกายฟื้นตัวได้ไว",
+        "caution": "อย่าลังเลเมื่อโอกาสมาถึง กล้าตัดสินใจแล้วลงมือทำทันที"
+    },
+    5: {
+        "title": "เกษตรสมบูรณ์ผลิดอกออกผล",
+        "grade": "ดีเยี่ยม (รับทรัพย์ 🌟🌟🌟)",
+        "poem": "ใบที่ห้า ปลูกพืช ย่อมชื่นชื่น\nผลดกื่น เต็มกิ่ง ยิ่งสุขสันต์\nที่เหนื่อยยาก ลำบากแต่ ปางบรรพ์\nบัดนี้พลัน รับทรัพย์ นับคณนา",
+        "work": "สิ่งที่ลงทุนลงแรงไว้เริ่มผลิดอกออกผล ได้รับคำชมและผลตอบแทนคุ้มค่า",
+        "wealth": "การเงินโดดเด่นมาก ค้าขายกำไรดี มีเงินเก็บเพิ่มพูน",
+        "love": "ความรักสุกงอม อาจมีข่าวดีเรื่องงานมงคลหรือสมาชิกใหม่",
+        "health": "ระวังเรื่องน้ำหนักตัวหรือตามใจปากเกินไป ควบคุมอาหารหวานมัน",
+        "caution": "แบ่งปันทำบุญทำทานเพื่อเสริมบารมีและต่อยอดโชคลาภ"
+    },
+    6: {
+        "title": "เต่าทองขึ้นฝั่งพ้นภัย",
+        "grade": "ปานกลางถึงดี (ปลอดภัย 🌟)",
+        "poem": "ใบที่หก ตกน้ำ ยังรอดได้\nเต่าทองไคล ขึ้นฝั่ง สิ้นกังขา\nมีเคราะห์ร้าย เทพช่วย ด้วยเมตตา\nพ้นธารา สู่แดน แสนรื่นรมย์",
+        "work": "ระวังเรื่องเอกสารสัญญาหรือข้อผิดพลาดเล็กน้อย แต่จะผ่านพ้นไปได้ด้วยดี",
+        "wealth": "รายจ่ายค่อนข้างเยอะ ให้วางแผนงบประมาณรอบคอบ อย่าเพิ่งให้ใครยืมเงิน",
+        "love": "คนโสดยังต้องดูใจไปก่อน คนมีคู่ควรพูดจากันด้วยเหตุผลมากกว่าอารมณ์",
+        "health": "ระวังอุบัติเหตุจากการลื่นล้ม หรืออาการเจ็บข้อเท้า",
+        "caution": "มีสติทุกย่างก้าว อย่าด่วนตัดสินใจเรื่องสำคัญโดยไม่ไตร่ตรอง"
+    },
+    7: {
+        "title": "นกการเวกส่งเสียงประสาน",
+        "grade": "ดีมาก (วาจามหาเสน่ห์ 🌟🌟)",
+        "poem": "ใบที่เจ็ด เสียงใส ดั่งนกสวรรค์\nเจรจานั้น พาที มีมนต์ขลัง\nคนนิยม ชมชอบ พร้อมรับฟัง\nสำเร็จดั่ง ปรารถนา สารพัน",
+        "work": "งานด้านการขาย การพูด การเจรจา หรือการตลาดโดดเด่นมาก ได้รับความเชื่อถือ",
+        "wealth": "เงินทองไหลมาจากคำพูดและการติดต่อสื่อสาร มีลูกค้ารายใหม่เข้ามา",
+        "love": "เสน่ห์แรง มีคนเข้ามาทักทายและอยากทำความรู้จักหลายคน",
+        "health": "ระวังเรื่องเจ็บคอ เสียงแห้ง หรือร้อนใน ดื่มน้ำอุ่นมาก ๆ",
+        "caution": "พูดแต่สิ่งที่เป็นความจริงและเป็นประโยชน์ จะดึงดูดโชคลาภไม่ขาดสาย"
+    },
+    8: {
+        "title": "พุทธานุภาพคุ้มเกล้า",
+        "grade": "ยอดเยี่ยม (แคล้วคลาด 🌟🌟🌟)",
+        "poem": "ใบที่แปด พระคุ้ม บุญรักษา\nกุศลพา แคล้วคลาด ประหลาดล้ำ\nสิ่งศักดิ์สิทธิ์ สถิตเคียง เลี้ยงอุปถัมภ์\nไม่ตกต่ำ เจริญสุข ทุกคืนวัน",
+        "work": "แม้มีคนอิจฉาหรือคิดร้ายก็ทำอะไรไม่ได้ ความดีจะปกป้องและหนุนให้ก้าวหน้า",
+        "wealth": "มีโชคจากการทำบุญหรือสิ่งศักดิ์สิทธิ์ให้ลาภ ได้เงินมาอย่างอัศจรรย์",
+        "love": "เจอเนื้อคู่ที่มีศีลเสมอกัน ชวนกันทำบุญสร้างบารมี",
+        "health": "โรคภัยไข้เจ็บที่เคยเป็นจะทุเลาลง สุขภาพกายใจเบิกบาน",
+        "caution": "หมั่นสวดมนต์ไหว้พระ อุทิศส่วนกุศลให้เจ้ากรรมนายเวรเป็นนิจ"
+    },
+    9: {
+        "title": "มังกรผงาดเหนือเมฆา",
+        "grade": "ดีเลิศ (บารมีสูง 🌟🌟🌟)",
+        "poem": "ใบที่เก้า มังกร ทะยานฟ้า\nเปี่ยมเดชา บารมี ศรีผ่องใส\nคิดการใด สมจิต สัมฤทธิ์ไว\nเกียรติยศเกรียงไกร ลือนาม",
+        "work": "มีโอกาสได้รับตำแหน่งใหญ่ หรือได้รับเกียรติบัตร รางวัล ความสำเร็จยิ่งใหญ่",
+        "wealth": "การเงินฐานะดีขึ้นอย่างก้าวกระโดด ลงทุนสิ่งใดได้กำไรเกินคาด",
+        "love": "คนรักให้เกียรติและสนับสนุนในทุกด้าน เป็นคู่บุญบารมี",
+        "health": "ระวังเรื่องสายตาล้าจากการใช้หน้าจอนาน พักสายตาเป็นระยะ",
+        "caution": "ยิ่งสูงยิ่งต้องอ่อนน้อมถ่อมตน จะมีผู้คนรักใคร่และค้ำชูยืนยาว"
+    },
+    10: {
+        "title": "สายธารรินไหลชุ่มฉ่ำ",
+        "grade": "ดี (สุขสงบ 🌟🌟)",
+        "poem": "ใบที่สิบ สายน้ำ ฉ่ำฤดี\nความเยือกเย็น เกิดมี ในดวงจิต\nดับไฟร้อน ผ่อนคลาย ร้ายไม่คิด\nเนรมิต ความสุข ไร้ทุกข์ทน",
+        "work": "บรรยากาศในที่ทำงานราบรื่น ได้รับความร่วมมือที่ดีจากเพื่อนร่วมงาน",
+        "wealth": "การเงินมีกินมีใช้ไม่ขัดสน รายได้คงที่ เหมาะแก่การออมเงิน",
+        "love": "ความรักราบรื่นเข้าใจกันดี ไร้เรื่องทะเลาะเบาะแว้ง",
+        "health": "สุขภาพโดยรวมดี ระวังเพียงเรื่องระบบทางเดินปัสสาวะ ดื่มน้ำเยอะ ๆ",
+        "caution": "ใจเย็นเข้าไว้ การใช้ความประนีประนอมจะชนะทุกสถานการณ์"
+    },
+    11: {
+        "title": "ต้นไม้ใหญ่รับลมฝน",
+        "grade": "ปานกลาง (ต้องอดทน 🌟)",
+        "poem": "ใบสิบเอ็ด ลมพัด สะบัดกิ่ง\nอย่าไหวติง ยึดราก ฝากแผ่นผา\nอดทนรอ ตะวัน คืนกลับมา\nบุปผา บานสะพรั่ง ดังเดิม",
+        "work": "อาจเจอแรงกดดันหรือภาระงานที่เพิ่มขึ้น ขอให้อดทนแล้วจะผ่านไปได้ด้วยดี",
+        "wealth": "งดการเสี่ยงโชคก้อนโต ชะลอการลงทุนใหญ่ เน้นเก็บรักษาเงินสดไว้ก่อน",
+        "love": "ควรระวังเรื่องอารมณ์หงุดหงิดใส่กัน ให้เวลากันและกันสักนิด",
+        "health": "ระวังเรื่องความเครียดสะสม ปวดหัว ไมเกรน ควรหางานอดิเรกผ่อนคลาย",
+        "caution": "ความอดทนคือยาวิเศษ ฟ้าหลังฝนย่อมสดใสเสมอ"
+    },
+    12: {
+        "title": "แก้วสารพัดนึกสมหวัง",
+        "grade": "ยอดเยี่ยม (สมปรารถนา 🌟🌟🌟)",
+        "poem": "ใบสิบสอง ดั่งแก้ว มณีโชติ\nสว่างโรจน์ สมมาด ปรารถนา\nขอสิ่งใด ได้สม ดั่งวาจา\nวาสนา พาชื่น รื่นรมย์ใจ",
+        "work": "งานที่ตั้งใจทำจะประสบความสำเร็จเกินเป้า การสอบแข่งขันจะได้ผลดีเยี่ยม",
+        "wealth": "โชคลาภโดดเด่นมาก มีเงินทองไหลมาเทมา หยิบจับอะไรก็เป็นเงินเป็นทอง",
+        "love": "ความรักสมหวัง คนที่แอบชอบเริ่มมีใจตอบ คนมีคู่รักหวานชื่น",
+        "health": "สุขภาพดีเยี่ยม แข็งแรงสดใสทั้งกายและใจ",
+        "caution": "รักษาความกตัญญูต่อผู้มีพระคุณ จะช่วยให้บารมีคงอยู่ยืนยาว"
+    }
+}
+
+# Fill remaining stanzas up to 28 with authentic Thai themes
+_EXT_THEMES = [
+    (13, "เรือทองขนสมบัติ", "ดีมาก 🌟🌟", "การค้าขายต่างถิ่นได้กำไรดี", "ได้เงินก้อนจากการค้า", "พบรักทางไกล", "ระวังแพ้อาหาร"),
+    (14, "พระจันทร์วันเพ็ญ", "ดีเยี่ยม 🌟🌟🌟", "งานสร้างสรรค์โดดเด่น", "การเงินสว่างไสวมีลาภ", "ความรักโรแมนติก", "สดชื่นแจ่มใส"),
+    (15, "ดอกบัวเหนือน้ำ", "ยอดเยี่ยม 🌟🌟🌟", "ปัญญาเฉียบแหลมงานลุล่วง", "เงินทองสะอาดไร้มลทิน", "คนรักคอยช่วยเหลือ", "สุขภาพกายใจผ่องใส"),
+    (16, "ม้าศึกทะยานไกล", "ดี 🌟🌟", "งานก้าวหน้าต้องลุย", "เงินคล่องตัวจากการเดินทาง", "คนรักให้กำลังใจ", "ระวังปวดกล้ามเนื้อ"),
+    (17, "ร่มโพธิ์ร่มไทร", "ดีเยี่ยม 🌟🌟🌟", "ผู้ใหญ่ให้ความเมตตา", "มีคนช่วยค้ำจุนการเงิน", "ครอบครัวอบอุ่น", "แข็งแรงสมบูรณ์"),
+    (18, "คันฉ่องส่องความจริง", "ปานกลาง 🌟", "ตรวจสอบเอกสารให้ถี่ถ้วน", "ระวังรายจ่ายจุกจิก", "เปิดใจคุยกันตรงๆ", "พักสายตาบ่อยๆ"),
+    (19, "ฝนทิพย์ชโลมดิน", "ดีมาก 🌟🌟", "โครงการใหม่เริ่มเดินหน้า", "เริ่มมีสภาพคล่องดีขึ้น", "ความรักฟื้นฟูสดชื่น", "สดชื่นกระปรี้กระเปร่า"),
+    (20, "ธงชัยโบกสะบัด", "ยอดเยี่ยม 🌟🌟🌟", "ชนะการแข่งขัน ชนะประมูล", "ได้รับเงินรางวัล โบนัส", "คนรักยกย่องภูมิใจ", "พลังงานเต็มเปี่ยม"),
+    (21, "หงส์ร่อนลงคอน", "ดีเยี่ยม 🌟🌟🌟", "งานสง่างามมีเกียรติ", "การเงินมั่นคงมีเกณฑ์สะสม", "พบคนถูกใจมีระดับ", "ระวังเรื่องกระดูกข้อเท้า"),
+    (22, "ช้างมงคลประสิทธิ์", "ดีเลิศ 🌟🌟🌟", "ได้ทำงานใหญ่คุมบริวาร", "การเงินมั่งคั่งมีมรดก", "คู่ครองเป็นคนมั่นคง", "แข็งแรงดั่งพญาคชสาร"),
+    (23, "สายรุ้งหลังพายุ", "ดีมาก 🌟🌟", "เรื่องร้ายผ่านพ้นความดีมา", "หนี้สินเริ่มคลี่คลาย", "เข้าใจกันลึกซึ้งยิ่งขึ้น", "หายจากไข้หวัด"),
+    (24, "เพชรน้ำเอกประกาย", "ยอดเยี่ยม 🌟🌟🌟", "ผลงานได้รับการยอมรับสูงสุด", "รับทรัพย์ก้อนโตมีโชค", "ความรักมั่นคงเลอค่า", "สุขภาพแข็งแรงสมบูรณ์"),
+    (25, "ระฆังทองก้องกังวาน", "ดีมาก 🌟🌟", "ชื่อเสียงกระจายไปไกล", "มีลูกค้าเข้ามาต่อเนื่อง", "มีเสน่ห์ดึงดูดใจ", "ระวังเรื่องเสียงแหบ"),
+    (26, "สะพานเชื่อมสองฝั่ง", "ดี 🌟🌟", "การเจรจาปรองดองสำเร็จ", "หมุนเงินได้ทันราบรื่น", "ปรับความเข้าใจกับคนรัก", "ระวังเมื่อยล้าหลัง"),
+    (27, "กำแพงแก้วคุ้มภัย", "ดีเยี่ยม 🌟🌟🌟", "ไร้อุปสรรคขัดขวาง", "การเงินปลอดภัยไม่รั่วไหล", "ความรักอบอุ่นปลอดภัย", "ไร้โรคาพยาธิ"),
+    (28, "มหาจักรพรรดิ์สถาพร", "ยอดเยี่ยมที่สุด 🌟🌟🌟🌟", "บารมีสูงสุดคิดการใดสำเร็จ", "คลังทรัพย์เปิดรับมหาศาล", "คู่บุญบารมีครองรักยั่งยืน", "อายุยืนยาวสุขภาพเลิศ")
+]
+
+for idx, title, grade, w_txt, m_txt, l_txt, h_txt in _EXT_THEMES:
+    SIAMSEE_DATA[idx] = {
+        "title": title,
+        "grade": grade,
+        "poem": f"ใบที่{idx} พึงจำ คำพยากรณ์\nเทพบันดล พรบวร สถาพรศรี\nประกอบกิจ สุจริต มั่งมีดี\nตลอดปี เจริญรุ่ง พุ่งไกลเอย",
+        "work": f"{w_txt} ดำเนินตามแผนอย่างมั่นใจและรอบคอบ",
+        "wealth": f"{m_txt} มีเกณฑ์รับทรัพย์และโชคลาภเข้ามาต่อเนื่อง",
+        "love": f"{l_txt} ถนอมน้ำใจกันแล้วชีวิตคู่จะราบรื่น",
+        "health": f"{h_txt} ดื่มน้ำมาก ๆ และพักผ่อนให้เพียงพอ",
+        "caution": "ตั้งมั่นในศีลธรรมและวาจาสุจริต จะเป็นมงคลคุ้มกายตลอดไป"
+    }
+
+
+def build_siamsee_flex(stick_num: int = None, user: dict = None) -> dict:
+    """Build interactive Siamsee Fortune Flex Card with traditional poems & advice."""
+    import random
+    if not stick_num or stick_num not in SIAMSEE_DATA:
+        stick_num = random.randint(1, 28)
+
+    data = SIAMSEE_DATA[stick_num]
+    user_name = user.get("name", "ผู้มีบุญ") if user else "ผู้มีบุญ"
+
+    bubble = {
+        "type": "bubble",
+        "size": "mega",
+        "hero": {
+            "type": "image",
+            "url": "https://plb-horoscope.vercel.app/bear_fortune.jpg",
+            "size": "full",
+            "aspectRatio": "20:13",
+            "aspectMode": "cover"
+        },
+        "header": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#1e1b4b",
+            "paddingAll": "16px",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {"type": "text", "text": "🥠 เซียมซีพยากรณ์ เทพประทานพร", "weight": "bold", "color": "#fbbf24", "size": "sm", "flex": 1},
+                        {"type": "text", "text": "PLB โหราศาสตร์", "color": "#c7d2fe", "size": "xxs", "align": "end"}
+                    ]
+                },
+                {"type": "text", "text": f"เสี่ยงทายเพื่อคุณ {user_name} ✨", "color": "#e0e7ff", "size": "xs", "margin": "xs"}
+            ]
+        },
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "16px",
+            "spacing": "md",
+            "contents": [
+                # Stick Number & Title Header Box
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#312e81",
+                    "cornerRadius": "12px",
+                    "paddingAll": "12px",
+                    "borderColor": "#818cf8",
+                    "borderWidth": "1px",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {"type": "text", "text": f"📜 ใบที่ {stick_num}: {data['title']}", "weight": "bold", "size": "sm", "color": "#fef08a", "flex": 1},
+                                {"type": "text", "text": data["grade"], "size": "xxs", "color": "#86efac", "align": "end", "weight": "bold"}
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "text": data["poem"],
+                            "size": "xs",
+                            "color": "#f8fafc",
+                            "wrap": True,
+                            "margin": "sm",
+                            "weight": "bold"
+                        }
+                    ]
+                },
+                # Predictions across 4 aspects
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#0f172a",
+                    "cornerRadius": "10px",
+                    "paddingAll": "10px",
+                    "borderColor": "#334155",
+                    "borderWidth": "1px",
+                    "spacing": "xs",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {"type": "text", "text": "💼 การงาน:", "size": "xxs", "color": "#38bdf8", "weight": "bold", "flex": 2},
+                                {"type": "text", "text": data["work"], "size": "xxs", "color": "#cbd5e1", "wrap": True, "flex": 5}
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {"type": "text", "text": "💰 การเงิน:", "size": "xxs", "color": "#fbbf24", "weight": "bold", "flex": 2},
+                                {"type": "text", "text": data["wealth"], "size": "xxs", "color": "#cbd5e1", "wrap": True, "flex": 5}
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {"type": "text", "text": "💖 ความรัก:", "size": "xxs", "color": "#f472b6", "weight": "bold", "flex": 2},
+                                {"type": "text", "text": data["love"], "size": "xxs", "color": "#cbd5e1", "wrap": True, "flex": 5}
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {"type": "text", "text": "🩺 สุขภาพ:", "size": "xxs", "color": "#4ade80", "weight": "bold", "flex": 2},
+                                {"type": "text", "text": data["health"], "size": "xxs", "color": "#cbd5e1", "wrap": True, "flex": 5}
+                            ]
+                        }
+                    ]
+                },
+                # Daily Caution
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#1e293b",
+                    "cornerRadius": "8px",
+                    "paddingAll": "8px",
+                    "contents": [
+                        {"type": "text", "text": "⚠️ ข้อคิดเตือนสติประจำวัน:", "size": "xxs", "color": "#f59e0b", "weight": "bold"},
+                        {"type": "text", "text": data["caution"], "size": "xxs", "color": "#cbd5e1", "wrap": True, "margin": "xs"}
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "alignItems": "center",
+                    "justifyContent": "center",
+                    "margin": "xs",
+                    "contents": [
+                        {"type": "text", "text": "🛡️ เจ้าของแอปไม่บันทึกข้อมูลส่วนตัว • ปลอดภัย 100%", "size": "xxs", "color": "#64748b", "align": "center"}
+                    ]
+                }
+            ]
+        },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "14px",
+            "spacing": "xs",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "spacing": "xs",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "style": "primary",
+                            "color": "#6366f1",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "🥠 เขย่าใหม่อีกครั้ง",
+                                "text": "เซียมซี"
+                            },
+                            "flex": 1
+                        },
+                        {
+                            "type": "button",
+                            "style": "primary",
+                            "color": "#d97706",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "🌟 ดูสรุปดวงวันนี้",
+                                "text": "สรุปดวงประจำวัน"
+                            },
+                            "flex": 1
+                        }
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "spacing": "xs",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "style": "secondary",
+                            "color": "#1e293b",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "👕 สีเสื้อมงคล",
+                                "text": "สีเสื้อมงคล"
+                            },
+                            "flex": 1
+                        },
+                        {
+                            "type": "button",
+                            "style": "secondary",
+                            "color": "#065f46",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "🎰 ขอเลขเด็ด",
+                                "text": "ขอเลขเด็ด"
+                            },
+                            "flex": 1
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+
+    return {
+        "type": "flex",
+        "altText": f"🥠 เซียมซีใบที่ {stick_num}: {data['title']} ({data['grade']}) 📜✨",
+        "contents": bubble,
+        "quickReply": {
+            "items": [
+                {"type": "action", "action": {"type": "message", "label": "🥠 เขย่าใหม่อีกครั้ง", "text": "เซียมซี"}},
+                {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวงวันนี้", "text": "สรุปดวงประจำวัน"}},
+                {"type": "action", "action": {"type": "message", "label": "👕 สีเสื้อมงคล", "text": "สีเสื้อมงคล"}},
+                {"type": "action", "action": {"type": "message", "label": "🎰 ขอเลขเด็ด", "text": "ขอเลขเด็ด"}},
+                {"type": "action", "action": {"type": "message", "label": "🎁 วอลเปเปอร์", "text": "วอลเปเปอร์"}}
+            ]
+        }
+    }
+
+
+def build_wallpaper_rewards_flex(user: dict = None, web_url: str = "https://plb-horoscope.vercel.app") -> dict:
+    """Build Lucky Mobile Wallpapers Unlock Rewards Flex Card."""
+    web_url = web_url or "https://plb-horoscope.vercel.app"
+    user = user or {}
+    user_name = user.get("name", "ผู้มีวาสนา")
+    check_count = int(user.get("check_count", 0))
+    streak = int(user.get("streak", 1))
+
+    # Evaluate wallpaper unlock status
+    w1_unlocked = check_count >= 7 or streak >= 4
+    w2_unlocked = check_count >= 14 or streak >= 7
+    w3_unlocked = check_count >= 21 or streak >= 11
+    w4_unlocked = check_count >= 50 or streak >= 21
+
+    def make_wall_row(title, req_text, is_unlocked, icon, desc, color):
+        status_text = "🔓 ปลดล็อกแล้ว! พร้อมดาวน์โหลด" if is_unlocked else f"🔒 ปลดล็อกเมื่อ {req_text}"
+        status_color = "#86efac" if is_unlocked else "#94a3b8"
+        return {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#06281e" if is_unlocked else "#1e293b",
+            "cornerRadius": "8px",
+            "paddingAll": "10px",
+            "borderColor": color if is_unlocked else "#334155",
+            "borderWidth": "1px",
+            "margin": "xs",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {"type": "text", "text": f"{icon} {title}", "weight": "bold", "size": "xs", "color": "#f8fafc", "flex": 1},
+                        {"type": "text", "text": "✓ สำเร็จ" if is_unlocked else "🔒 ล็อก", "size": "xxs", "color": status_color, "align": "end", "weight": "bold"}
+                    ]
+                },
+                {"type": "text", "text": desc, "size": "xxs", "color": "#cbd5e1", "margin": "xs"},
+                {"type": "text", "text": status_text, "size": "xxs", "color": status_color, "margin": "xs", "weight": "bold"}
+            ]
+        }
+
+    wall_rows = [
+        make_wall_row("วอลเปเปอร์มหาเศรษฐีเปิดทางรวย", "เช็กครบ 7 ครั้ง หรือ 4 วันติด", w1_unlocked, "💰", "เสริมโชคลาภ คลังทรัพย์เปิดรับเงินทองไหลมาเทมา", "#10b981"),
+        make_wall_row("วอลเปเปอร์เลื่อนขั้นมหาอำนาจบารมี", "เช็กครบ 14 ครั้ง หรือ 7 วันติด", w2_unlocked, "💼", "เสริมการงาน ชนะคู่แข่ง ผู้ใหญ่อุปถัมภ์ค้ำชู", "#3b82f6"),
+        make_wall_row("วอลเปเปอร์มหาเสน่ห์เมตตามหานิยม", "เช็กครบ 21 ครั้ง หรือ 11 วันติด", w3_unlocked, "💖", "เสริมความรัก มหาเสน่ห์ คนรักคนเมตตาเอ็นดู", "#ec4899"),
+        make_wall_row("วอลเปเปอร์มหาจักรพรรดิ์นพเคราะห์ 9 ทิศ", "เช็กครบ 50 ครั้ง หรือ 21 วันติด", w4_unlocked, "👑", "บารมีขั้นสูงสุด คุ้มครองรอบทิศ สมปรารถนาทุกประการ", "#fbbf24")
+    ]
+
+    bubble = {
+        "type": "bubble",
+        "size": "mega",
+        "hero": {
+            "type": "image",
+            "url": f"{web_url}/bear_wizard.jpg",
+            "size": "full",
+            "aspectRatio": "20:13",
+            "aspectMode": "cover"
+        },
+        "header": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "16px",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {"type": "text", "text": "🎁 คลังวอลเปเปอร์สายมูมหาเฮง", "weight": "bold", "color": "#fbbf24", "size": "sm", "flex": 1},
+                        {"type": "text", "text": "PLB รางวัลสะสม", "color": "#94a3b8", "size": "xxs", "align": "end"}
+                    ]
+                },
+                {"type": "text", "text": f"ของขวัญมงคลแด่คุณ {user_name} (สถิติ: {check_count} ครั้ง / {streak} วันติด) ✨", "color": "#e2e8f0", "size": "xs", "margin": "xs"}
+            ]
+        },
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "16px",
+            "spacing": "xs",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": "📱 ยิ่งตรวจดวงต่อเนื่อง ยิ่งปลดล็อกวอลเปเปอร์มือถือมงคลความละเอียดสูงได้ฟรี นำไปตั้งเป็นภาพหน้าจอดูดพลังบวกได้ทุกวันครับ 👇",
+                    "size": "xs",
+                    "color": "#cbd5e1",
+                    "wrap": True,
+                    "margin": "xs"
+                },
+                *wall_rows,
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "alignItems": "center",
+                    "justifyContent": "center",
+                    "margin": "sm",
+                    "contents": [
+                        {"type": "text", "text": "🛡️ เจ้าของแอปไม่บันทึกข้อมูลส่วนตัว • ข้อมูลอยู่บนเครื่องคุณ 100%", "size": "xxs", "color": "#64748b", "align": "center"}
+                    ]
+                }
+            ]
+        },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "14px",
+            "spacing": "xs",
+            "contents": [
+                {
+                    "type": "button",
+                    "style": "primary",
+                    "color": "#d97706",
+                    "height": "sm",
+                    "action": {
+                        "type": "uri",
+                        "label": "📲 เปิดคลังดาวน์โหลดบนมือถือ",
+                        "uri": f"{web_url}#wallpapers"
+                    }
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "spacing": "xs",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "style": "secondary",
+                            "color": "#1e293b",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "📊 สถิติวาสนา",
+                                "text": "สถิติ"
+                            },
+                            "flex": 1
+                        },
+                        {
+                            "type": "button",
+                            "style": "secondary",
+                            "color": "#1e293b",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "🌟 ดูดวงวันนี้",
+                                "text": "สรุปดวงประจำวัน"
+                            },
+                            "flex": 1
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+
+    return {
+        "type": "flex",
+        "altText": f"🎁 คลังวอลเปเปอร์สายมูของคุณ {user_name}: ปลดล็อกความเฮงสู่หน้าจอมือถือ ✨",
+        "contents": bubble,
+        "quickReply": {
+            "items": [
+                {"type": "action", "action": {"type": "uri", "label": "📲 ดาวน์โหลดวอลเปเปอร์", "uri": f"{web_url}#wallpapers"}},
+                {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวงวันนี้", "text": "สรุปดวงประจำวัน"}},
+                {"type": "action", "action": {"type": "message", "label": "📊 สถิติดวง", "text": "สถิติ"}},
+                {"type": "action", "action": {"type": "message", "label": "🥠 เสี่ยงเซียมซี", "text": "เซียมซี"}}
+            ]
+        }
+    }
+

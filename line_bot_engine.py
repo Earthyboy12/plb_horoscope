@@ -29,6 +29,10 @@ try:
         build_lucky_colors_flex,
         build_feedback_flex,
         build_noon_reminder_flex,
+        build_morning_reminder_flex,
+        build_lottery_special_flex,
+        build_siamsee_flex,
+        build_wallpaper_rewards_flex,
         build_donation_flex,
         build_share_flex,
         build_stats_flex,
@@ -46,6 +50,10 @@ except ImportError:
         build_lucky_colors_flex,
         build_feedback_flex,
         build_noon_reminder_flex,
+        build_morning_reminder_flex,
+        build_lottery_special_flex,
+        build_siamsee_flex,
+        build_wallpaper_rewards_flex,
         build_donation_flex,
         build_share_flex,
         build_stats_flex,
@@ -497,6 +505,28 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                     }
                 }
             ])
+            return
+
+        # Check Siamsee / Daily Fortune Oracle ("เซียมซี", "เสี่ยงเซียมซี", "ไพ่ประจำวัน", "ออราเคิล", "siamsee")
+        if any(k in text_lower for k in ["เซียมซี", "เสี่ยงเซียมซี", "ไพ่ประจำวัน", "ออราเคิล", "เสี่ยงทาย", "siamsee"]):
+            siamsee_flex = build_siamsee_flex(user=user)
+            reply([siamsee_flex])
+            return
+
+        # Check Lucky Wallpapers ("วอลเปเปอร์", "wallpaper", "ของรางวัล", "แจกวอลเปเปอร์")
+        if any(k in text_lower for k in ["วอลเปเปอร์", "wallpaper", "ของรางวัล", "แจกวอลเปเปอร์"]):
+            wall_flex = build_wallpaper_rewards_flex(user=user, web_url=web_url)
+            reply([wall_flex])
+            return
+
+        # Check Morning Routine / Lottery Special preview
+        if any(k in text_lower for k in ["อรุณสวัสดิ์", "morning", "เตือนยามเช้า"]):
+            now_th = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+            if now_th.day in (1, 16):
+                m_flex = build_lottery_special_flex(web_url)
+            else:
+                m_flex = build_morning_reminder_flex(web_url)
+            reply([m_flex])
             return
 
         # Check Feedback / Rating
@@ -991,3 +1021,98 @@ def send_noon_reminder_broadcast(web_url: str = "https://plb-horoscope.vercel.ap
         "date": today_str,
         "broadcast_error": b_res.get("error")
     }
+
+def send_morning_reminder_broadcast(web_url: str = "https://plb-horoscope.vercel.app", channel_access_token: str = "", force: bool = False) -> dict:
+    """
+    Send 07:00 AM Morning Routine reminder to all LINE OA friends.
+    On 1st & 16th of month, sends Special Edition Lottery Card.
+    Guards:
+      1. Time Guard: Only sends between 06:00 and 08:59 Thailand Time (UTC+7), unless force=True.
+      2. Deduplication Guard: Only sends ONCE per calendar day, unless force=True.
+    """
+    import tempfile
+    now_th = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+    today_str = now_th.strftime("%Y-%m-%d")
+    current_hour = now_th.hour
+    current_time_str = now_th.strftime("%H:%M:%S")
+
+    # Guard 1: Time Window Check (must be around 07:00 AM, hours 6, 7, 8)
+    if not force and current_hour not in (6, 7, 8):
+        print(f"[MorningReminder] Skipped: Outside morning window ({current_time_str}). Only runs around 07:00 AM.")
+        return {
+            "success": True,
+            "skipped": True,
+            "reason": f"อยู่นอกช่วงเวลาเช้า (ขณะนี้เวลา {current_time_str} น.) ระบบจะส่งเฉพาะเวลา 07:00 น. เท่านั้น",
+            "current_time": current_time_str,
+            "scheduled_time": "07:00:00"
+        }
+
+    # Guard 2: Deduplication Check (Only once per day)
+    lock_file = os.path.join(tempfile.gettempdir(), "plb_last_morning_broadcast.txt")
+    last_sent = ""
+    if os.path.exists(lock_file):
+        try:
+            with open(lock_file, "r", encoding="utf-8") as f:
+                last_sent = f.read().strip()
+        except Exception:
+            pass
+
+    if not force and last_sent == today_str:
+        print(f"[MorningReminder] Skipped: Already sent today ({today_str}).")
+        return {
+            "success": True,
+            "skipped": True,
+            "reason": f"วันนี้ ({today_str}) ได้ส่งข้อความเตือนยามเช้าเรียบร้อยแล้ว ไม่ส่งซ้ำครับ",
+            "date": today_str
+        }
+
+    channel_access_token = channel_access_token or get_channel_access_token()
+    web_url = web_url or os.environ.get("APP_URL", "https://plb-horoscope.vercel.app")
+    
+    # Check if today is 1st or 16th of month -> Lottery Special!
+    if now_th.day in (1, 16):
+        flex_card = build_lottery_special_flex(web_url)
+        reminder_type = "lottery_special"
+    else:
+        flex_card = build_morning_reminder_flex(web_url)
+        reminder_type = "morning_routine"
+
+    def mark_sent():
+        try:
+            with open(lock_file, "w", encoding="utf-8") as f:
+                f.write(today_str)
+        except Exception:
+            pass
+
+    # 1. Attempt broadcast to all friends
+    b_res = broadcast_line_message([flex_card], channel_access_token)
+    if b_res.get("success"):
+        mark_sent()
+        return {"success": True, "type": reminder_type, "method": "broadcast", "status": b_res.get("status"), "date": today_str}
+
+    # 2. If broadcast failed, fallback to pushing to registered users
+    print(f"[MorningReminder] Broadcast failed: {b_res.get('error')}. Falling back to registered user store push...")
+    try:
+        from user_store import get_all_users
+    except ImportError:
+        from api.user_store import get_all_users
+
+    users = get_all_users()
+    pushed_count = 0
+    for uid in users.keys():
+        if uid.startswith("U"):
+            if push_line_message(uid, [flex_card], channel_access_token):
+                pushed_count += 1
+
+    if pushed_count > 0:
+        mark_sent()
+
+    return {
+        "success": pushed_count > 0,
+        "type": reminder_type,
+        "method": "user_store_push",
+        "pushed_count": pushed_count,
+        "date": today_str,
+        "broadcast_error": b_res.get("error")
+    }
+
