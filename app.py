@@ -47,6 +47,28 @@ class HoroscopeHandler(http.server.SimpleHTTPRequestHandler):
         elif parsed.path == "/liff-register.html" or parsed.path == "/liff":
             self.path = "/liff-register.html"
             return super().do_GET()
+        elif parsed.path in ("/api/cron/noon-reminder", "/cron/noon-reminder"):
+            try:
+                channel_access_token = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN") or get_channel_access_token()
+                web_url = os.environ.get("APP_URL", "https://plb-horoscope.vercel.app")
+                res = send_noon_reminder_broadcast(web_url, channel_access_token)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(json.dumps({
+                    "status": "ok",
+                    "action": "noon_reminder_cron",
+                    "timestamp": datetime.datetime.now().isoformat(),
+                    "result": res
+                }, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": str(e)}, ensure_ascii=False).encode("utf-8"))
+            return
         elif parsed.path == "/api/health":
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")

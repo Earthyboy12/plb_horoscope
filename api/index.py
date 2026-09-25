@@ -77,12 +77,7 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(resp, ensure_ascii=False).encode('utf-8'))
             return
 
-        # Default GET response is Health Check
-        self.send_response(200)
-        self.send_header('Content-Type', 'application/json; charset=utf-8')
-        self.send_cors_headers()
-        self.end_headers()
-        if 'cron/noon-reminder' in self.path or 'noon-reminder' in self.path:
+        if 'noon-reminder' in check_str or 'cron' in check_str:
             try:
                 channel_access_token = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN") or get_channel_access_token()
                 web_url = os.environ.get("APP_URL", "https://plb-horoscope.vercel.app")
@@ -105,6 +100,11 @@ class handler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({"error": str(e)}, ensure_ascii=False).encode('utf-8'))
             return
 
+        # Default GET response is Health Check
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json; charset=utf-8')
+        self.send_cors_headers()
+        self.end_headers()
         resp = {
             'status': 'ok',
             'service': 'PLB Thai Horoscope API & LINE OA Engine',
