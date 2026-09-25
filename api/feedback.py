@@ -29,7 +29,24 @@ class handler(BaseHTTPRequestHandler):
         body = self.rfile.read(content_length) if content_length > 0 else b'{}'
         try:
             payload = json.loads(body.decode('utf-8')) if body else {}
-            payload["server_received_at"] = datetime.datetime.now().isoformat()
+            now_iso = datetime.datetime.now().isoformat()
+            if "submittedAt" not in payload:
+                payload["submittedAt"] = now_iso
+            payload["server_received_at"] = now_iso
+
+            # Normalize keys for unified format
+            if "userName" not in payload and "name" in payload:
+                payload["userName"] = payload["name"]
+            if "name" not in payload and "userName" in payload:
+                payload["name"] = payload["userName"]
+            if "transitProvince" not in payload and "transit_province" in payload:
+                payload["transitProvince"] = payload["transit_province"]
+            if "transit_province" not in payload and "transitProvince" in payload:
+                payload["transit_province"] = payload["transitProvince"]
+            if "created_at" not in payload and "submittedAt" in payload:
+                payload["created_at"] = payload["submittedAt"]
+            if "channel" not in payload:
+                payload["channel"] = "web"
             
             # Forward to Google Sheets Webhook
             DEFAULT_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwBA-NdVNPQSC_M-a_dMWinkH1-5zSADD0xxkXJkE42TYIa-fvQNGMrVoq2Yu5zJ1_-6A/exec"

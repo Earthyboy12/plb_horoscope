@@ -447,7 +447,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
 
         # Check Feedback / Rating
         if any(k in text_lower for k in ["feedback", "ประเมิน", "ให้คะแนน", "ความแม่นยำ", "3"]):
-            feedback_flex = build_feedback_flex()
+            feedback_flex = build_feedback_flex(web_url)
             reply([feedback_flex])
             return
 
@@ -553,11 +553,11 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
 
         # Check if user is typing a feedback comment (or greeting)
         if len(text) > 3 and not any(k in text for k in ["สวัสดี", "hello", "hi"]):
-            # Treat as suggestion or general feedback
-            _forward_comment_to_sheet(user_id, user.get("name", "ผู้ใช้") if user else "ผู้ใช้", text)
+            # Treat as suggestion or general feedback, merging with recent star rating if present
+            _forward_comment_to_sheet(user_id, user.get("name", "ผู้ใช้") if user else "ผู้ใช้", text, user=user)
             reply([{
                 "type": "text",
-                "text": "🙏 ขอบพระคุณสำหรับข้อความและคำแนะนำครับ แม่หมอบันทึกข้อมูลเรียบร้อยแล้วครับ ✨",
+                "text": "🙏 ขอบพระคุณสำหรับข้อคิดเห็นและคำแนะนำครับ แม่หมอบันทึกข้อมูลเรียบร้อยแล้วครับ ✨",
                 "quickReply": {
                     "items": [
                         {"type": "action", "action": {"type": "message", "label": "🎰 ขอเลขเด็ด", "text": "ขอเลขเด็ด"}},
@@ -648,7 +648,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             _record_star_rating(user_id, stars, user)
             reply([{
                 "type": "text",
-                "text": f"🌟 ขอบพระคุณสำหรับคะแนน {stars} ดาวครับ! 🙏\nหากมีข้อคิดเห็น คำติชม หรืออยากให้เพิ่มฟีเจอร์ใด สามารถพิมพ์ข้อความส่งกลับมาในแชตนี้ได้เลยครับ แม่หมอจะบันทึกไว้พัฒนาต่อไปครับ ✨"
+                "text": f"🌟 ขอบพระคุณสำหรับคะแนน {stars} ดาวครับ! 🙏\nหากมีข้อคิดเห็น คำติชม หรืออยากให้เพิ่มฟีเจอร์ใด สามารถพิมพ์ข้อความส่งกลับมาในแชตนี้ได้เลยครับ แม่หมอจะบันทึกรวมกับคะแนนของคุณทันทีครับ ✨"
             }])
             
         elif action == "donate":
@@ -661,52 +661,121 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             donation_flex = build_donation_flex(qr_url=qr_url)
             reply([image_msg, donation_flex])
 
+RATING_LABELS = {
+    1: "⭐ ไม่ค่อยตรงเท่าไหร่ (1/5)",
+    2: "⭐⭐ ค่อนข้างเฉยๆ / ยังไม่ค่อยตรง (2/5)",
+    3: "⭐⭐⭐ ปานกลาง ตรงเป็นบางเรื่อง (3/5)",
+    4: "⭐⭐⭐⭐ แม่นดี ตรงหลายเรื่องเลย ✨ (4/5)",
+    5: "⭐⭐⭐⭐⭐ แม่นมาก ตรงเป๊ะทุกเรื่อง! 🎯 (5/5)"
+}
+
+_RECENT_USER_FEEDBACK = {}  # user_id -> {"time": datetime, "payload": dict}
+
+def build_unified_feedback_payload(user: dict, rating: int = 0, comment: str = "", user_id: str = "", channel: str = "line") -> dict:
+    now_dt = datetime.datetime.now()
+    now_iso = now_dt.isoformat()
+    now_th = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
+    today_str = now_th.strftime("%Y-%m-%d")
+
+    asc_sign = "-"
+    if user and user.get("birth_date"):
+        try:
+            h = compute_user_horoscope(user, today_str)
+            asc_sign = h.get("natalChart", {}).get("ascendant", {}).get("signName", "-")
+        except Exception:
+            asc_sign = "-"
+
+    u_name = user.get("name") if user else "ผู้ใช้ LINE"
+    if not u_name or u_name == "ผู้ใช้":
+        u_name = "ผู้ใช้ LINE"
+
+    b_prov = user.get("birth_province", "กรุงเทพมหานคร") if user else "กรุงเทพมหานคร"
+    b_dist = user.get("birth_district", "") if user else ""
+    t_prov = user.get("transit_province") or b_prov if user else b_prov
+    t_dist = user.get("transit_district") or b_dist if user else b_dist
+    calc_m = user.get("calc_method", "suriyayatra") if user else "suriyayatra"
+
+    r_label = RATING_LABELS.get(rating, f"{rating} ดาว" if rating > 0 else "ข้อเสนอแนะ / ความคิดเห็น")
+
+    payload = {
+        "rating": rating,
+        "ratingLabel": r_label,
+        "comment": comment,
+        "ascendantSign": asc_sign,
+        "targetDate": today_str,
+        "calcMethod": calc_m,
+        "userName": u_name,
+        "province": b_prov,
+        "district": b_dist,
+        "transitProvince": t_prov,
+        "transitDistrict": t_dist,
+        "submittedAt": now_iso,
+        "server_received_at": now_iso,
+        "channel": channel,
+        "userId": user_id,
+        "line_user_id": user_id,
+        # Backward compatibility aliases for existing Google Sheets / scripts
+        "name": u_name,
+        "transit_province": t_prov,
+        "created_at": now_iso,
+        "action": f"{channel}_feedback"
+    }
+    return payload
+
+def record_feedback_unified(payload: dict):
+    """Save feedback to local feedback.jsonl and forward to Google Sheets Webhook asynchronously."""
+    # 1. Save locally to feedback.jsonl
+    try:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        if os.path.basename(base_dir) == "api":
+            base_dir = os.path.dirname(base_dir)
+        feedback_file = os.path.join(base_dir, "feedback.jsonl")
+        with open(feedback_file, "a", encoding="utf-8") as f:
+            f.write(json.dumps(payload, ensure_ascii=False) + "\n")
+    except Exception as fe:
+        print(f"[Feedback] Local save notice: {fe}")
+
+    # 2. Forward to Google Sheets Webhook asynchronously
+    def _do():
+        webhook_url = os.environ.get("GOOGLE_SHEETS_WEBHOOK_URL") or os.environ.get("FEEDBACK_WEBHOOK_URL") or DEFAULT_FEEDBACK_WEBHOOK
+        if not webhook_url:
+            return
+        try:
+            req = urllib.request.Request(
+                webhook_url,
+                data=json.dumps(payload, ensure_ascii=False).encode('utf-8'),
+                headers={"Content-Type": "application/json; charset=utf-8", "User-Agent": "PLB-Feedback-Engine"}
+            )
+            urllib.request.urlopen(req, timeout=5)
+        except Exception as e:
+            print(f"[Feedback] Forwarding error: {e}")
+
+    import threading
+    threading.Thread(target=_do, daemon=True).start()
+
 def _record_star_rating(user_id: str, stars: int, user: dict):
-    """Forward star rating to Google Sheets Webhook asynchronously."""
-    def _do():
-        webhook_url = os.environ.get("GOOGLE_SHEETS_WEBHOOK_URL") or DEFAULT_FEEDBACK_WEBHOOK
-        payload = {
-            "action": "line_feedback_rating",
-            "rating": stars,
-            "line_user_id": user_id,
-            "name": user.get("name") if user else "ผู้ใช้",
-            "transit_province": user.get("transit_province", "") if user else "",
-            "created_at": datetime.datetime.now().isoformat()
-        }
-        try:
-            req = urllib.request.Request(
-                webhook_url,
-                data=json.dumps(payload, ensure_ascii=False).encode('utf-8'),
-                headers={"Content-Type": "application/json; charset=utf-8", "User-Agent": "PLB-LineBot"}
-            )
-            urllib.request.urlopen(req, timeout=4)
-        except Exception as e:
-            print(f"Error forwarding rating: {e}")
+    """Build unified feedback payload for star rating and record."""
+    payload = build_unified_feedback_payload(user, rating=stars, comment="", user_id=user_id, channel="line")
+    _RECENT_USER_FEEDBACK[user_id] = {
+        "time": datetime.datetime.now(),
+        "payload": payload
+    }
+    record_feedback_unified(payload)
 
-    import threading
-    threading.Thread(target=_do, daemon=True).start()
+def _forward_comment_to_sheet(user_id: str, name: str, comment: str, user: dict = None):
+    """Forward text comment, linking with recent star rating if present."""
+    recent = _RECENT_USER_FEEDBACK.get(user_id)
+    now = datetime.datetime.now()
+    if recent and (now - recent["time"]).total_seconds() < 900:  # 15 minutes window
+        # Merge comment into existing rating record
+        payload = dict(recent["payload"])
+        payload["comment"] = comment
+        payload["submittedAt"] = now.isoformat()
+        payload["server_received_at"] = payload["submittedAt"]
+        payload["created_at"] = payload["submittedAt"]
+        _RECENT_USER_FEEDBACK.pop(user_id, None)
+    else:
+        payload = build_unified_feedback_payload(user, rating=0, comment=comment, user_id=user_id, channel="line")
 
-def _forward_comment_to_sheet(user_id: str, name: str, comment: str):
-    """Forward text comment to Google Sheets Webhook asynchronously."""
-    def _do():
-        webhook_url = os.environ.get("GOOGLE_SHEETS_WEBHOOK_URL") or DEFAULT_FEEDBACK_WEBHOOK
-        payload = {
-            "action": "line_feedback_comment",
-            "comment": comment,
-            "line_user_id": user_id,
-            "name": name,
-            "created_at": datetime.datetime.now().isoformat()
-        }
-        try:
-            req = urllib.request.Request(
-                webhook_url,
-                data=json.dumps(payload, ensure_ascii=False).encode('utf-8'),
-                headers={"Content-Type": "application/json; charset=utf-8", "User-Agent": "PLB-LineBot"}
-            )
-            urllib.request.urlopen(req, timeout=4)
-        except Exception as e:
-            print(f"Error forwarding comment: {e}")
-
-    import threading
-    threading.Thread(target=_do, daemon=True).start()
+    record_feedback_unified(payload)
 

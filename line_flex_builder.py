@@ -1145,11 +1145,12 @@ def build_category_flex(category_key: str, category_data: dict, asc_name: str, d
         "quickReply": get_category_quick_reply()
     }
 
-def build_feedback_flex() -> dict:
+def build_feedback_flex(web_url: str = "https://plb-horoscope.vercel.app") -> dict:
     """Build the 5-star accuracy rating and comment card."""
+    web_url = web_url or "https://plb-horoscope.vercel.app"
     return {
         "type": "flex",
-        "altText": "ประเมินความแม่นยำดวงวันนี้ ⭐",
+        "altText": "⭐ ประเมินความแม่นยำดวงวันนี้ (Feedback)",
         "contents": {
             "type": "bubble",
             "size": "mega",
@@ -1207,7 +1208,7 @@ def build_feedback_flex() -> dict:
                                 "height": "sm",
                                 "action": {
                                     "type": "postback",
-                                    "label": "⭐⭐⭐ ปานกลาง พอใช้ได้ 🔮",
+                                    "label": "⭐⭐⭐ ปานกลาง ตรงบางเรื่อง 🔮",
                                     "data": "action=feedback_rate&stars=3",
                                     "displayText": "ให้คะแนนความแม่นยำ: 3 ดาว ⭐⭐⭐"
                                 }
@@ -1219,16 +1220,57 @@ def build_feedback_flex() -> dict:
                                 "height": "sm",
                                 "action": {
                                     "type": "postback",
-                                    "label": "⭐ - ⭐⭐ ยังไม่ค่อยตรง / เฉยๆ 💭",
+                                    "label": "⭐⭐ ค่อนข้างเฉยๆ / ยังไม่ค่อยตรง 💭",
                                     "data": "action=feedback_rate&stars=2",
                                     "displayText": "ให้คะแนนความแม่นยำ: 2 ดาว ⭐⭐"
+                                }
+                            },
+                            {
+                                "type": "button",
+                                "style": "secondary",
+                                "color": "#2e1065",
+                                "height": "sm",
+                                "action": {
+                                    "type": "postback",
+                                    "label": "⭐ ไม่ค่อยตรงเท่าไหร่ 🌧️",
+                                    "data": "action=feedback_rate&stars=1",
+                                    "displayText": "ให้คะแนนความแม่นยำ: 1 ดาว ⭐"
                                 }
                             }
                         ]
                     },
-                    {"type": "text", "text": "💡 หลังกดดาว คุณสามารถพิมพ์ข้อความคอมเมนต์หรือข้อเสนอแนะส่งเข้ามาในแชตนี้ได้ทันทีครับ", "size": "xxs", "color": "#94a3b8", "wrap": True, "margin": "md"}
+                    {"type": "text", "text": "💡 หลังกดดาว คุณสามารถพิมพ์ข้อความคอมเมนต์ส่งเข้ามาในแชตนี้ได้ทันที หรือแตะปุ่มด้านล่างเพื่อเขียนบนเว็บครับ", "size": "xxs", "color": "#94a3b8", "wrap": True, "margin": "md"}
+                ]
+            },
+            "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#0d0620",
+                "paddingAll": "14px",
+                "paddingTop": "0px",
+                "contents": [
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#7c3aed",
+                        "height": "sm",
+                        "action": {
+                            "type": "uri",
+                            "label": "📝 เปิดแบบประเมินละเอียดบนเว็บ",
+                            "uri": f"{web_url}#feedback"
+                        }
+                    }
                 ]
             }
+        },
+        "quickReply": {
+            "items": [
+                {"type": "action", "action": {"type": "postback", "label": "⭐⭐⭐⭐⭐ 5 ดาว", "data": "action=feedback_rate&stars=5", "displayText": "ให้คะแนน 5 ดาว ⭐⭐⭐⭐⭐"}},
+                {"type": "action", "action": {"type": "postback", "label": "⭐⭐⭐⭐ 4 ดาว", "data": "action=feedback_rate&stars=4", "displayText": "ให้คะแนน 4 ดาว ⭐⭐⭐⭐"}},
+                {"type": "action", "action": {"type": "postback", "label": "⭐⭐⭐ 3 ดาว", "data": "action=feedback_rate&stars=3", "displayText": "ให้คะแนน 3 ดาว ⭐⭐⭐"}},
+                {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวงวันนี้", "text": "สรุปดวงวันนี้"}},
+                {"type": "action", "action": {"type": "uri", "label": "📝 เขียนบนเว็บ", "uri": f"{web_url}#feedback"}}
+            ]
         }
     }
 
