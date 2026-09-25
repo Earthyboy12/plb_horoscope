@@ -149,6 +149,32 @@ def get_postback_meta(user: dict) -> str:
     name = user.get("name", "ผู้ใช้")
     return f"&b={b_date}&t={b_time}&p={b_prov}&tp={t_prov}&cc={cc}&st={st}&ld={ld}&n={name}"
 
+
+def make_liff_url(base_url: str, user: dict = None, extra_query: str = "") -> str:
+    """Build a LIFF URL embedding user id, check_count, streak, and birth chart parameters."""
+    if not base_url:
+        return ""
+    import urllib.parse
+    user = user or {}
+    uid = user.get("line_user_id", "")
+    cc = user.get("check_count", 0)
+    st = user.get("streak", 1)
+    ld = user.get("last_check_date", "")
+    n = urllib.parse.quote(str(user.get("name", "ผู้ใช้")))
+    b = user.get("birth_date", "")
+    t = user.get("birth_time", "")
+    p = urllib.parse.quote(str(user.get("birth_province", "กรุงเทพมหานคร")))
+    tp = urllib.parse.quote(str(user.get("transit_province", user.get("birth_province", "กรุงเทพมหานคร"))))
+    
+    clean_base = base_url.split("?")[0]
+    res = f"{clean_base}?userId={uid}&cc={cc}&st={st}&ld={ld}&n={n}&b={b}&t={t}&p={p}&tp={tp}"
+    if extra_query:
+        if extra_query.startswith("#"):
+            res += extra_query
+        else:
+            res += f"&{extra_query.lstrip('&')}"
+    return res
+
 def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", web_url: str = "https://plb-horoscope.vercel.app") -> dict:
     """Build an Ultra-Premium Royal Gold & Obsidian themed Daily Summary Flex Card."""
     from user_store import get_rank_title
@@ -503,7 +529,7 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
                                 "action": {
                                     "type": "uri",
                                     "label": "⚙️ แก้ไขวันเกิด",
-                                    "uri": f"{liff_url}?userId={user.get('line_user_id','')}" if '?' not in liff_url else liff_url
+                                    "uri": make_liff_url(liff_url, user)
                                 },
                                 "flex": 1
                             },
@@ -3294,7 +3320,7 @@ def build_wallpaper_rewards_flex(user: dict = None, web_url: str = "https://plb-
                     "action": {
                         "type": "uri",
                         "label": "📲 เปิดคลังดาวน์โหลดบนมือถือ",
-                        "uri": f"{web_url}#wallpapers"
+                        "uri": make_liff_url(web_url or "https://plb-horoscope.vercel.app", user, extra_query="#wallpapers")
                     }
                 },
                 {
@@ -3338,7 +3364,7 @@ def build_wallpaper_rewards_flex(user: dict = None, web_url: str = "https://plb-
         "contents": bubble,
         "quickReply": {
             "items": [
-                {"type": "action", "action": {"type": "uri", "label": "📲 ดาวน์โหลดวอลเปเปอร์", "uri": f"{web_url}#wallpapers"}},
+                {"type": "action", "action": {"type": "uri", "label": "📲 ดาวน์โหลดวอลเปเปอร์", "uri": make_liff_url(web_url or "https://plb-horoscope.vercel.app", user, extra_query="#wallpapers")}},
                 {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวงวันนี้", "text": "สรุปดวงประจำวัน"}},
                 {"type": "action", "action": {"type": "message", "label": "📊 สถิติดวง", "text": "สถิติ"}},
                 {"type": "action", "action": {"type": "message", "label": "🥠 เสี่ยงเซียมซี", "text": "เซียมซี"}}

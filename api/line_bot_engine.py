@@ -151,13 +151,17 @@ def parse_birth_info_from_text(text: str):
                 break
     
     cc = 0
-    m_cc = re.search(r'\bcc=(\d+)\b', cleaned)
+    m_cc = re.search(r'\bcc[=:]\s*(\d+)\b', cleaned, re.IGNORECASE)
     if m_cc:
         cc = int(m_cc.group(1))
     st = 1
-    m_st = re.search(r'\bst=(\d+)\b', cleaned)
+    m_st = re.search(r'\bst[=:]\s*(\d+)\b', cleaned, re.IGNORECASE)
     if m_st:
         st = int(m_st.group(1))
+    ld = ""
+    m_ld = re.search(r'\bld[=:]\s*([\d-]+)\b', cleaned, re.IGNORECASE)
+    if m_ld:
+        ld = m_ld.group(1).strip()
 
     res = {
         "birth_date": bdate,
@@ -173,6 +177,8 @@ def parse_birth_info_from_text(text: str):
         res["check_count"] = cc
     if st > 1:
         res["streak"] = st
+    if ld:
+        res["last_check_date"] = ld
     return res
 
 DEFAULT_FEEDBACK_WEBHOOK = "https://script.google.com/macros/s/AKfycbwBA-NdVNPQSC_M-a_dMWinkH1-5zSADD0xxkXJkE42TYIa-fvQNGMrVoq2Yu5zJ1_-6A/exec"
@@ -334,8 +340,16 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
     if not user_id:
         return
     
-    liff_param = f"?userId={user_id}"
-    liff_url = f"https://liff.line.me/{liff_id}{liff_param}" if liff_id else f"{web_url}/liff-register.html{liff_param}"
+    user = get_user(user_id)
+    is_registered = bool(user and user.get("registered", False))
+
+    try:
+        from line_flex_builder import make_liff_url
+    except ImportError:
+        from api.line_flex_builder import make_liff_url
+    
+    base_raw_liff = f"https://liff.line.me/{liff_id}" if liff_id else f"{web_url}/liff-register.html"
+    liff_url = make_liff_url(base_raw_liff, user or {"line_user_id": user_id})
 
     def reply(messages: list):
         return reply_line_message(reply_token, messages, channel_access_token, user_id=user_id)
@@ -345,9 +359,6 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
         welcome_flex = build_welcome_flex(liff_url)
         reply([welcome_flex])
         return
-    
-    user = get_user(user_id)
-    is_registered = bool(user and user.get("registered", False))
     
     # Helper for unregistered users
     def prompt_registration():
@@ -381,6 +392,16 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
         # Check Natural Chat Registration / LIFF auto-messages e.g. "เกิด 12/08/2538 08:30 กทม"
         parsed_natal = parse_birth_info_from_text(text)
         if parsed_natal:
+            existing_user = get_user(user_id) or {}
+            if existing_user:
+                parsed_natal['check_count'] = max(parsed_natal.get('check_count', 0), existing_user.get('check_count', 0))
+                parsed_natal['streak'] = max(parsed_natal.get('streak', 1), existing_user.get('streak', 1))
+                if existing_user.get('history') and not parsed_natal.get('history'):
+                    parsed_natal['history'] = existing_user.get('history')
+                if existing_user.get('last_check_date') and not parsed_natal.get('last_check_date'):
+                    parsed_natal['last_check_date'] = existing_user.get('last_check_date')
+                if existing_user.get('name') and not parsed_natal.get('name'):
+                    parsed_natal['name'] = existing_user.get('name')
             user = save_user(user_id, parsed_natal)
             is_registered = True
             horoscope = compute_user_horoscope(user)
@@ -389,11 +410,36 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             reply([
                 {
                     "type": "text",
-                    "text": f"🎉 บันทึกข้อมูลและผูกดวงชะตาสำเร็จแล้วครับ!\n📅 วันเกิด: {user.get('birth_date')}\n⏰ เวลา: {user.get('birth_time')} น.\n📍 จังหวัดเกิด/จร: {user.get('birth_province')}\n\nนี่คือสรุปดวงประจำวันและลัคนาราศีเฉพาะตัวของคุณครับ ✨"
+                    "text": f"🎉 บันทึกข้อมูลและผูกดวงชะตาสำเร็จแล้วครับ!\n📅 วันเกิด: {user.get('birth_date')}\n⏰ เวลา: {user.get('birth_time')} น.\n📍 จังหวัดเกิด: {user.get('birth_province')}\n🧭 สถานที่จร: {user.get('transit_province')}\n👑 สถิติวาสนาสะสม: {user.get('check_count', 1)} ครั้ง (ระดับ {user.get('check_count', 1)})\n\nนี่คือสรุปดวงประจำวันและลัคนาราศีเฉพาะตัวของคุณครับ ✨"
                 },
                 summary_flex
             ])
             return
+
+        # Check Stat Recovery / Sync command
+        if any(k in text_lower for k in ["กู้คืนสถิติ", "กู้สถิติ", "ตั้งค่าสถิติ", "เซ็ตสถิติ", "restore_stats"]):
+            m_set = re.search(r'(?:cc[=:]\s*|สถิติ\s*|ครั้งที่\s*|\s+)(\d+)', text_lower)
+            if m_set:
+                new_c = int(m_set.group(1))
+                if not user:
+                    user = save_user(user_id, {"check_count": new_c, "registered": True})
+                else:
+                    user["check_count"] = new_c
+                    try:
+                        from user_store import _save_cache
+                    except ImportError:
+                        from api.user_store import _save_cache
+                    _save_cache()
+                try:
+                    from user_store import get_rank_title
+                except ImportError:
+                    from api.user_store import get_rank_title
+                rnk = get_rank_title(new_c, user.get("streak", 1) if user else 1)
+                reply([{
+                    "type": "text",
+                    "text": f"👑 ซิงค์สถิติดวงสำเร็จแล้วครับ!\n\n🔢 สถิติตรวจดวงสะสม: {new_c} ครั้ง\n🎖️ ระดับปัจจุบัน: {rnk['title']} ({rnk['badge']})\n\nระบบบันทึกข้อมูลผูกกับบัญชี LINE ของคุณเรียบร้อยแล้วครับ ✨"
+                }])
+                return
 
         # Check Personal Astro Stats & Streak Gimmick (สถิติดวงย้อนหลัง & กราฟ 7 วัน)
         if any(k in text_lower for k in ["stats", "สถิติ", "ประวัติ", "กี่ครั้ง", "streak", "ย้อนหลัง", "กิมมิก", "คะแนนย้อนหลัง"]):
@@ -433,6 +479,13 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
         if text.startswith("จร ") or text.startswith("เปลี่ยนที่จร "):
             parts = text.split(maxsplit=1)
             target_prov = parts[1].strip() if len(parts) > 1 else ""
+            
+            m_cc = re.search(r'\bcc[=:]\s*(\d+)\b', text, re.IGNORECASE)
+            m_st = re.search(r'\bst[=:]\s*(\d+)\b', text, re.IGNORECASE)
+            incoming_cc = int(m_cc.group(1)) if m_cc else 0
+            incoming_st = int(m_st.group(1)) if m_st else 1
+            target_prov = re.sub(r'\b(?:cc|st|ld)[=:]\S+', '', target_prov).strip()
+            
             matched_prov = None
             for p in PROVINCES_DICT.keys():
                 if target_prov in p or p in target_prov:
@@ -441,8 +494,16 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             
             if matched_prov:
                 if not user:
-                    user = save_user(user_id, {"transit_province": matched_prov})
+                    user = save_user(user_id, {
+                        "transit_province": matched_prov,
+                        "check_count": incoming_cc,
+                        "streak": incoming_st
+                    })
                 else:
+                    if incoming_cc > user.get("check_count", 0):
+                        user["check_count"] = incoming_cc
+                    if incoming_st > user.get("streak", 1):
+                        user["streak"] = incoming_st
                     user = update_transit_location(user_id, matched_prov)
                 
                 # Compute updated horoscope

@@ -232,9 +232,14 @@ class HoroscopeHandler(http.server.SimpleHTTPRequestHandler):
                     try:
                         horoscope = compute_user_horoscope(user)
                         user = record_user_check(user_id, horoscope.get("overallScore", 80)) or get_user(user_id) or user
+                        try:
+                            from line_flex_builder import make_liff_url
+                        except ImportError:
+                            from api.line_flex_builder import make_liff_url
+                        liff_target = f"https://liff.line.me/{liff_id}" if liff_id else f"{web_url}/liff-register.html"
                         summary_flex = build_daily_summary_flex(
                             user, horoscope,
-                            f"https://liff.line.me/{liff_id}?userId={user_id}" if liff_id else f"{web_url}/liff-register.html?userId={user_id}",
+                            make_liff_url(liff_target, user),
                             web_url
                         )
                         if action == "update_transit":

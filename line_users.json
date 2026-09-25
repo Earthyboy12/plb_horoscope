@@ -12,21 +12,7 @@
     "registered": true,
     "check_count": 6,
     "streak": 2,
-    "last_check_date": "2026-09-25",
-    "history": [
-      {
-        "date": "2026-09-24",
-        "score": 85,
-        "time": "16:23"
-      },
-      {
-        "date": "2026-09-25",
-        "score": 85,
-        "time": "09:32"
-      }
-    ],
-    "created_at": "2026-09-24T13:42:29.454052",
-    "updated_at": "2026-09-25T09:32:15.747979"
+    "last_check_date": "2026-09-25"
   },
   "test_user_earth": {
     "line_user_id": "test_user_earth",
@@ -41,8 +27,6 @@
     "registered": true,
     "check_count": 0,
     "streak": 1,
-    "last_check_date": "",
-    "created_at": "2026-09-25T08:34:07.970311",
-    "updated_at": "2026-09-25T08:34:07.970311"
+    "last_check_date": ""
   }
 }

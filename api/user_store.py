@@ -228,7 +228,14 @@ def update_transit_location(line_user_id: str, transit_province: str, transit_di
     """Update current transit location for the user."""
     user = _USER_CACHE.get(line_user_id)
     if not user:
-        return None
+        _load_cache()
+        user = _USER_CACHE.get(line_user_id)
+    if not user:
+        user = save_user(line_user_id, {
+            "transit_province": transit_province,
+            "transit_district": transit_district
+        })
+        return user
     
     now = datetime.datetime.now().isoformat()
     user["transit_province"] = transit_province

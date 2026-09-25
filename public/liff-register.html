@@ -1029,6 +1029,49 @@
       const urlParams = new URLSearchParams(window.location.search);
       let userId = urlParams.get('userId') || localStorage.getItem('plb_line_user_id') || "";
 
+      // Parse parameters passed from LINE chat
+      const urlCc = parseInt(urlParams.get('cc') || '0', 10);
+      const urlSt = parseInt(urlParams.get('st') || '0', 10);
+      const urlLd = urlParams.get('ld') || '';
+      const urlName = urlParams.get('n') || '';
+      const urlB = urlParams.get('b') || '';
+      const urlT = urlParams.get('t') || '';
+      const urlP = urlParams.get('p') || '';
+      const urlTp = urlParams.get('tp') || '';
+
+      if (urlCc > 0 || urlB || urlP) {
+        let existingLocal = {};
+        try {
+          existingLocal = JSON.parse(localStorage.getItem('plb_user_profile') || '{}');
+        } catch(e) {}
+        const mergedUser = { ...existingLocal };
+        if (urlCc > 0) mergedUser.check_count = Math.max(existingLocal.check_count || existingLocal.cc || 0, urlCc);
+        if (urlSt > 0) mergedUser.streak = Math.max(existingLocal.streak || existingLocal.st || 1, urlSt);
+        if (urlLd) mergedUser.last_check_date = urlLd;
+        if (urlName && !mergedUser.name) mergedUser.name = urlName;
+        if (urlB && !mergedUser.birthDate) {
+          mergedUser.birthDate = urlB;
+          mergedUser.birth_date = urlB;
+        }
+        if (urlT && !mergedUser.birthTime) {
+          mergedUser.birthTime = urlT;
+          mergedUser.birth_time = urlT;
+        }
+        if (urlP && !mergedUser.birthProvince) {
+          mergedUser.birthProvince = urlP;
+          mergedUser.birth_province = urlP;
+          mergedUser.province = urlP;
+        }
+        if (urlTp) {
+          mergedUser.transitProvince = urlTp;
+          mergedUser.transit_province = urlTp;
+        }
+        try {
+          localStorage.setItem('plb_user_profile', JSON.stringify(mergedUser));
+          localStorage.setItem('plb_horo_birth_v4', JSON.stringify(mergedUser));
+        } catch(e) {}
+      }
+
       if (window.location.hash === '#transit') {
         switchTab('transit');
       }
@@ -1068,6 +1111,46 @@
     }
 
     // Load from localStorage for instant offline/reopen persistence
+    
+    function updateUserStatsBadge() {
+      try {
+        const raw = localStorage.getItem('plb_user_profile') || localStorage.getItem('plb_horo_birth_v4');
+        const urlParams = new URLSearchParams(window.location.search);
+        let cc = parseInt(urlParams.get('cc') || '0', 10);
+        let st = parseInt(urlParams.get('st') || '1', 10);
+        let uName = urlParams.get('n') || "ผู้ใช้";
+        if (raw) {
+          const u = JSON.parse(raw);
+          cc = Math.max(cc, u.check_count || u.cc || 0);
+          st = Math.max(st, u.streak || u.st || 1);
+          if (u.name) uName = u.name;
+        }
+
+        const badgeEl = document.getElementById('userStatsBadge');
+        if (badgeEl && cc > 0) {
+          badgeEl.classList.remove('hidden');
+          const titleEl = document.getElementById('badgeRankTitle');
+          const ccEl = document.getElementById('badgeCheckCount');
+          const iconEl = document.getElementById('badgeRankIcon');
+
+          let rankTitle = "🌱 ระดับ 1 • สมาชิกใหม่";
+          let icon = "🌱";
+          if (cc >= 50 || st >= 21) { rankTitle = "👑 ระดับ 7 • มหาจักรพรรดิ์สายมู"; icon = "👑"; }
+          else if (cc >= 35 || st >= 15) { rankTitle = "🔮 ระดับ 6 • จอมเวทนพเคราะห์"; icon = "🔮"; }
+          else if (cc >= 21 || st >= 11) { rankTitle = "🌌 ระดับ 5 • ปรมาจารย์ดาราศาสตร์"; icon = "🌌"; }
+          else if (cc >= 14 || st >= 7) { rankTitle = "🧭 ระดับ 4 • โหราธิบดีผู้ชี้ทาง"; icon = "🧭"; }
+          else if (cc >= 7 || st >= 4) { rankTitle = "🌟 ระดับ 3 • ผู้หยั่งรู้กระแสดวง"; icon = "🌟"; }
+          else if (cc >= 3 || st >= 2) { rankTitle = "⚡ ระดับ 2 • นักสำรวจดวงชะตา"; icon = "⚡"; }
+
+          if (titleEl) titleEl.textContent = rankTitle;
+          if (ccEl) ccEl.textContent = `ตรวจสะสม ${cc} ครั้ง (ต่อเนื่อง ${st} วัน)`;
+          if (iconEl) iconEl.textContent = icon;
+        }
+      } catch(e) {
+        console.warn("updateUserStatsBadge note:", e);
+      }
+    }
+
     function loadFromLocalStorage() {
       try {
         const raw = localStorage.getItem('plb_user_profile') || localStorage.getItem('plb_horo_birth_v4');
@@ -1137,8 +1220,17 @@
               onNatalTransitProvinceChange();
             }
           }
-          // Save to local storage as well
-          localStorage.setItem('plb_user_profile', JSON.stringify(u));
+          // Safely merge with existing local profile so stats are never reset
+          let existingLocal = {};
+          try {
+            existingLocal = JSON.parse(localStorage.getItem('plb_user_profile') || '{}');
+          } catch(e) {}
+          const mergedUser = { ...existingLocal, ...u };
+          mergedUser.check_count = Math.max(existingLocal.check_count || existingLocal.cc || 0, u.check_count || u.cc || 0);
+          mergedUser.streak = Math.max(existingLocal.streak || existingLocal.st || 1, u.streak || u.st || 1);
+          localStorage.setItem('plb_user_profile', JSON.stringify(mergedUser));
+          localStorage.setItem('plb_horo_birth_v4', JSON.stringify(mergedUser));
+          updateUserStatsBadge();
         }
       } catch (e) {
         console.log("Load user error:", e);
@@ -1156,7 +1248,9 @@
         const dist = u.birthDistrict || u.birth_district || u.district || "";
         const tProv = u.transitProvince || u.transit_province || prov;
 
-        latestLineChatMsg = `เกิด ${bDate} ${bTime} ${prov} ${dist} จร ${tProv}` + (checkCount > 0 ? ` cc=${checkCount} st=${streak}` : '');
+        const uCc = u.check_count || u.cc || 0;
+        const uSt = u.streak || u.st || 1;
+        latestLineChatMsg = `เกิด ${bDate} ${bTime} ${prov} ${dist} จร ${tProv}` + (uCc > 0 ? ` cc=${uCc} st=${uSt}` : '');
         goToLineChat();
       } else {
         alert("กรุณากรอกข้อมูลดวงชะตาและกดบันทึกด้านล่างก่อนครับ ✨");
@@ -1253,8 +1347,10 @@
         });
         const resData = await res.json();
         
-        // Structured natural chat trigger format for LINE bot
-        latestLineChatMsg = `เกิด ${bDate} ${bTime} ${prov} ${dist} จร ${tProv}`;
+        // Structured natural chat trigger format with preserved stats token
+        const finalCc = Math.max(checkCount, parseInt(new URLSearchParams(window.location.search).get('cc') || '0', 10));
+        const finalSt = Math.max(streak, parseInt(new URLSearchParams(window.location.search).get('st') || '1', 10));
+        latestLineChatMsg = `เกิด ${bDate} ${bTime} ${prov} ${dist} จร ${tProv} cc=${finalCc} st=${finalSt}` + (lastCheckDate ? ` ld=${lastCheckDate}` : '');
 
         if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
           try {
@@ -1272,7 +1368,7 @@
         showSuccess("บันทึกข้อมูลดวงกำเนิดและสถานที่จรสำเร็จแล้ว! ระบบจำข้อมูลในเครื่องของคุณเรียบร้อยแล้วครับ", payload);
       } catch (err) {
         // Even if offline, local storage has it!
-        latestLineChatMsg = `เกิด ${bDate} ${bTime} ${prov} ${dist} จร ${tProv}`;
+        latestLineChatMsg = `เกิด ${bDate} ${bTime} ${prov} ${dist} จร ${tProv} cc=${finalCc} st=${finalSt}`;
         showSuccess("บันทึกข้อมูลดวงชะตาลงในเครื่องของคุณสำเร็จเรียบร้อยแล้วครับ ✨", payload);
       }
     }
@@ -1318,7 +1414,10 @@
         });
       } catch (err) {}
 
-      latestLineChatMsg = `จร ${prov}`;
+      const curProfile = JSON.parse(localStorage.getItem('plb_user_profile') || '{}');
+      const curCc = curProfile.check_count || curProfile.cc || parseInt(new URLSearchParams(window.location.search).get('cc') || '0', 10);
+      const curSt = curProfile.streak || curProfile.st || parseInt(new URLSearchParams(window.location.search).get('st') || '1', 10);
+      latestLineChatMsg = `จร ${prov} cc=${curCc} st=${curSt}`;
       if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
         try {
           await liff.sendMessages([{ type: 'text', text: latestLineChatMsg }]);
