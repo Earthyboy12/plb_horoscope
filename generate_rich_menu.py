@@ -145,6 +145,19 @@ def draw_polar_bear_face(draw, cx, cy, size=180, accessory="star"):
         # 5-Star Golden Badge
         star_y = cy + int(size * 0.65)
         draw_star(draw, cx, star_y, int(size*0.44), int(size*0.22), fill=(251, 191, 36), outline=(245, 158, 11), width=3)
+    elif accessory == "siamsee":
+        # Bamboo fortune cylinder & sticks
+        cyl_y = cy + int(size * 0.62)
+        cyl_w = int(size * 0.30)
+        cyl_h = int(size * 0.36)
+        # Red & gold lucky sticks
+        draw.line([cx - int(cyl_w*0.5), cyl_y - cyl_h//2, cx - int(cyl_w*0.7), cyl_y - cyl_h//2 - int(size*0.35)], fill=(239, 68, 68), width=7)
+        draw.line([cx, cyl_y - cyl_h//2, cx, cyl_y - cyl_h//2 - int(size*0.42)], fill=(251, 191, 36), width=7)
+        draw.line([cx + int(cyl_w*0.5), cyl_y - cyl_h//2, cx + int(cyl_w*0.7), cyl_y - cyl_h//2 - int(size*0.35)], fill=(239, 68, 68), width=7)
+        # Bamboo cylinder
+        draw.rounded_rectangle([cx - cyl_w, cyl_y - cyl_h//2, cx + cyl_w, cyl_y + cyl_h//2], radius=12, fill=(180, 83, 9), outline=(251, 191, 36), width=4)
+        # Gold emblem on cylinder
+        draw_star(draw, cx, cyl_y, int(size*0.14), int(size*0.07), fill=(254, 240, 138))
     elif accessory == "coffee":
         # Hot coffee cup with steam
         cup_y = cy + int(size * 0.65)
@@ -228,15 +241,15 @@ def generate_cute_polar_rich_menu(output_path="rich_menu.png"):
         },
         {
             "rect": (852, 855, 1648, 1654),
-            "bg": (32, 20, 68, 255),
+            "bg": (38, 18, 68, 255),
             "border": (192, 132, 252, 230),
-            "tag_text": "แม่นแค่ไหน",
+            "tag_text": "28 ใบมงคล",
             "tag_color": (192, 132, 252),
-            "tag_icon": "rating",
-            "title": "ให้ Feedback",
-            "sub": "ประเมินความแม่น • ติชมแม่หมอ",
-            "btn_text": "แตะร่วมประเมินผล",
-            "bear_type": "rating",
+            "tag_icon": "star",
+            "title": "เสี่ยงเซียมซี",
+            "sub": "เขย่าลุ้นดวง • เซียมซีโบราณ",
+            "btn_text": "แตะเขย่าเซียมซี",
+            "bear_type": "siamsee",
             "use_logo": False
         },
         {

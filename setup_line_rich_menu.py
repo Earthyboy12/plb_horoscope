@@ -60,13 +60,13 @@ RICH_MENU_SCHEMA = {
                 "text": "แชร์ให้เพื่อน"
             }
         },
-        # 5. Bottom-Center: ให้ feedback
+        # 5. Bottom-Center: เสี่ยงเซียมซี
         {
             "bounds": {"x": 833, "y": 843, "width": 834, "height": 843},
             "action": {
                 "type": "message",
-                "label": "ให้ feedback",
-                "text": "ให้ feedback"
+                "label": "เสี่ยงเซียมซี",
+                "text": "เซียมซี"
             }
         },
         # 6. Bottom-Right: สนับสนุนแม่หมอ
