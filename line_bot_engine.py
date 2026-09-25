@@ -569,7 +569,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             return
 
         # Check Siamsee / Daily Fortune Oracle ("เซียมซี", "เสี่ยงเซียมซี", "ไพ่ประจำวัน", "ออราเคิล", "siamsee")
-        if any(k in text_lower for k in ["เซียมซี", "เสี่ยงเซียมซี", "ไพ่ประจำวัน", "ออราเคิล", "เสี่ยงทาย", "siamsee"]):
+        if any(k in text_lower for k in ["เซียมซี", "เสี่ยงเซียมซี", "เขย่าเซียมซี", "ใบเซียมซี", "เซียมซีเสี่ยงทาย", "ไพ่ประจำวัน", "ออราเคิล", "เสี่ยงทาย", "siamsee", "siamsi"]):
             siamsee_flex = build_siamsee_flex(user=user)
             reply([siamsee_flex])
             return
@@ -831,6 +831,11 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                     ]
                 }
             }])
+            
+        elif action == "siamsee":
+            siamsee_flex = build_siamsee_flex(user=user)
+            reply([siamsee_flex])
+            return
             
         elif action == "feedback_rate":
             stars = int(params.get("stars", 5))

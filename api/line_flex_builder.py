@@ -579,9 +579,10 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
         "quickReply": {
             "items": [
                 {"type": "action", "action": {"type": "message", "label": "🔮 เลือกหมวดดูดวง", "text": "เลือกหมวดอยากจะดูหมวดไหน"}},
-                {"type": "action", "action": {"type": "message", "label": "📊 สถิติดวง", "text": "สถิติ"}},
+                {"type": "action", "action": {"type": "message", "label": "🥠 เสี่ยงเซียมซี", "text": "เซียมซี"}},
                 {"type": "action", "action": {"type": "message", "label": "🎰 ขอเลขเด็ด", "text": "ขอเลขเด็ด"}},
                 {"type": "action", "action": {"type": "message", "label": "👕 สีเสื้อมงคล", "text": "สีเสื้อมงคล"}},
+                {"type": "action", "action": {"type": "message", "label": "📊 สถิติดวง", "text": "สถิติ"}},
                 {"type": "action", "action": {"type": "message", "label": "📍 เปลี่ยนที่จร", "text": "เปลี่ยนสถานที่จร"}}
             ]
         }
@@ -881,6 +882,15 @@ def build_stats_flex(user: dict, horoscope: dict, days_history: list = None) -> 
                     }
                 ]
             }
+        },
+        "quickReply": {
+            "items": [
+                {"type": "action", "action": {"type": "message", "label": "🔮 เลือกหมวดดูดวง", "text": "เลือกหมวดอยากจะดูหมวดไหน"}},
+                {"type": "action", "action": {"type": "message", "label": "🥠 เสี่ยงเซียมซี", "text": "เซียมซี"}},
+                {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวงวันนี้", "text": "สรุปดวงประจำวัน"}},
+                {"type": "action", "action": {"type": "message", "label": "🎰 ขอเลขเด็ด", "text": "ขอเลขเด็ด"}},
+                {"type": "action", "action": {"type": "message", "label": "👕 สีเสื้อมงคล", "text": "สีเสื้อมงคล"}}
+            ]
         }
     }
 
@@ -971,6 +981,18 @@ def build_category_menu_flex(web_url: str = "https://plb-horoscope.vercel.app", 
                             "label": "🩺 ดูหมวดสุขภาพ & เตือนภัย",
                             "data": f"action=category&cat=health{pb_meta}" if pb_meta else "สุขภาพ",
                             "displayText": "สุขภาพ"
+                        }
+                    },
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#7c3aed",
+                        "height": "sm",
+                        "action": {
+                            "type": "postback" if pb_meta else "message",
+                            "label": "🥠 เสี่ยงเซียมซีพยากรณ์",
+                            "data": f"action=siamsee{pb_meta}" if pb_meta else "เซียมซี",
+                            "displayText": "เซียมซี"
                         }
                     },
                     {
@@ -1502,6 +1524,14 @@ def get_category_quick_reply() -> dict:
     """Return Quick Reply items for category selection."""
     return {
         "items": [
+            {
+                "type": "action",
+                "action": {
+                    "type": "message",
+                    "label": "🥠 เสี่ยงเซียมซี",
+                    "text": "เซียมซี"
+                }
+            },
             {
                 "type": "action",
                 "action": {

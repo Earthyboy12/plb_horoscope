@@ -10,7 +10,7 @@
     "transit_province": "เชียงใหม่",
     "transit_district": "อำเภอเมืองเชียงใหม่",
     "registered": true,
-    "check_count": 8,
+    "check_count": 9,
     "streak": 2,
     "last_check_date": "2026-09-25",
     "history": [
@@ -23,10 +23,15 @@
         "date": "2026-09-25",
         "score": 85,
         "time": "11:32"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "11:38"
       }
     ],
     "created_at": "2026-09-25T11:07:04.307506",
-    "updated_at": "2026-09-25T11:32:41.763687"
+    "updated_at": "2026-09-25T11:38:53.323050"
   },
   "test_user_earth": {
     "line_user_id": "test_user_earth",
