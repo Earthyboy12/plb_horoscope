@@ -597,7 +597,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             return
 
         # Check Donation
-        if any(k in text_lower for k in ["donate", "สนับสนุน", "บริจาค", "ทำบุญ", "4"]):
+        if any(k in text_lower for k in ["donate", "สนับสนุน", "บริจาค", "ทำบุญ", "แม่หมอ", "เลี้ยงกาแฟ", "4"]):
             qr_url = "https://plb-horoscope.vercel.app/qr_donate.jpg"
             image_msg = {
                 "type": "image",

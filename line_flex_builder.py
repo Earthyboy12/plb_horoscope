@@ -2738,6 +2738,38 @@ def build_lottery_special_flex(web_url: str = "https://plb-horoscope.vercel.app"
                 },
                 {
                     "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#291334",
+                    "cornerRadius": "10px",
+                    "paddingAll": "10px",
+                    "borderColor": "#f43f5e",
+                    "borderWidth": "1px",
+                    "action": {
+                        "type": "message",
+                        "text": "สนับสนุนแม่หมอ"
+                    },
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "alignItems": "center",
+                            "contents": [
+                                {"type": "text", "text": "💖 แอบกระซิบจากใจน้องหมี:", "size": "xxs", "color": "#fda4af", "weight": "bold", "flex": 1},
+                                {"type": "text", "text": "เลี้ยงกาแฟ ☕", "size": "xxs", "color": "#fb7185", "align": "end"}
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "text": "ถ้าใครถูกหวยงวดนี้ อย่าลืมแวะมาสนับสนุนแม่หมอนะ 5555 ขอให้เฮง ๆ รวย ๆ ถ้วนหน้าครับ! 🐻‍❄️💸✨",
+                            "size": "xxs",
+                            "color": "#ffe4e6",
+                            "wrap": True,
+                            "margin": "xs"
+                        }
+                    ]
+                },
+                {
+                    "type": "box",
                     "layout": "horizontal",
                     "alignItems": "center",
                     "justifyContent": "center",
@@ -2818,16 +2850,36 @@ def build_lottery_special_flex(web_url: str = "https://plb-horoscope.vercel.app"
                     ]
                 },
                 {
-                    "type": "button",
-                    "style": "secondary",
-                    "color": "#1e293b",
-                    "height": "sm",
+                    "type": "box",
+                    "layout": "horizontal",
+                    "spacing": "xs",
                     "margin": "xs",
-                    "action": {
-                        "type": "uri",
-                        "label": "👥 ส่งต่อโชคลาภให้เพื่อน",
-                        "uri": "https://line.me/R/nv/recommendOA/@374xcoto"
-                    }
+                    "contents": [
+                        {
+                            "type": "button",
+                            "style": "secondary",
+                            "color": "#831843",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "☕ สนับสนุนแม่หมอ",
+                                "text": "สนับสนุนแม่หมอ"
+                            },
+                            "flex": 1
+                        },
+                        {
+                            "type": "button",
+                            "style": "secondary",
+                            "color": "#1e293b",
+                            "height": "sm",
+                            "action": {
+                                "type": "uri",
+                                "label": "👥 ชวนเพื่อนรับโชค",
+                                "uri": "https://line.me/R/nv/recommendOA/@374xcoto"
+                            },
+                            "flex": 1
+                        }
+                    ]
                 }
             ]
         }
@@ -2835,11 +2887,12 @@ def build_lottery_special_flex(web_url: str = "https://plb-horoscope.vercel.app"
 
     return {
         "type": "flex",
-        "altText": f"🎫 พิเศษวันหวยออก! เปิดขุมทรัพย์เลขเด็ด & ทิศรับทรัพย์ {date_str} กับน้องหมี PLB 💰✨",
+        "altText": f"🎫 พิเศษวันหวยออก! ถ้าใครถูกหวยอย่าลืมสนับสนุนแม่หมอนะ 5555 เปิดเลขเด็ด {date_str} กับน้องหมี PLB 💰✨",
         "contents": bubble,
         "quickReply": {
             "items": [
                 {"type": "action", "action": {"type": "message", "label": "🎰 ขอเลขเด็ด", "text": "ขอเลขเด็ด"}},
+                {"type": "action", "action": {"type": "message", "label": "☕ สนับสนุนแม่หมอ", "text": "สนับสนุนแม่หมอ"}},
                 {"type": "action", "action": {"type": "message", "label": "👕 สีเสื้อมงคล", "text": "สีเสื้อมงคล"}},
                 {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวงวันนี้", "text": "สรุปดวงประจำวัน"}},
                 {"type": "action", "action": {"type": "message", "label": "🥠 เสี่ยงเซียมซี", "text": "เซียมซี"}},
