@@ -849,6 +849,28 @@ def build_category_menu_flex(web_url: str = "https://plb-horoscope.vercel.app") 
                             "label": "🩺 ดูหมวดสุขภาพ & เตือนภัย",
                             "text": "สุขภาพ"
                         }
+                    },
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#d97706",
+                        "height": "sm",
+                        "action": {
+                            "type": "message",
+                            "label": "🎰 ขอเลขเด็ด & เลขมงคล",
+                            "text": "ขอเลขเด็ด"
+                        }
+                    },
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#4f46e5",
+                        "height": "sm",
+                        "action": {
+                            "type": "message",
+                            "label": "👕 ตารางสีเสื้อมงคล",
+                            "text": "สีเสื้อมงคล"
+                        }
                     }
                 ]
             },
@@ -1313,6 +1335,22 @@ def get_category_quick_reply() -> dict:
                 "type": "action",
                 "action": {
                     "type": "message",
+                    "label": "🎰 ขอเลขเด็ด",
+                    "text": "ขอเลขเด็ด"
+                }
+            },
+            {
+                "type": "action",
+                "action": {
+                    "type": "message",
+                    "label": "👕 สีเสื้อมงคล",
+                    "text": "สีเสื้อมงคล"
+                }
+            },
+            {
+                "type": "action",
+                "action": {
+                    "type": "message",
                     "label": "💼 การงาน",
                     "text": "การงาน"
                 }
@@ -1421,3 +1459,579 @@ def build_share_flex(web_url: str = "https://plb-horoscope.vercel.app") -> dict:
         }
     }
 
+
+
+def build_lucky_numbers_flex(user: dict, horoscope: dict, web_url: str = "https://plb-horoscope.vercel.app") -> dict:
+    """Build a specialized luxury Flex card for lucky numbers and lottery."""
+    web_url = web_url or "https://plb-horoscope.vercel.app"
+    lucky_info = horoscope.get("luckyInfo", {})
+    nums = lucky_info.get("luckyNumbers", [9, 5, 1, 8])
+    if len(nums) < 4:
+        nums = [9, 5, 1, 8]
+    
+    user_name = user.get("name", "ผู้ใช้") if user else "ผู้ใช้"
+    asc_name = horoscope.get("natalChart", {}).get("ascendant", {}).get("signName", "เมษ")
+    day_lord = lucky_info.get("dailyDayLord", "พระพฤหัสบดี (๕) กำลังเทวดา 19")
+    
+    two_digits = [f"{nums[0]}{nums[1]}", f"{nums[1]}{nums[2]}", f"{nums[2]}{nums[3]}", f"{nums[0]}{nums[3]}"]
+    three_digits = [f"{nums[0]}{nums[1]}{nums[2]}", f"{nums[1]}{nums[2]}{nums[3]}"]
+    
+    ausp_time = lucky_info.get("auspiciousTime", "ช่วงเช้า 09:00 - 11:00 น. (มหัทธโนฤกษ์)")
+    if "(" in ausp_time:
+        time_display = ausp_time.split("(")[0].strip() + " น."
+        time_sub = "(" + ausp_time.split("(", 1)[1]
+        if len(time_sub) > 60:
+            time_sub = time_sub[:57] + "...)"
+    else:
+        time_display = ausp_time
+        time_sub = "ฤกษ์มงคลเปิดทรัพย์"
+
+    direction = lucky_info.get("luckyDirection", "ทิศใต้ (เสริมโชคลาภเงินทอง)")
+    
+    bubble = {
+        "type": "bubble",
+        "size": "mega",
+        "hero": {
+            "type": "image",
+            "url": f"{web_url}/bear_fortune.jpg",
+            "size": "full",
+            "aspectRatio": "20:13",
+            "aspectMode": "cover"
+        },
+        "header": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "16px",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {"type": "text", "text": "🎰 เลขเด็ด & เลขมงคลประจำวัน", "weight": "bold", "color": "#fbbf24", "size": "md", "flex": 1},
+                        {"type": "text", "text": "PLB โหราศาสตร์", "color": "#94a3b8", "size": "xxs", "align": "end"}
+                    ]
+                },
+                {
+                    "type": "text",
+                    "text": f"คำนวณตามมหาทักษา & ดาวจร: คุณ {user_name} (ลัคนา {asc_name})",
+                    "color": "#cbd5e1",
+                    "size": "xs",
+                    "margin": "xs",
+                    "wrap": True
+                }
+            ]
+        },
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#070b19",
+            "paddingAll": "16px",
+            "spacing": "md",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#172554",
+                    "cornerRadius": "10px",
+                    "paddingAll": "10px",
+                    "borderColor": "#3b82f6",
+                    "borderWidth": "1px",
+                    "contents": [
+                        {"type": "text", "text": "🪐 ภูมิเทวดาพระเคราะห์เสวยอายุ & ดาวจร:", "size": "xxs", "color": "#93c5fd", "weight": "bold"},
+                        {"type": "text", "text": day_lord, "size": "xs", "color": "#f8fafc", "weight": "bold", "wrap": True, "margin": "xs"}
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#1e1b4b",
+                    "cornerRadius": "14px",
+                    "paddingAll": "14px",
+                    "borderColor": "#ca8a04",
+                    "borderWidth": "2px",
+                    "alignItems": "center",
+                    "contents": [
+                        {"type": "text", "text": "🌟 เลขเด่นนำโชคประจำวัน 🌟", "size": "xs", "color": "#fde047", "weight": "bold"},
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "margin": "md",
+                            "spacing": "md",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "vertical",
+                                    "backgroundColor": "#d97706",
+                                    "cornerRadius": "12px",
+                                    "paddingAll": "8px",
+                                    "width": "48px",
+                                    "height": "48px",
+                                    "alignItems": "center",
+                                    "justifyContent": "center",
+                                    "contents": [
+                                        {"type": "text", "text": str(nums[0]), "size": "xxl", "color": "#030712", "weight": "bold"}
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "vertical",
+                                    "backgroundColor": "#f59e0b",
+                                    "cornerRadius": "12px",
+                                    "paddingAll": "8px",
+                                    "width": "48px",
+                                    "height": "48px",
+                                    "alignItems": "center",
+                                    "justifyContent": "center",
+                                    "contents": [
+                                        {"type": "text", "text": str(nums[1]), "size": "xxl", "color": "#030712", "weight": "bold"}
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "vertical",
+                                    "backgroundColor": "#fbbf24",
+                                    "cornerRadius": "12px",
+                                    "paddingAll": "8px",
+                                    "width": "48px",
+                                    "height": "48px",
+                                    "alignItems": "center",
+                                    "justifyContent": "center",
+                                    "contents": [
+                                        {"type": "text", "text": str(nums[2]), "size": "xxl", "color": "#030712", "weight": "bold"}
+                                    ]
+                                },
+                                {
+                                    "type": "box",
+                                    "layout": "vertical",
+                                    "backgroundColor": "#fef08a",
+                                    "cornerRadius": "12px",
+                                    "paddingAll": "8px",
+                                    "width": "48px",
+                                    "height": "48px",
+                                    "alignItems": "center",
+                                    "justifyContent": "center",
+                                    "contents": [
+                                        {"type": "text", "text": str(nums[3]), "size": "xxl", "color": "#030712", "weight": "bold"}
+                                    ]
+                                }
+                            ]
+                        },
+                        {"type": "text", "text": lucky_info.get("luckyNumbersDesc", f"เลขเด่น: {nums[0]} และ {nums[1]} • เลขรอง: {nums[2]} และ {nums[3]}"), "size": "xxs", "color": "#fef08a", "margin": "sm", "wrap": True, "align": "center"}
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "spacing": "sm",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "backgroundColor": "#0f172a",
+                            "cornerRadius": "10px",
+                            "paddingAll": "10px",
+                            "flex": 1,
+                            "borderColor": "#334155",
+                            "borderWidth": "1px",
+                            "contents": [
+                                {"type": "text", "text": "🎯 เลขท้าย 2 ตัวเด่น", "size": "xxs", "color": "#38bdf8", "weight": "bold"},
+                                {"type": "text", "text": " • ".join(two_digits), "size": "sm", "color": "#f8fafc", "weight": "bold", "margin": "xs"}
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "backgroundColor": "#0f172a",
+                            "cornerRadius": "10px",
+                            "paddingAll": "10px",
+                            "flex": 1,
+                            "borderColor": "#334155",
+                            "borderWidth": "1px",
+                            "contents": [
+                                {"type": "text", "text": "💎 เลขมงคล 3 ตัว", "size": "xxs", "color": "#ec4899", "weight": "bold"},
+                                {"type": "text", "text": " • ".join(three_digits), "size": "sm", "color": "#f8fafc", "weight": "bold", "margin": "xs"}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#0f172a",
+                    "cornerRadius": "10px",
+                    "paddingAll": "10px",
+                    "borderColor": "#334155",
+                    "borderWidth": "1px",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {"type": "text", "text": "⏰ ฤกษ์เปิดทรัพย์:", "size": "xxs", "color": "#fbbf24", "weight": "bold", "flex": 2},
+                                {"type": "text", "text": time_display, "size": "xxs", "color": "#f8fafc", "weight": "bold", "flex": 3}
+                            ]
+                        },
+                        {"type": "text", "text": time_sub, "size": "xxs", "color": "#94a3b8", "wrap": True, "margin": "xs"},
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "margin": "xs",
+                            "contents": [
+                                {"type": "text", "text": "🧭 ทิศมงคลนำโชค:", "size": "xxs", "color": "#38bdf8", "weight": "bold", "flex": 2},
+                                {"type": "text", "text": direction, "size": "xxs", "color": "#f8fafc", "wrap": True, "flex": 3}
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "14px",
+            "spacing": "xs",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "spacing": "xs",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "style": "primary",
+                            "color": "#4f46e5",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "👕 ดูสีเสื้อมงคล",
+                                "text": "สีเสื้อมงคล"
+                            },
+                            "flex": 1
+                        },
+                        {
+                            "type": "button",
+                            "style": "primary",
+                            "color": "#d97706",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "💰 ดูดวงการเงิน",
+                                "text": "การเงิน"
+                            },
+                            "flex": 1
+                        }
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "spacing": "xs",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "style": "secondary",
+                            "color": "#1e293b",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "🌟 สรุปดวงวันนี้",
+                                "text": "สรุปดวงประจำวัน"
+                            },
+                            "flex": 1
+                        },
+                        {
+                            "type": "button",
+                            "style": "secondary",
+                            "color": "#1e293b",
+                            "height": "sm",
+                            "action": {
+                                "type": "uri",
+                                "label": "👥 แชร์เลขให้เพื่อน",
+                                "uri": "https://line.me/R/nv/recommendOA/@374xcoto"
+                            },
+                            "flex": 1
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+
+    quick_reply = {
+        "items": [
+            {"type": "action", "action": {"type": "message", "label": "👕 สีเสื้อมงคล", "text": "สีเสื้อมงคล"}},
+            {"type": "action", "action": {"type": "message", "label": "💰 การเงิน", "text": "การเงิน"}},
+            {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวง", "text": "สรุปดวงประจำวัน"}},
+            {"type": "action", "action": {"type": "message", "label": "🔮 เลือกหมวด", "text": "เลือกหมวดอยากจะดูหมวดไหน"}},
+            {"type": "action", "action": {"type": "message", "label": "📍 เปลี่ยนที่จร", "text": "เปลี่ยนสถานที่จร"}}
+        ]
+    }
+
+    return {
+        "type": "flex",
+        "altText": f"🎰 เลขเด็ด & เลขมงคลประจำวัน: {nums[0]} - {nums[1]} - {nums[2]} - {nums[3]} ✨",
+        "contents": bubble,
+        "quickReply": quick_reply
+    }
+
+
+def build_lucky_colors_flex(user: dict, horoscope: dict, web_url: str = "https://plb-horoscope.vercel.app") -> dict:
+    """Build a specialized luxury Flex card for daily lucky shirt colors and astrology thaksa."""
+    web_url = web_url or "https://plb-horoscope.vercel.app"
+    lucky_info = horoscope.get("luckyInfo", {})
+    user_name = user.get("name", "ผู้ใช้") if user else "ผู้ใช้"
+    asc_name = horoscope.get("natalChart", {}).get("ascendant", {}).get("signName", "เมษ")
+    day_lord = lucky_info.get("dailyDayLord", "พระพฤหัสบดี (๕) กำลังเทวดา 19")
+
+    ausp_colors = lucky_info.get("auspiciousColors", {})
+    work_colors = ausp_colors.get("work", ["สีฟ้าสว่าง"])
+    wealth_colors = ausp_colors.get("wealth", ["สีแดงทับทิม"])
+    love_colors = ausp_colors.get("love", ["สีส้มประกายทอง"])
+    avoid_colors = lucky_info.get("inauspiciousColors", ["สีม่วง / ดำ"])
+
+    amulet = lucky_info.get("auspiciousAmulet", "หินไหมทอง, อัญมณีประจำวัน")
+    good_deed = lucky_info.get("goodDeedAdvice", "ทำบุญค่าน้ำค่าไฟ เติมน้ำมันตะเกียง")
+
+    bubble = {
+        "type": "bubble",
+        "size": "mega",
+        "hero": {
+            "type": "image",
+            "url": f"{web_url}/bear_wizard.jpg",
+            "size": "full",
+            "aspectRatio": "20:13",
+            "aspectMode": "cover"
+        },
+        "header": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "16px",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {"type": "text", "text": "👕 ตารางสีเสื้อมงคลประจำวัน", "weight": "bold", "color": "#fbbf24", "size": "md", "flex": 1},
+                        {"type": "text", "text": "มหาทักษาจร", "color": "#94a3b8", "size": "xxs", "align": "end"}
+                    ]
+                },
+                {
+                    "type": "text",
+                    "text": f"เสริมบารมี & เสริมเฮง: คุณ {user_name} (ลัคนา {asc_name})",
+                    "color": "#cbd5e1",
+                    "size": "xs",
+                    "margin": "xs",
+                    "wrap": True
+                }
+            ]
+        },
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#070b19",
+            "paddingAll": "16px",
+            "spacing": "sm",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#172554",
+                    "cornerRadius": "10px",
+                    "paddingAll": "10px",
+                    "borderColor": "#3b82f6",
+                    "borderWidth": "1px",
+                    "contents": [
+                        {"type": "text", "text": "🪐 กำลังดาวพระเคราะห์ประจำวัน:", "size": "xxs", "color": "#93c5fd", "weight": "bold"},
+                        {"type": "text", "text": day_lord, "size": "xs", "color": "#f8fafc", "weight": "bold", "wrap": True, "margin": "xs"}
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#0f172a",
+                    "cornerRadius": "12px",
+                    "paddingAll": "12px",
+                    "borderColor": "#3b82f6",
+                    "borderWidth": "1px",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "alignItems": "center",
+                            "contents": [
+                                {"type": "text", "text": "💼 การงาน & อำนาจบารมี (เดช)", "size": "xs", "color": "#60a5fa", "weight": "bold", "flex": 1},
+                                {"type": "text", "text": "🌟 ดีเยี่ยม", "size": "xxs", "color": "#93c5fd"}
+                            ]
+                        },
+                        {"type": "text", "text": " หรือ ".join(work_colors), "size": "sm", "color": "#f8fafc", "weight": "bold", "margin": "xs", "wrap": True}
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#06281e",
+                    "cornerRadius": "12px",
+                    "paddingAll": "12px",
+                    "borderColor": "#10b981",
+                    "borderWidth": "1px",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "alignItems": "center",
+                            "contents": [
+                                {"type": "text", "text": "💰 เงินทอง & โชคลาภ (ศรี)", "size": "xs", "color": "#34d399", "weight": "bold", "flex": 1},
+                                {"type": "text", "text": "💵 รับทรัพย์", "size": "xxs", "color": "#86efac"}
+                            ]
+                        },
+                        {"type": "text", "text": " หรือ ".join(wealth_colors), "size": "sm", "color": "#fef08a", "weight": "bold", "margin": "xs", "wrap": True}
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#2e1065",
+                    "cornerRadius": "12px",
+                    "paddingAll": "12px",
+                    "borderColor": "#ec4899",
+                    "borderWidth": "1px",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "alignItems": "center",
+                            "contents": [
+                                {"type": "text", "text": "💖 เสน่ห์ & เมตตามหานิยม (มนตรี)", "size": "xs", "color": "#f472b6", "weight": "bold", "flex": 1},
+                                {"type": "text", "text": "💕 ผู้ใหญ่เอ็นดู", "size": "xxs", "color": "#fbcfe8"}
+                            ]
+                        },
+                        {"type": "text", "text": " หรือ ".join(love_colors), "size": "sm", "color": "#f8fafc", "weight": "bold", "margin": "xs", "wrap": True}
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#450a0a",
+                    "cornerRadius": "12px",
+                    "paddingAll": "12px",
+                    "borderColor": "#ef4444",
+                    "borderWidth": "1px",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "alignItems": "center",
+                            "contents": [
+                                {"type": "text", "text": "⛔ สีกาลกิณี (ควรหลีกเลี่ยง)", "size": "xs", "color": "#f87171", "weight": "bold", "flex": 1},
+                                {"type": "text", "text": "⚠️ ห้ามใส่", "size": "xxs", "color": "#fca5a5", "weight": "bold"}
+                            ]
+                        },
+                        {"type": "text", "text": " หรือ ".join(avoid_colors), "size": "sm", "color": "#fee2e2", "weight": "bold", "margin": "xs", "wrap": True}
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#0f172a",
+                    "cornerRadius": "10px",
+                    "paddingAll": "10px",
+                    "contents": [
+                        {"type": "text", "text": f"💎 ของมงคลเสริมราศี: {amulet}", "size": "xxs", "color": "#cbd5e1", "wrap": True},
+                        {"type": "text", "text": f"🕊️ เสริมบารมี: {good_deed}", "size": "xxs", "color": "#94a3b8", "wrap": True, "margin": "xs"}
+                    ]
+                }
+            ]
+        },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "14px",
+            "spacing": "xs",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "spacing": "xs",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "style": "primary",
+                            "color": "#d97706",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "🎰 ขอเลขเด็ด",
+                                "text": "ขอเลขเด็ด"
+                            },
+                            "flex": 1
+                        },
+                        {
+                            "type": "button",
+                            "style": "primary",
+                            "color": "#1d4ed8",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "💼 ดูหมวดการงาน",
+                                "text": "การงาน"
+                            },
+                            "flex": 1
+                        }
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "spacing": "xs",
+                    "contents": [
+                        {
+                            "type": "button",
+                            "style": "secondary",
+                            "color": "#1e293b",
+                            "height": "sm",
+                            "action": {
+                                "type": "message",
+                                "label": "🌟 สรุปดวงวันนี้",
+                                "text": "สรุปดวงประจำวัน"
+                            },
+                            "flex": 1
+                        },
+                        {
+                            "type": "button",
+                            "style": "secondary",
+                            "color": "#1e293b",
+                            "height": "sm",
+                            "action": {
+                                "type": "uri",
+                                "label": "👥 แชร์สีเสื้อให้เพื่อน",
+                                "uri": "https://line.me/R/nv/recommendOA/@374xcoto"
+                            },
+                            "flex": 1
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+
+    quick_reply = {
+        "items": [
+            {"type": "action", "action": {"type": "message", "label": "🎰 ขอเลขเด็ด", "text": "ขอเลขเด็ด"}},
+            {"type": "action", "action": {"type": "message", "label": "💼 การงาน", "text": "การงาน"}},
+            {"type": "action", "action": {"type": "message", "label": "💰 การเงิน", "text": "การเงิน"}},
+            {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวง", "text": "สรุปดวงประจำวัน"}},
+            {"type": "action", "action": {"type": "message", "label": "🔮 เลือกหมวด", "text": "เลือกหมวดอยากจะดูหมวดไหน"}},
+            {"type": "action", "action": {"type": "message", "label": "📍 เปลี่ยนที่จร", "text": "เปลี่ยนสถานที่จร"}}
+        ]
+    }
+
+    return {
+        "type": "flex",
+        "altText": f"👕 ตารางสีเสื้อมงคลประจำวัน เสริมเฮงการงาน-การเงิน-ความรัก ✨",
+        "contents": bubble,
+        "quickReply": quick_reply
+    }

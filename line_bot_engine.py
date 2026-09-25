@@ -25,6 +25,8 @@ try:
         build_daily_summary_flex,
         build_category_menu_flex,
         build_category_flex,
+        build_lucky_numbers_flex,
+        build_lucky_colors_flex,
         build_feedback_flex,
         build_donation_flex,
         build_share_flex,
@@ -39,6 +41,8 @@ except ImportError:
         build_daily_summary_flex,
         build_category_menu_flex,
         build_category_flex,
+        build_lucky_numbers_flex,
+        build_lucky_colors_flex,
         build_feedback_flex,
         build_donation_flex,
         build_share_flex,
@@ -126,13 +130,23 @@ def parse_birth_info_from_text(text: str):
 
     dist = "พระนคร" if prov == "กรุงเทพมหานคร" else f"อำเภอเมือง{prov}"
     
+    t_prov = prov
+    t_dist = dist
+    if "จร " in cleaned:
+        transit_part = cleaned.split("จร ", 1)[1].strip()
+        for p in PROVINCES_DICT.keys():
+            if p in transit_part:
+                t_prov = p
+                t_dist = "พระนคร" if p == "กรุงเทพมหานคร" else f"อำเภอเมือง{p}"
+                break
+    
     return {
         "birth_date": bdate,
         "birth_time": btime,
         "birth_province": prov,
         "birth_district": dist,
-        "transit_province": prov,
-        "transit_district": dist,
+        "transit_province": t_prov,
+        "transit_district": t_dist,
         "calc_method": "suriyayatra",
         "registered": True
     }
@@ -449,6 +463,37 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             reply([image_msg, donation_flex])
             return
 
+        # Check Lucky Numbers option ("ขอเลขเด็ด", "เลขเด็ด", "เลขมงคล", "หวย", "ขอหวย", "เลขนำโชค")
+        if any(k in text for k in ["เลขเด็ด", "ขอเลขเด็ด", "เลขมงคล", "หวย", "ขอหวย", "เลขนำโชค", "ขอเลข", "lotto", "ตรวจหวย"]):
+            if not is_registered:
+                prompt_registration()
+                return
+            h = compute_user_horoscope(user)
+            flex = build_lucky_numbers_flex(user, h, web_url)
+            reply([flex])
+            return
+
+        # Check Shirt Colors option ("สีเสื้อ", "สีเสื้อมงคล", "ขอสีเสื้อ", "ตารางสีเสื้อ", "สีมงคล", "สีกาลกิณี")
+        if any(k in text for k in ["สีเสื้อ", "สีเสื้อมงคล", "ขอสีเสื้อ", "ตารางสีเสื้อ", "สีมงคล", "สีกาลกิณี", "สีประจำวัน", "เสื้อสี"]):
+            if not is_registered:
+                prompt_registration()
+                return
+            h = compute_user_horoscope(user)
+            flex = build_lucky_colors_flex(user, h, web_url)
+            reply([flex])
+            return
+
+        # Check Combined Lucky & Color option
+        if any(k in text for k in ["เกร็ดมงคล", "เลขและสี", "เลขเด็ดและสีเสื้อ", "สีเสื้อและเลขเด็ด"]):
+            if not is_registered:
+                prompt_registration()
+                return
+            h = compute_user_horoscope(user)
+            num_flex = build_lucky_numbers_flex(user, h, web_url)
+            col_flex = build_lucky_colors_flex(user, h, web_url)
+            reply([num_flex, col_flex])
+            return
+
         # Specific category keywords (checked first so specific terms like 'ดูดวงหมวดการงาน' or 'การงาน' resolve to that category)
         if any(k in text for k in ["การงาน", "งาน"]) and not any(k in text for k in ["เลือกหมวด", "หมวดหมู่"]):
             if not is_registered:
@@ -515,6 +560,8 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                 "text": "🙏 ขอบพระคุณสำหรับข้อความและคำแนะนำครับ แม่หมอบันทึกข้อมูลเรียบร้อยแล้วครับ ✨",
                 "quickReply": {
                     "items": [
+                        {"type": "action", "action": {"type": "message", "label": "🎰 ขอเลขเด็ด", "text": "ขอเลขเด็ด"}},
+                        {"type": "action", "action": {"type": "message", "label": "👕 สีเสื้อมงคล", "text": "สีเสื้อมงคล"}},
                         {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวงวันนี้", "text": "สรุปดวงวันนี้"}},
                         {"type": "action", "action": {"type": "message", "label": "📊 สถิติดวง & กิมมิก", "text": "สถิติ"}},
                         {"type": "action", "action": {"type": "message", "label": "🔮 เลือกหมวดดูดวง", "text": "เลือกหมวดอยากจะดูหมวดไหน"}},

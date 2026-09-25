@@ -523,6 +523,12 @@
           <button onclick="setCategoryTab('lucky')" id="tab-lucky" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 transition-all active:scale-95 flex items-center gap-1.5 hover:text-white">
             <span>🐻‍❄️🔮</span> <span>เกร็ดมงคล</span>
           </button>
+          <button onclick="setCategoryTab('lottery')" id="tab-lottery" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border border-amber-500/40 text-amber-300 transition-all active:scale-95 flex items-center gap-1.5 hover:text-white">
+            <span>🐻‍❄️🎰</span> <span>ขอเลขเด็ด</span>
+          </button>
+          <button onclick="setCategoryTab('shirt')" id="tab-shirt" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border border-indigo-500/40 text-indigo-300 transition-all active:scale-95 flex items-center gap-1.5 hover:text-white">
+            <span>🐻‍❄️👕</span> <span>สีเสื้อมงคล</span>
+          </button>
         </div>
       </div>
     </div>
@@ -1164,6 +1170,167 @@
         return;
       }
 
+      if (state.activeTab === 'lottery') {
+        const l = state.data.luckyInfo;
+        const nums = l.luckyNumbers || [9, 5, 1, 8];
+        const twoDigits = [`${nums[0]}${nums[1]}`, `${nums[1]}${nums[2]}`, `${nums[2]}${nums[3]}`, `${nums[0]}${nums[3]}`];
+        const threeDigits = [`${nums[0]}${nums[1]}${nums[2]}`, `${nums[1]}${nums[2]}${nums[3]}`];
+        container.innerHTML = `
+          <div class="bg-gradient-to-br from-[#1e1b4b]/95 via-[#0b0f19] to-[#070a13] border-2 border-amber-400/60 rounded-3xl p-5 sm:p-7 shadow-2xl space-y-5 animate-fade-in">
+            <div class="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-amber-500/20">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl overflow-hidden border-2 border-amber-400 ring-2 ring-amber-400/40 shadow-lg">
+                  <img src="/bear_fortune.jpg" class="w-full h-full object-cover">
+                </div>
+                <div>
+                  <h3 class="text-lg sm:text-xl font-black text-amber-300">🎰 ขอเลขเด็ด & เลขมงคลประจำวัน</h3>
+                  <p class="text-xs text-slate-300">คำนวณตามมหาทักษา คัมภีร์สุริยยาตร์ และดาวโคจรจร</p>
+                </div>
+              </div>
+              <span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 font-bold text-xs border border-amber-500/40">
+                เปิดทรัพย์รับโชค ✨
+              </span>
+            </div>
+
+            <!-- Big Lucky Numbers Box -->
+            <div class="p-5 bg-gradient-to-b from-amber-950/40 to-slate-950/80 border border-amber-400/40 rounded-2xl text-center">
+              <div class="text-xs font-bold text-amber-200 uppercase tracking-widest mb-3">🌟 4 เลขเด่นประจำวันของคุณ 🌟</div>
+              <div class="flex items-center justify-center gap-3 sm:gap-4 flex-wrap">
+                ${nums.map(n => `
+                  <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-300 to-yellow-500 text-slate-950 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-xl shadow-amber-500/30 transform hover:scale-105 transition-transform border border-yellow-200">
+                    ${n}
+                  </div>
+                `).join('')}
+              </div>
+              <div class="text-xs sm:text-sm text-amber-200 font-medium mt-3">
+                ${l.luckyNumbersDesc || ''}
+              </div>
+            </div>
+
+            <!-- 2-Digits & 3-Digits Combinations -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div class="p-4 bg-slate-900/90 border border-slate-700/80 rounded-2xl">
+                <div class="text-xs font-bold text-sky-400 mb-1 flex items-center gap-1.5">
+                  <span>🎯</span> เลขท้าย 2 ตัวเด่น
+                </div>
+                <div class="text-lg sm:text-xl font-black text-white tracking-wider">
+                  ${twoDigits.join(' • ')}
+                </div>
+              </div>
+              <div class="p-4 bg-slate-900/90 border border-slate-700/80 rounded-2xl">
+                <div class="text-xs font-bold text-pink-400 mb-1 flex items-center gap-1.5">
+                  <span>💎</span> เลขชุดมงคล 3 ตัว
+                </div>
+                <div class="text-lg sm:text-xl font-black text-white tracking-wider">
+                  ${threeDigits.join(' • ')}
+                </div>
+              </div>
+            </div>
+
+            <!-- Time & Direction -->
+            <div class="p-4 bg-slate-950/80 border border-slate-800 rounded-2xl grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+              <div>
+                <span class="text-amber-400 font-bold block mb-1">⏰ ฤกษ์เปิดทรัพย์ประจำวัน</span>
+                <span class="text-slate-200 font-medium">${l.auspiciousTime}</span>
+              </div>
+              <div>
+                <span class="text-cyan-400 font-bold block mb-1">🧭 ทิศมงคลเสี่ยงโชค</span>
+                <span class="text-slate-200 font-medium">${l.luckyDirection || '-'}</span>
+              </div>
+            </div>
+          </div>
+        `;
+        luckySec.classList.add('hidden');
+        return;
+      }
+
+      if (state.activeTab === 'shirt') {
+        const l = state.data.luckyInfo;
+        container.innerHTML = `
+          <div class="bg-gradient-to-br from-[#0f172a] via-[#0b0f19] to-[#070a13] border-2 border-indigo-500/50 rounded-3xl p-5 sm:p-7 shadow-2xl space-y-5 animate-fade-in">
+            <div class="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-indigo-500/20">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl overflow-hidden border-2 border-indigo-400 ring-2 ring-indigo-400/40 shadow-lg">
+                  <img src="/bear_wizard.jpg" class="w-full h-full object-cover">
+                </div>
+                <div>
+                  <h3 class="text-lg sm:text-xl font-black text-indigo-300">👕 ตารางสีเสื้อมงคลประจำวัน</h3>
+                  <p class="text-xs text-slate-300">เสริมเดช เสริมศรี เสริมมนตรี ตามหลักมหาทักษา</p>
+                </div>
+              </div>
+              <span class="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 font-bold text-xs border border-indigo-500/40">
+                มหาทักษาจร ✨
+              </span>
+            </div>
+
+            <div class="p-3 bg-indigo-950/40 border border-indigo-500/30 rounded-xl text-xs text-indigo-200 font-medium">
+              🪐 <strong>กำลังเทวดาประจำวัน:</strong> ${l.dailyDayLord || ''}
+            </div>
+
+            <!-- Color Categories Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <!-- Work -->
+              <div class="p-4 bg-slate-900/90 border border-blue-500/40 rounded-2xl space-y-1">
+                <div class="flex items-center justify-between text-xs font-bold text-blue-400">
+                  <span>💼 การงาน & อำนาจบารมี (เดช)</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300">ผู้ใหญ่เกรงขาม</span>
+                </div>
+                <div class="text-base sm:text-lg font-black text-white pt-1">
+                  ${l.auspiciousColors.work.join(' หรือ ')}
+                </div>
+              </div>
+
+              <!-- Wealth -->
+              <div class="p-4 bg-slate-900/90 border border-emerald-500/40 rounded-2xl space-y-1">
+                <div class="flex items-center justify-between text-xs font-bold text-emerald-400">
+                  <span>💰 การเงิน & โชคลาภ (ศรี)</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">รับทรัพย์</span>
+                </div>
+                <div class="text-base sm:text-lg font-black text-yellow-300 pt-1">
+                  ${l.auspiciousColors.wealth.join(' หรือ ')}
+                </div>
+              </div>
+
+              <!-- Love -->
+              <div class="p-4 bg-slate-900/90 border border-pink-500/40 rounded-2xl space-y-1">
+                <div class="flex items-center justify-between text-xs font-bold text-pink-400">
+                  <span>💖 เสน่ห์ & เมตตามหานิยม (มนตรี)</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300">คนรักใคร่</span>
+                </div>
+                <div class="text-base sm:text-lg font-black text-white pt-1">
+                  ${l.auspiciousColors.love.join(' หรือ ')}
+                </div>
+              </div>
+
+              <!-- Avoid -->
+              <div class="p-4 bg-slate-900/90 border border-rose-500/40 rounded-2xl space-y-1">
+                <div class="flex items-center justify-between text-xs font-bold text-rose-400">
+                  <span>⛔ สีกาลกิณี (ควรหลีกเลี่ยง)</span>
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300">ห้ามใส่</span>
+                </div>
+                <div class="text-base sm:text-lg font-black text-rose-300 pt-1">
+                  ${l.inauspiciousColors.join(', ')}
+                </div>
+              </div>
+            </div>
+
+            <!-- Extra items -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs sm:text-sm">
+              <div class="p-3 bg-slate-950/70 border border-slate-800 rounded-xl">
+                <span class="text-amber-400 font-bold block mb-0.5">💎 ของมงคลเสริมราศี</span>
+                <span class="text-slate-200">${l.auspiciousAmulet || '-'}</span>
+              </div>
+              <div class="p-3 bg-slate-950/70 border border-slate-800 rounded-xl">
+                <span class="text-cyan-400 font-bold block mb-0.5">🕊️ เคล็ดลับทำบุญเสริมดวง</span>
+                <span class="text-slate-200">${l.goodDeedAdvice || '-'}</span>
+              </div>
+            </div>
+          </div>
+        `;
+        luckySec.classList.add('hidden');
+        return;
+      }
+
       luckySec.classList.remove('hidden');
 
       let list = [];
@@ -1413,7 +1580,9 @@
       finance: "💰 หมวดการเงิน กระเป๋าตุง รับทรัพย์เฮงๆ ปังๆ ครับ! 💵",
       love: "❤️ หมวดความรัก เสน่ห์แพรวพราว ใครเห็นก็หลงรักครับ 💕",
       health: "🩺 หมวดสุขภาพ พลังกายพลังใจสดใส ร่างกายแข็งแรงครับ! 🛡️",
-      lucky: "🔮 เกร็ดมงคล เลขเด็ด สีนำโชค เสริมดวงพุ่งแรงครับ ✨"
+      lucky: "🔮 เกร็ดมงคล เลขเด็ด สีนำโชค เสริมดวงพุ่งแรงครับ ✨",
+      lottery: "🎰 ขอเลขเด็ด เลขมงคลประจำวัน ดาวเด่นเปิดทรัพย์ เฮงๆ ปังๆ ครับ! 💵",
+      shirt: "👕 ตารางสีเสื้อมงคลประจำวัน เสริมเดช เสริมศรี เสริมมนตรี ครบสูตรครับ! ✨"
     };
 
     const MASCOT_RANDOM_CHEERS = [
