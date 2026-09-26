@@ -15,7 +15,7 @@ for p in [base_dir, parent_dir]:
         sys.path.insert(0, p)
 
 try:
-    from thai_astrology import get_horoscope, compute_28day_forecast, compute_synastry, PROVINCES_DICT
+    from thai_astrology import get_horoscope, compute_28day_forecast, compute_synastry, compute_wedding_muhurta, PROVINCES_DICT
     from user_store import get_user, save_user, update_transit_location, record_user_check
     from line_bot_engine import (
         verify_signature,
@@ -28,7 +28,7 @@ try:
     )
     from line_flex_builder import build_daily_summary_flex
 except ImportError:
-    from api.thai_astrology import get_horoscope, compute_28day_forecast, compute_synastry, PROVINCES_DICT
+    from api.thai_astrology import get_horoscope, compute_28day_forecast, compute_synastry, compute_wedding_muhurta, PROVINCES_DICT
     from api.user_store import get_user, save_user, update_transit_location, record_user_check
     from api.line_bot_engine import (
         verify_signature,
@@ -317,7 +317,28 @@ class handler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({'success': False, 'error': str(e)}, ensure_ascii=False).encode('utf-8'))
             return
 
-        # 6. Standard Daily Astrology Calculation
+        # 6. Wedding Muhurta endpoint
+        if 'wedding' in check_str or 'muhurta' in check_str or payload.get("action") in ("compute_wedding", "wedding_muhurta"):
+            try:
+                person1 = payload.get("person1", {})
+                person2 = payload.get("person2", {})
+                days_ahead = int(payload.get("daysAhead", 365))
+                top_n = int(payload.get("topN", 5))
+                wedding_res = compute_wedding_muhurta(person1, person2, days_ahead, top_n)
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps({'success': True, 'data': wedding_res}, ensure_ascii=False).encode('utf-8'))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps({'success': False, 'error': str(e)}, ensure_ascii=False).encode('utf-8'))
+            return
+
+        # 7. Standard Daily Astrology Calculation
         try:
             payload = json.loads(body_bytes.decode('utf-8')) if body_bytes else {}
             target_date = payload.get('targetDate', '')

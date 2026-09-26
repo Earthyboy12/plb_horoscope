@@ -1,6 +1,7 @@
 # Thai Astrology Core Calculation Engine in Python (Pure Standard Library - Zero Dependencies)
 import math
 import datetime
+import re
 from detailed_forecast import synthesize_detailed_categories, synthesize_detailed_lucky
 
 DEG2RAD = math.pi / 180.0
@@ -989,6 +990,8 @@ def compute_synastry(person1_dict: dict, person2_dict: dict, relationship_type: 
     lucky_colors_couple = ["สีขาวครีมมงคล (ความบริสุทธิ์ใจ)", "สีชมพูโรสโกลด์ (เสน่ห์เมตตา)", "สีเขียวมรกต (ความอุดมสมบูรณ์)"]
     merit_advice = "ร่วมกันทำบุญถวายของเป็นคู่ เช่น แจกันดอกไม้คู่, หลอดไฟคู่, หรือร่วมบริจาคทำบุญปล่อยปลา จะช่วยส่งเสริมให้ความสัมพันธ์สว่างไสวและราบรื่นยิ่งขึ้น"
 
+    wedding_muhurta = compute_wedding_muhurta(person1_dict, person2_dict, days_ahead=365, top_n=5)
+
     return {
         "person1": {
             "name": name1,
@@ -1028,6 +1031,215 @@ def compute_synastry(person1_dict: dict, person2_dict: dict, relationship_type: 
         "strengths": strengths,
         "cautions": cautions,
         "luckyColors": lucky_colors_couple,
-        "meritAdvice": merit_advice
+        "meritAdvice": merit_advice,
+        "weddingMuhurta": wedding_muhurta
     }
+
+
+def compute_wedding_muhurta(person1_dict: dict, person2_dict: dict, days_ahead: int = 365, top_n: int = 5) -> dict:
+    """
+    Compute auspicious Thai wedding muhurta (ฤกษ์มงคลสมรส) across the next 365 days.
+    Selects the top N best dates based on classical Thai astrology:
+      1. Auspicious Nakshatra (ฤกษ์บน: เทวีฤกษ์, มหัทธโนฤกษ์, ภูมิปาโลฤกษ์, ราชาฤกษ์)
+      2. Auspicious Tithi (ดิถีมงคล: ข้างขึ้น 2,3,5,7,8,9,10,11,13,14,15 ค่ำ / แรมมงคล; เลี่ยงวันดับ/อมาวสี)
+      3. Taksa purity (ปลอดวันกาลกิณีประจำวันเกิดของทั้งเจ้าบ่าวและเจ้าสาว 100%)
+      4. Benefic planetary alignment (ดาวพฤหัสบดี ๕ และ ดาวศุกร์ ๖ ส่งกระแสหนุนลัคนาคู่)
+      5. Auspicious sub-time windows (เวลาสวมแหวนพิธีสงฆ์ & เวลาส่งตัว)
+    """
+    name1 = (person1_dict.get("name") or "คุณ").strip()
+    name2 = (person2_dict.get("name") or "หวานใจ").strip()
+
+    def _parse_bdate(d_val, default="1995-08-12"):
+        if not d_val:
+            return default
+        m = re.search(r'\b(\d{4})[-/](\d{1,2})[-/](\d{1,2})\b', str(d_val))
+        if m:
+            y, mth, d = int(m.group(1)), int(m.group(2)), int(m.group(3))
+            if y > 2400: y -= 543
+            return f"{y:04d}-{mth:02d}-{d:02d}"
+        return default
+
+    bdate1_str = _parse_bdate(person1_dict.get("birthDate") or person1_dict.get("birth_date"), "1995-08-12")
+    bdate2_str = _parse_bdate(person2_dict.get("birthDate") or person2_dict.get("birth_date"), "1997-02-14")
+
+    try:
+        dt1 = datetime.datetime.strptime(bdate1_str, "%Y-%m-%d").date()
+    except Exception:
+        dt1 = datetime.date(1995, 8, 12)
+    try:
+        dt2 = datetime.datetime.strptime(bdate2_str, "%Y-%m-%d").date()
+    except Exception:
+        dt2 = datetime.date(1997, 2, 14)
+
+    w1 = dt1.weekday()
+    w2 = dt2.weekday()
+
+    KALAKINI_MAP = {0: 6, 1: 0, 2: 1, 3: 5, 4: 2, 5: 3, 6: 4}
+    kala1 = KALAKINI_MAP.get(w1, -1)
+    kala2 = KALAKINI_MAP.get(w2, -1)
+
+    SRI_MAP = {0: 2, 1: 3, 2: 5, 3: 6, 4: 0, 5: 4, 6: 1}
+    MONTRI_MAP = {0: 5, 1: 6, 2: 0, 3: 4, 4: 1, 5: 3, 6: 2}
+
+    thai_days = ["จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์", "อาทิตย์"]
+    thai_full_days = ["วันจันทร์", "วันอังคาร", "วันพุธ", "วันพฤหัสบดี", "วันศุกร์", "วันเสาร์", "วันอาทิตย์"]
+    thai_months = ["", "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."]
+    thai_full_months = ["", "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"]
+
+    chart1 = get_horoscope(person1_dict)
+    chart2 = get_horoscope(person2_dict)
+    asc1 = chart1.get("natalChart", {}).get("ascendant", {}).get("signId", 0)
+    asc2 = chart2.get("natalChart", {}).get("ascendant", {}).get("signId", 6)
+
+    MUHURTA_CATEGORY = {
+        0: ("ทลิทโทฤกษ์", "ฤกษ์ขอความเมตตา", 70, False, "สีขาวมุก"),
+        1: ("มหัทธโนฤกษ์", "ฤกษ์เศรษฐี ทรัพย์สินมั่งคั่ง ร่ำรวย", 95, True, "สีทองแชมเปญ • สีเขียวเหนี่ยวทรัพย์"),
+        2: ("โจโรฤกษ์", "ฤกษ์ช่วงชิง", 40, False, "สีเทา"),
+        3: ("ภูมิปาโลฤกษ์", "ฤกษ์แผ่นดิน มั่นคง ตั้งหลักปักฐาน อบอุ่น", 93, True, "สีน้ำตาลอบอุ่น • สีทองคำ"),
+        4: ("เทศาตรีฤกษ์", "ฤกษ์เดินทาง บันเทิง", 65, False, "สีส้ม"),
+        5: ("เทวีฤกษ์", "ฤกษ์ราชินี เสน่หา ความรักสมหวัง สันติสุขในเรือนหอ", 98, True, "สีชมพูโรสโกลด์ • สีครีมละมุน"),
+        6: ("เพชฌฆาตฤกษ์", "ฤกษ์เด็ดขาด", 35, False, "สีแดงเข้ม"),
+        7: ("ราชาฤกษ์", "ฤกษ์เกียรติยศ ผู้นำ สง่างาม มั่นคง มีผู้อุปถัมภ์", 94, True, "สีทองราชวงศ์ • สีแดงมงคล"),
+        8: ("สมโณฤกษ์", "ฤกษ์สงบ ร่มเย็น", 75, False, "สีเหลืองนวล")
+    }
+
+    now_th = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=7)
+    start_dt = now_th.date() + datetime.timedelta(days=1)
+    scan_limit = max(30, min(days_ahead, 400))
+
+    candidates = []
+    for offset in range(scan_limit):
+        cur_date = start_dt + datetime.timedelta(days=offset)
+        cur_w = cur_date.weekday()
+
+        if cur_w == kala1 or cur_w == kala2:
+            continue
+
+        jd = date_to_julian_day(cur_date.year, cur_date.month, cur_date.day, 9, 9)
+        planets = {p["id"]: p for p in calculate_planets(jd)}
+
+        sun_deg = planets[1]["degree"]
+        moon_deg = planets[2]["degree"]
+        jup_sign = planets[5]["signId"]
+        ven_sign = planets[6]["signId"]
+
+        nak_idx = int(moon_deg / (360.0 / 27.0)) % 27
+        cat_idx = nak_idx % 9
+        cat_name, cat_desc, base_score, is_wedding_auspicious, lucky_col = MUHURTA_CATEGORY[cat_idx]
+
+        if not is_wedding_auspicious:
+            continue
+
+        diff = (moon_deg - sun_deg + 360.0) % 360.0
+        tithi_num = int(diff / 12.0) + 1
+        if tithi_num <= 15:
+            paksha = f"ขึ้น {tithi_num} ค่ำ"
+            is_waxing = True
+            t_sub = tithi_num
+        else:
+            paksha = f"แรม {tithi_num - 15} ค่ำ"
+            is_waxing = False
+            t_sub = tithi_num - 15
+
+        if tithi_num == 30 or t_sub in (1, 14):
+            continue
+
+        score = base_score
+
+        if is_waxing:
+            if t_sub in (5, 9, 10, 11, 15):
+                score += 5
+            elif t_sub in (2, 3, 7, 8, 12, 13):
+                score += 3
+        else:
+            if t_sub in (2, 3, 7, 8, 10):
+                score += 3
+
+        if cur_w == 4:
+            score += 5
+        elif cur_w == 3:
+            score += 5
+        elif cur_w == 0:
+            score += 3
+        elif cur_w == 6:
+            score += 2
+
+        if cur_w == SRI_MAP.get(w1) or cur_w == SRI_MAP.get(w2):
+            score += 4
+        if cur_w == MONTRI_MAP.get(w1) or cur_w == MONTRI_MAP.get(w2):
+            score += 3
+
+        jup_diff1 = (jup_sign - asc1 + 12) % 12
+        jup_diff2 = (jup_sign - asc2 + 12) % 12
+        if jup_diff1 in (0, 3, 4, 6, 8, 10): score += 3
+        if jup_diff2 in (0, 3, 4, 6, 8, 10): score += 3
+
+        ven_diff1 = (ven_sign - asc1 + 12) % 12
+        ven_diff2 = (ven_sign - asc2 + 12) % 12
+        if ven_diff1 not in (5, 7, 11): score += 2
+        if ven_diff2 not in (5, 7, 11): score += 2
+
+        blessings = {
+            "เทวีฤกษ์": "เกื้อกูลความรักเสน่หา เมตตามหานิยม สันติสุขในครอบครัวราบรื่นยาวนาน",
+            "มหัทธโนฤกษ์": "เกื้อกูลความมั่งคั่งร่ำรวย ทรัพย์สินเงินทองไหลมาเทมา สร้างฐานะมั่นคง",
+            "ภูมิปาโลฤกษ์": "เกื้อกูลความมั่นคงถาวร ปักหลักสร้างครอบครัวอบอุ่น มีที่อยู่อาศัยร่มเย็น",
+            "ราชาฤกษ์": "เกื้อกูลเกียรติยศชื่อเสียง มีผู้ใหญ่สนับสนุนค้ำชู บารมีส่งเสริมคู่ชะตา"
+        }
+
+        candidates.append({
+            "date": cur_date.strftime("%Y-%m-%d"),
+            "dayName": thai_days[cur_w],
+            "displayDate": f"วัน{thai_days[cur_w]}ที่ {cur_date.day} {thai_months[cur_date.month]} {cur_date.year + 543}",
+            "fullDate": f"วัน{thai_full_days[cur_w]}ที่ {cur_date.day} {thai_full_months[cur_date.month]} พ.ศ. {cur_date.year + 543}",
+            "paksha": paksha,
+            "muhurtaCategory": cat_name,
+            "muhurtaMeaning": cat_desc,
+            "score": min(score, 99),
+            "morningWindow": "09:09 - 10:29 น. (มงคลสวมแหวน & พิธีสงฆ์)",
+            "afternoonWindow": "14:19 - 15:49 น. (มงคลส่งตัวเข้าเรือนหอ)",
+            "luckyColor": lucky_col,
+            "blessing": blessings.get(cat_name, "ดวงดาวเกื้อหนุนให้ชีวิตคู่ร่มเย็นเป็นสุข")
+        })
+
+    candidates.sort(key=lambda x: -x["score"])
+
+    top_dates = []
+    for c in candidates:
+        dt = datetime.datetime.strptime(c["date"], "%Y-%m-%d").date()
+        if not any(abs((dt - datetime.datetime.strptime(sel["date"], "%Y-%m-%d").date()).days) < 14 for sel in top_dates):
+            c["rank"] = len(top_dates) + 1
+            top_dates.append(c)
+            if len(top_dates) == top_n:
+                break
+
+    if len(top_dates) < top_n:
+        for c in candidates:
+            if c not in top_dates:
+                c["rank"] = len(top_dates) + 1
+                top_dates.append(c)
+                if len(top_dates) == top_n:
+                    break
+
+    kala1_text = thai_full_days[kala1] if kala1 >= 0 else "ไม่มี"
+    kala2_text = thai_full_days[kala2] if kala2 >= 0 else "ไม่มี"
+
+    return {
+        "person1": {
+            "name": name1,
+            "birthDate": bdate1_str,
+            "weekday": thai_full_days[w1],
+            "kalakiniDay": kala1_text
+        },
+        "person2": {
+            "name": name2,
+            "birthDate": bdate2_str,
+            "weekday": thai_full_days[w2],
+            "kalakiniDay": kala2_text
+        },
+        "scannedDays": scan_limit,
+        "totalAuspiciousFound": len(candidates),
+        "topDates": top_dates,
+        "kalakiniRule": f"คัดกรองปลอดวันกาลกิณีของ {name1} ({kala1_text}) และ {name2} ({kala2_text}) 100%"
+    }
+
 

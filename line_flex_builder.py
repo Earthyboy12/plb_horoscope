@@ -4568,13 +4568,223 @@ def build_synastry_result_flex(user: dict, synastry_res: dict, web_url: str = "h
         "contents": bubble,
         "quickReply": {
             "items": [
+                {"type": "action", "action": {"type": "message", "label": "💍 ฤกษ์แต่งงาน Top 5", "text": "ฤกษ์แต่งงาน"}},
                 {"type": "action", "action": {"type": "message", "label": "💖 ตรวจคู่ใหม่", "text": "คู่ 14/02/2540"}},
                 {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวงวันนี้", "text": "สรุปดวงประจำวัน"}},
-                {"type": "action", "action": {"type": "message", "label": "🗓️ ดวงรายเดือน", "text": "ดวงรายเดือน"}},
-                {"type": "action", "action": {"type": "message", "label": "🥠 เสี่ยงเซียมซี", "text": "เซียมซี"}}
+                {"type": "action", "action": {"type": "uri", "label": "🌐 ดูฉบับเต็มบนเว็บ", "uri": synastry_liff_url}}
             ]
         }
     }
+
+
+def build_wedding_muhurta_flex(user: dict, wedding_data: dict, web_url: str = "https://plb-horoscope.vercel.app") -> dict:
+    """
+    Build a world-class, ultra-luxurious wedding muhurta Flex Message
+    displaying Top 5 auspicious wedding dates across 365 days.
+    """
+    import urllib.parse
+    web_url = web_url or "https://plb-horoscope.vercel.app"
+    p1_name = wedding_data.get("person1", {}).get("name", "เจ้าบ่าว")
+    p2_name = wedding_data.get("person2", {}).get("name", "เจ้าสาว")
+    top_dates = wedding_data.get("topDates", [])
+
+    date_boxes = []
+    for idx, d in enumerate(top_dates):
+        rank = d.get("rank", idx + 1)
+        disp_date = d.get("displayDate", "")
+        paksha = d.get("paksha", "")
+        muhurta_name = d.get("muhurtaCategory", "ฤกษ์มงคล")
+        score = d.get("score", 95)
+        morning_win = d.get("morningWindow", "09:09 - 10:29 น.")
+        blessing = d.get("blessing", "เกื้อกูลความสุขและความเจริญ")
+        lucky_col = d.get("luckyColor", "สีชมพู • สีทอง")
+
+        badge_bg = "#f43f5e" if rank == 1 else "#ec4899" if rank == 2 else "#a855f7" if rank == 3 else "#3b82f6"
+
+        box = {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#17122b",
+            "borderColor": badge_bg,
+            "borderWidth": "1px",
+            "cornerRadius": "12px",
+            "paddingAll": "12px",
+            "spacing": "xs",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "backgroundColor": badge_bg,
+                            "cornerRadius": "6px",
+                            "paddingStart": "8px",
+                            "paddingEnd": "8px",
+                            "paddingTop": "2px",
+                            "paddingBottom": "2px",
+                            "contents": [
+                                {"type": "text", "text": f"👑 ฤกษ์อันดับ {rank}", "size": "xxs", "weight": "bold", "color": "#ffffff"}
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "text": f"คะแนน {score}%",
+                            "size": "xs",
+                            "weight": "bold",
+                            "color": "#fbbf24",
+                            "align": "end"
+                        }
+                    ]
+                },
+                {
+                    "type": "text",
+                    "text": disp_date,
+                    "weight": "bold",
+                    "size": "sm",
+                    "color": "#ffffff",
+                    "margin": "sm"
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "spacing": "sm",
+                    "margin": "xs",
+                    "contents": [
+                        {"type": "text", "text": f"🌙 {paksha}", "size": "xxs", "color": "#94a3b8", "flex": 0},
+                        {"type": "text", "text": "•", "size": "xxs", "color": "#64748b", "flex": 0},
+                        {"type": "text", "text": f"✨ {muhurta_name}", "size": "xxs", "weight": "bold", "color": "#f472b6", "flex": 1}
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "margin": "xs",
+                    "contents": [
+                        {"type": "text", "text": f"⏰ สวมแหวน/พิธีเช้า: {morning_win.split('(')[0].strip()}", "size": "xxs", "color": "#cbd5e1"}
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "margin": "xs",
+                    "contents": [
+                        {"type": "text", "text": f"🎨 ธีมสีมงคล: {lucky_col}", "size": "xxs", "color": "#fbcfe8"}
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "margin": "xs",
+                    "contents": [
+                        {"type": "text", "text": f"💖 {blessing}", "size": "xxs", "color": "#a7f3d0", "wrap": True}
+                    ]
+                }
+            ]
+        }
+        date_boxes.append(box)
+
+    share_text = urllib.parse.quote(
+        f"💍 5 ฤกษ์มงคลสมรส {p1_name[:10]} x {p2_name[:10]} ในรอบ 365 วัน ✨\n"
+        f"คัดสรรฤกษ์ดีที่สุด ปลอดกาลกิณีคู่ 100%\n"
+        f"👉 ดูรายละเอียดได้ที่: {web_url}/#synastry"
+    )
+    line_share_url = f"https://line.me/R/msg/text/?{share_text}"
+    if len(line_share_url) > 950:
+        line_share_url = f"{web_url}/#synastry"
+
+    bubble = {
+        "type": "bubble",
+        "size": "mega",
+        "hero": {
+            "type": "image",
+            "url": f"{web_url}/bear_love.jpg",
+            "size": "full",
+            "aspectRatio": "20:13",
+            "aspectMode": "cover",
+            "action": {
+                "type": "uri",
+                "uri": f"{web_url}/#synastry"
+            }
+        },
+        "header": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#1a0826",
+            "paddingAll": "14px",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {"type": "text", "text": "💍 5 ฤกษ์มงคลสมรสที่ดีที่สุด", "weight": "bold", "color": "#fb7185", "size": "sm", "flex": 1},
+                        {"type": "text", "text": "365 วัน", "color": "#fbbf24", "size": "xs", "weight": "bold", "align": "end"}
+                    ]
+                },
+                {
+                    "type": "text",
+                    "text": f"คู่ชะตา: {p1_name} x {p2_name} • ปลอดกาลกิณีคู่ 100%",
+                    "color": "#cbd5e1",
+                    "size": "xxs",
+                    "margin": "xs"
+                }
+            ]
+        },
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#090d1a",
+            "paddingAll": "14px",
+            "spacing": "md",
+            "contents": date_boxes
+        },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#1a0826",
+            "paddingAll": "12px",
+            "spacing": "xs",
+            "contents": [
+                {
+                    "type": "button",
+                    "style": "primary",
+                    "color": "#e11d48",
+                    "height": "sm",
+                    "action": {
+                        "type": "uri",
+                        "label": "📲 ส่งฤกษ์แต่งให้คนรักดูใน LINE",
+                        "uri": line_share_url
+                    }
+                },
+                {
+                    "type": "button",
+                    "style": "secondary",
+                    "color": "#1e293b",
+                    "height": "sm",
+                    "action": {
+                        "type": "uri",
+                        "label": "🌐 ดูการ์ดมงคลและรายละเอียดบนเว็บ",
+                        "uri": f"{web_url}/#synastry"
+                    }
+                }
+            ]
+        }
+    }
+
+    return {
+        "type": "flex",
+        "altText": f"💍 5 ฤกษ์มงคลสมรสที่ดีที่สุดในรอบ 365 วัน ของ {p1_name} x {p2_name} ✨",
+        "contents": bubble,
+        "quickReply": {
+            "items": [
+                {"type": "action", "action": {"type": "message", "label": "💖 ตรวจดวงคู่ใหม่", "text": "คู่ 14/02/2540"}},
+                {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวงวันนี้", "text": "สรุปดวงประจำวัน"}},
+                {"type": "action", "action": {"type": "uri", "label": "🌐 ดูบนเว็บ", "uri": f"{web_url}/#synastry"}}
+            ]
+        }
+    }
+
 
 
 

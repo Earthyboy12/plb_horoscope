@@ -18,7 +18,7 @@ import urllib.parse
 import datetime
 
 try:
-    from thai_astrology import get_horoscope, compute_28day_forecast, compute_synastry, PROVINCES_DICT
+    from thai_astrology import get_horoscope, compute_28day_forecast, compute_synastry, compute_wedding_muhurta, PROVINCES_DICT
     from user_store import get_user, save_user, update_transit_location, record_user_check
     from line_flex_builder import (
         build_welcome_flex,
@@ -41,10 +41,11 @@ try:
         build_monthly_forecast_flex,
         build_synastry_intro_flex,
         build_synastry_result_flex,
+        build_wedding_muhurta_flex,
         get_category_quick_reply
     )
 except ImportError:
-    from api.thai_astrology import get_horoscope, compute_28day_forecast, compute_synastry, PROVINCES_DICT
+    from api.thai_astrology import get_horoscope, compute_28day_forecast, compute_synastry, compute_wedding_muhurta, PROVINCES_DICT
     from api.user_store import get_user, save_user, update_transit_location, record_user_check
     from api.line_flex_builder import (
         build_welcome_flex,
@@ -67,6 +68,7 @@ except ImportError:
         build_monthly_forecast_flex,
         build_synastry_intro_flex,
         build_synastry_result_flex,
+        build_wedding_muhurta_flex,
         get_category_quick_reply
     )
 
@@ -515,11 +517,83 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
         is_registered = bool(user and user.get("registered", False))
         liff_url = make_liff_url(base_raw_liff, user or {"line_user_id": user_id})
         
+        # Check Wedding Muhurta Intent (e.g. "ฤกษ์แต่งงาน", "ฤกษ์แต่ง", "ฤกษ์มงคลสมรส", "wedding")
+        is_wedding_intent = any(k in text_lower for k in ['ฤกษ์แต่งงาน', 'ฤกษ์แต่ง', 'ฤกษ์มงคลสมรส', 'ฤกษ์สมรส', 'wedding_muhurta', 'wedding'])
+        if is_wedding_intent:
+            p1_dict, p2_dict, err = parse_synastry_input_from_text(text, user)
+            if (not p1_dict or not p2_dict) and user and user.get("last_partner") and user.get("birth_date"):
+                p1_dict = {
+                    "name": user.get("name", "คุณ"),
+                    "birth_date": user.get("birth_date"),
+                    "birthDate": user.get("birth_date"),
+                    "birth_time": user.get("birth_time", "08:30"),
+                    "birthTime": user.get("birth_time", "08:30"),
+                    "birth_province": user.get("birth_province", "กรุงเทพมหานคร"),
+                    "birthProvince": user.get("birth_province", "กรุงเทพมหานคร")
+                }
+                p2_dict = user.get("last_partner")
+                err = None
+
+            if p1_dict and p2_dict:
+                wedding_res = compute_wedding_muhurta(p1_dict, p2_dict, days_ahead=365, top_n=5)
+                w_flex = build_wedding_muhurta_flex(user, wedding_res, web_url)
+                p1_n = p1_dict.get('name', 'เจ้าบ่าว')
+                p2_n = p2_dict.get('name', 'เจ้าสาว')
+                reply([
+                    {
+                        "type": "text",
+                        "text": f"💍 แม่หมอคำนวณ 5 ฤกษ์มงคลสมรสที่ดีที่สุดในรอบ 365 วัน ระหว่าง {p1_n} กับ {p2_n} ให้เรียบร้อยแล้วครับ! ✨\n\n🛡️ คัดกรองตามคัมภีร์สุริยยาตร์แท้ ปลอดวันกาลกิณีของทั้งสองฝ่าย 100% ครับ 👇"
+                    },
+                    w_flex
+                ])
+                return
+            elif err == "NEED_USER_BIRTH":
+                reply([{
+                    "type": "text",
+                    "text": (
+                        "🔮 น้องหมียังไม่มีข้อมูลวันเกิดของคุณครับ\n\n"
+                        "📌 สามารถลงทะเบียนวันเกิดของคุณก่อน เช่น:\n"
+                        "👉 เกิด 12/08/2538 08:30 กทม\n\n"
+                        "หรือพิมพ์ตรวจฤกษ์แต่ง 2 ฝ่ายพร้อมกันได้ทันทีครับ เช่น:\n"
+                        "👉 ฤกษ์แต่ง 12/08/2538 กับ 14/02/2540"
+                    ),
+                    "quickReply": {
+                        "items": [
+                            {"type": "action", "action": {"type": "message", "label": "💡 ตัวอย่างฤกษ์ 2 ฝ่าย", "text": "ฤกษ์แต่ง 12/08/2538 กับ 14/02/2540 กทม"}},
+                            {"type": "action", "action": {"type": "uri", "label": "🌟 ลงทะเบียนวันเกิด", "uri": liff_url}},
+                            {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวงวันนี้", "text": "สรุปดวงประจำวัน"}}
+                        ]
+                    }
+                }])
+                return
+            else:
+                reply([{
+                    "type": "text",
+                    "text": (
+                        "💍 ดูฤกษ์มงคลสมรสล่วงหน้า 365 วัน (คัดสรร 5 วันที่ดีที่สุดเฉพาะคู่คุณ ✨)\n\n"
+                        "💬 พิมพ์ระบุวันเกิดคู่รัก เช่น:\n"
+                        "👉 ฤกษ์แต่ง 14/02/2540 กทม\n"
+                        "หรือตรวจ 2 ฝ่ายพร้อมกัน:\n"
+                        "👉 ฤกษ์แต่ง 12/08/2538 กับ 14/02/2540"
+                    ),
+                    "quickReply": {
+                        "items": [
+                            {"type": "action", "action": {"type": "message", "label": "💡 ฤกษ์แต่ง 14/02/2540", "text": "ฤกษ์แต่ง 14/02/2540 กทม"}},
+                            {"type": "action", "action": {"type": "message", "label": "💡 ฤกษ์แต่ง 2 ฝ่าย", "text": "ฤกษ์แต่ง 12/08/2538 กับ 14/02/2540 กทม"}},
+                            {"type": "action", "action": {"type": "uri", "label": "🌐 ตรวจบนเว็บ", "uri": f"{web_url}/#synastry"}}
+                        ]
+                    }
+                }])
+                return
+
         # Check Natural Synastry / Compatibility Check in Chat (e.g. "คู่ 14/02/2540 กทม", "คู่ 12/08/2538 กับ 14/02/2540", "ดวงสมพงษ์", "เนื้อคู่")
         is_synastry_intent = any(k in text_lower for k in ['ดวงสมพงษ์', 'สมพงษ์', 'ดวงคู่', 'ตรวจคู่', 'ผูกดวงคู่', 'เนื้อคู่', 'ดวงเนื้อคู่']) or text_lower.startswith('คู่ ') or text_lower.startswith('คู่:') or ' กับ ' in text_lower or ' และ ' in text_lower
         if is_synastry_intent:
             p1_dict, p2_dict, err = parse_synastry_input_from_text(text, user)
             if p1_dict and p2_dict:
+                if user:
+                    user["last_partner"] = p2_dict
+                    save_user(user_id, user)
                 syn_res = compute_synastry(p1_dict, p2_dict, "love")
                 result_flex = build_synastry_result_flex(user, syn_res, web_url)
                 p1_n = p1_dict.get('name', 'คุณ')
@@ -981,6 +1055,36 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             flex = build_synastry_intro_flex(web_url=web_url, user=user)
             reply([flex])
             return
+
+        elif action in ("wedding_muhurta", "wedding"):
+            if user and user.get("last_partner") and user.get("birth_date"):
+                p1_dict = {
+                    "name": user.get("name", "คุณ"),
+                    "birth_date": user.get("birth_date"),
+                    "birthDate": user.get("birth_date"),
+                    "birth_time": user.get("birth_time", "08:30"),
+                    "birthTime": user.get("birth_time", "08:30"),
+                    "birth_province": user.get("birth_province", "กรุงเทพมหานคร"),
+                    "birthProvince": user.get("birth_province", "กรุงเทพมหานคร")
+                }
+                p2_dict = user.get("last_partner")
+                wedding_res = compute_wedding_muhurta(p1_dict, p2_dict, days_ahead=365, top_n=5)
+                w_flex = build_wedding_muhurta_flex(user, wedding_res, web_url)
+                reply([w_flex])
+                return
+            else:
+                reply([{
+                    "type": "text",
+                    "text": "💍 ดูฤกษ์มงคลสมรสล่วงหน้า 365 วัน (คัดสรร 5 วันที่ดีที่สุดเฉพาะคู่คุณ ✨)\n\n💬 พิมพ์บอกวันเกิดคู่รักได้เลยครับ เช่น:\n👉 ฤกษ์แต่ง 14/02/2540 กทม\nหรือตรวจ 2 ฝ่ายพร้อมกัน:\n👉 ฤกษ์แต่ง 12/08/2538 กับ 14/02/2540",
+                    "quickReply": {
+                        "items": [
+                            {"type": "action", "action": {"type": "message", "label": "💡 ฤกษ์แต่ง 14/02/2540", "text": "ฤกษ์แต่ง 14/02/2540 กทม"}},
+                            {"type": "action", "action": {"type": "message", "label": "💡 ฤกษ์แต่ง 2 ฝ่าย", "text": "ฤกษ์แต่ง 12/08/2538 กับ 14/02/2540 กทม"}},
+                            {"type": "action", "action": {"type": "uri", "label": "🌐 ตรวจบนเว็บ", "uri": f"{web_url}/#synastry"}}
+                        ]
+                    }
+                }])
+                return
 
         elif action == "stats":
             if not user:

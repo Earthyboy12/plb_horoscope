@@ -178,6 +178,7 @@ def save_user(line_user_id: str, data: dict):
         "level": rank_info["tier"],
         "last_check_date": final_ld,
         "history": existing.get("history") or data.get("history") or [],
+        "last_partner": data.get("last_partner") or existing.get("last_partner"),
         "created_at": existing.get("created_at", now),
         "updated_at": now
     }
