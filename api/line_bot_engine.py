@@ -18,7 +18,7 @@ import urllib.parse
 import datetime
 
 try:
-    from thai_astrology import get_horoscope, compute_28day_forecast, PROVINCES_DICT
+    from thai_astrology import get_horoscope, compute_28day_forecast, compute_synastry, PROVINCES_DICT
     from user_store import get_user, save_user, update_transit_location, record_user_check
     from line_flex_builder import (
         build_welcome_flex,
@@ -40,10 +40,11 @@ try:
         build_stats_flex,
         build_monthly_forecast_flex,
         build_synastry_intro_flex,
+        build_synastry_result_flex,
         get_category_quick_reply
     )
 except ImportError:
-    from api.thai_astrology import get_horoscope, compute_28day_forecast, PROVINCES_DICT
+    from api.thai_astrology import get_horoscope, compute_28day_forecast, compute_synastry, PROVINCES_DICT
     from api.user_store import get_user, save_user, update_transit_location, record_user_check
     from api.line_flex_builder import (
         build_welcome_flex,
@@ -65,6 +66,7 @@ except ImportError:
         build_stats_flex,
         build_monthly_forecast_flex,
         build_synastry_intro_flex,
+        build_synastry_result_flex,
         get_category_quick_reply
     )
 
@@ -200,6 +202,96 @@ def parse_birth_info_from_text(text: str):
     if ld:
         res["last_check_date"] = ld
     return res
+
+def parse_synastry_input_from_text(text: str, user: dict = None):
+    """
+    Parse synastry / compatibility input from natural LINE chat.
+    Returns: (person1_dict, person2_dict, error_msg)
+    """
+    cleaned = text.strip()
+    
+    def _parse_snippet(snippet: str):
+        s_clean = snippet.strip()
+        bdate = None
+        # 1. YYYY-MM-DD
+        m = re.search(r'\b(\d{4})[-/](\d{1,2})[-/](\d{1,2})\b', s_clean)
+        if m:
+            y, mth, d = int(m.group(1)), int(m.group(2)), int(m.group(3))
+            if y > 2400: y -= 543
+            bdate = f"{y:04d}-{mth:02d}-{d:02d}"
+        # 2. DD/MM/YYYY
+        if not bdate:
+            m2 = re.search(r'\b(\d{1,2})[/-](\d{1,2})[/-](\d{4})\b', s_clean)
+            if m2:
+                d, mth, y = int(m2.group(1)), int(m2.group(2)), int(m2.group(3))
+                if y > 2400: y -= 543
+                bdate = f"{y:04d}-{mth:02d}-{d:02d}"
+        # 3. Thai month text
+        if not bdate:
+            for m_name, m_num in sorted(THAI_MONTHS_MAP.items(), key=lambda x: -len(x[0])):
+                pattern = rf'(\d{{1,2}})\s*{re.escape(m_name)}\s*(\d{{4}})?'
+                m3 = re.search(pattern, s_clean)
+                if m3:
+                    d = int(m3.group(1))
+                    y = int(m3.group(2)) if m3.group(2) else 2538
+                    if y > 2400: y -= 543
+                    bdate = f"{y:04d}-{m_num:02d}-{d:02d}"
+                    break
+        if not bdate:
+            return None
+        
+        mt = re.search(r'\b(\d{1,2})[:.](\d{2})\b', s_clean)
+        btime = f"{int(mt.group(1)):02d}:{int(mt.group(2)):02d}" if mt else "08:30"
+        
+        prov = "กรุงเทพมหานคร"
+        if "กทม" in s_clean or "กรุงเทพ" in s_clean:
+            prov = "กรุงเทพมหานคร"
+        else:
+            for p in PROVINCES_DICT.keys():
+                if p in s_clean:
+                    prov = p
+                    break
+        return {
+            "birth_date": bdate,
+            "birthDate": bdate,
+            "birth_time": btime,
+            "birthTime": btime,
+            "birth_province": prov,
+            "birthProvince": prov
+        }
+
+    # Check for dual dates (separated by กับ, และ, &, x, หรือ)
+    for sep in [" กับ ", " และ ", " & ", " x ", " X ", " ควง "]:
+        if sep in cleaned:
+            parts = cleaned.split(sep, 1)
+            p1_info = _parse_snippet(parts[0])
+            p2_info = _parse_snippet(parts[1])
+            if p1_info and p2_info:
+                p1_info["name"] = user.get("name", "คุณ") if user else "ฝ่ายที่ 1"
+                p2_info["name"] = "ฝ่ายที่ 2"
+                return p1_info, p2_info, None
+
+    # Single partner date provided
+    partner_info = _parse_snippet(cleaned)
+    if not partner_info:
+        return None, None, "NO_DATE"
+
+    # If sender user is registered, use sender as Person 1
+    if user and user.get("birth_date"):
+        p1_info = {
+            "name": user.get("name", "คุณ"),
+            "birth_date": user.get("birth_date"),
+            "birthDate": user.get("birth_date"),
+            "birth_time": user.get("birth_time", "08:30"),
+            "birthTime": user.get("birth_time", "08:30"),
+            "birth_province": user.get("birth_province", "กรุงเทพมหานคร"),
+            "birthProvince": user.get("birth_province", "กรุงเทพมหานคร")
+        }
+        partner_info["name"] = "หวานใจ / คนรัก"
+        return p1_info, partner_info, None
+    else:
+        return None, partner_info, "NEED_USER_BIRTH"
+
 
 DEFAULT_FEEDBACK_WEBHOOK = "https://script.google.com/macros/s/AKfycbwBA-NdVNPQSC_M-a_dMWinkH1-5zSADD0xxkXJkE42TYIa-fvQNGMrVoq2Yu5zJ1_-6A/exec"
 DEFAULT_CHANNEL_ID = "2011723219"
@@ -423,6 +515,47 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
         is_registered = bool(user and user.get("registered", False))
         liff_url = make_liff_url(base_raw_liff, user or {"line_user_id": user_id})
         
+        # Check Natural Synastry / Compatibility Check in Chat (e.g. "คู่ 14/02/2540 กทม", "คู่ 12/08/2538 กับ 14/02/2540", "ดวงสมพงษ์", "เนื้อคู่")
+        is_synastry_intent = any(k in text_lower for k in ['ดวงสมพงษ์', 'สมพงษ์', 'ดวงคู่', 'ตรวจคู่', 'ผูกดวงคู่', 'เนื้อคู่', 'ดวงเนื้อคู่']) or text_lower.startswith('คู่ ') or text_lower.startswith('คู่:') or ' กับ ' in text_lower or ' และ ' in text_lower
+        if is_synastry_intent:
+            p1_dict, p2_dict, err = parse_synastry_input_from_text(text, user)
+            if p1_dict and p2_dict:
+                syn_res = compute_synastry(p1_dict, p2_dict, "love")
+                result_flex = build_synastry_result_flex(user, syn_res, web_url)
+                p1_n = p1_dict.get('name', 'คุณ')
+                p2_n = p2_dict.get('name', 'หวานใจ')
+                reply([
+                    {
+                        "type": "text",
+                        "text": f"💖 แม่หมอผูกดวงสมพงษ์ระหว่าง {p1_n} กับ {p2_n} เรียบร้อยแล้วครับ! ✨\n\nคะแนนความเข้ากันได้: {syn_res.get('overallScore')}% ({syn_res.get('tierTitle')})\n\nนี่คือผลวิเคราะห์เจาะลึก 4 มิติชีวิตของคุณทั้งสองครับ 👇"
+                    },
+                    result_flex
+                ])
+                return
+            elif err == "NEED_USER_BIRTH":
+                reply([{
+                    "type": "text",
+                    "text": (
+                        "🔮 น้องหมียังไม่มีข้อมูลวันเกิดของคุณครับ\n\n"
+                        "📌 สามารถลงทะเบียนวันเกิดของคุณก่อน เช่น:\n"
+                        "👉 เกิด 12/08/2538 08:30 กทม\n\n"
+                        "หรือพิมพ์ตรวจดวง 2 ฝ่ายพร้อมกันได้ทันทีครับ เช่น:\n"
+                        "👉 คู่ 12/08/2538 กับ 14/02/2540"
+                    ),
+                    "quickReply": {
+                        "items": [
+                            {"type": "action", "action": {"type": "message", "label": "💡 ตัวอย่างตรวจ 2 ฝ่าย", "text": "คู่ 12/08/2538 กับ 14/02/2540 กทม"}},
+                            {"type": "action", "action": {"type": "uri", "label": "🌟 ลงทะเบียนวันเกิด", "uri": liff_url}},
+                            {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวงวันนี้", "text": "สรุปดวงประจำวัน"}}
+                        ]
+                    }
+                }])
+                return
+            elif err == "NO_DATE":
+                synastry_flex = build_synastry_intro_flex(web_url=web_url, user=user)
+                reply([synastry_flex])
+                return
+
         # Check Natural Chat Registration / LIFF auto-messages e.g. "เกิด 12/08/2538 08:30 กทม"
         parsed_natal = parse_birth_info_from_text(text)
         if parsed_natal:
@@ -482,12 +615,6 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             forecast_28 = compute_28day_forecast(user)
             monthly_flex = build_monthly_forecast_flex(user, forecast_28, liff_url, web_url)
             reply([monthly_flex])
-            return
-
-        # Check Synastry / Astrological Compatibility ("ดวงสมพงษ์", "เนื้อคู่", "ดวงเนื้อคู่", "ผูกดวงคู่", "ตรวจดวงสมพงษ์", "ดวงคู่", "คู่แท้", "synastry", "compatibility")
-        if any(k in text_lower for k in ["ดวงสมพงษ์", "สมพงษ์", "เนื้อคู่", "ดวงเนื้อคู่", "ผูกดวงคู่", "ตรวจดวงสมพงษ์", "ดวงคู่", "คู่แท้", "คู่มิตร", "คู่สร้างคู่สม", "synastry", "compatibility"]):
-            synastry_flex = build_synastry_intro_flex(web_url=web_url, user=user)
-            reply([synastry_flex])
             return
 
         # Check Personal Astro Stats & Streak Gimmick (สถิติดวงย้อนหลัง & กราฟ 7 วัน)

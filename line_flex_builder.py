@@ -4224,6 +4224,21 @@ def build_synastry_intro_flex(web_url: str = "https://plb-horoscope.vercel.app",
                     "contents": [
                         {"type": "text", "text": "✨ รองรับทั้งดูดวงคนรัก, คนคุยแอบชอบ, เพื่อนสนิท และหุ้นส่วนธุรกิจ พร้อมเคล็ดลับทำบุญเสริมวาสนาร่วมชาติ", "size": "xxs", "color": "#d8b4fe", "wrap": True}
                     ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#170f26",
+                    "borderColor": "#ec4899",
+                    "borderWidth": "1px",
+                    "cornerRadius": "10px",
+                    "paddingAll": "10px",
+                    "contents": [
+                        {"type": "text", "text": "💬 ตรวจในแชทนี้ได้ทันที! เพียงพิมพ์:", "weight": "bold", "size": "xxs", "color": "#f472b6"},
+                        {"type": "text", "text": "👉 คู่ [วันเกิดอีกฝ่าย]", "size": "xs", "weight": "bold", "color": "#fde047", "margin": "xs"},
+                        {"type": "text", "text": "เช่น 'คู่ 14/02/2540 กทม' หรือ 'คู่ 15 พ.ค. 2539 เชียงใหม่'", "size": "xxs", "color": "#cbd5e1", "margin": "xs"},
+                        {"type": "text", "text": "(หรือแตะปุ่มตัวอย่างด้านล่างได้เลยครับ 👇)", "size": "xxs", "color": "#94a3b8", "margin": "xs"}
+                    ]
                 }
             ]
         },
@@ -4266,12 +4281,298 @@ def build_synastry_intro_flex(web_url: str = "https://plb-horoscope.vercel.app",
         "contents": bubble,
         "quickReply": {
             "items": [
-                {"type": "action", "action": {"type": "uri", "label": "💖 ตรวจดวงสมพงษ์", "uri": synastry_liff_url}},
+                {"type": "action", "action": {"type": "message", "label": "💡 คู่ 14/02/2540 กทม", "text": "คู่ 14/02/2540 กทม"}},
+                {"type": "action", "action": {"type": "message", "label": "💡 คู่ 15 พ.ค. 2539", "text": "คู่ 15 พ.ค. 2539 เชียงใหม่"}},
+                {"type": "action", "action": {"type": "uri", "label": "🌐 ตรวจบนเว็บ", "uri": synastry_liff_url}},
+                {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวงวันนี้", "text": "สรุปดวงประจำวัน"}}
+            ]
+        }
+    }
+
+
+def build_synastry_result_flex(user: dict, synastry_res: dict, web_url: str = "https://plb-horoscope.vercel.app") -> dict:
+    """Build a stunning, world-class luxury Flex Message displaying complete Astrological Compatibility directly in LINE OA chat."""
+    import urllib.parse
+    web_url = web_url or "https://plb-horoscope.vercel.app"
+    p1 = synastry_res.get("person1", {})
+    p2 = synastry_res.get("person2", {})
+    scores = synastry_res.get("scores", {})
+    overall_score = synastry_res.get("overallScore", 80)
+    tier_title = synastry_res.get("tierTitle") or synastry_res.get("tier", {}).get("title", "💖 คู่แท้เกื้อกูล")
+    summary_quote = synastry_res.get("summaryQuote", "")
+    aspect_title = synastry_res.get("aspectTitle", "")
+    aspect_meaning = synastry_res.get("aspectMeaning", "")
+    elem_title = synastry_res.get("elementTitle", "")
+    elem_meaning = synastry_res.get("elementMeaning", "")
+    strengths = synastry_res.get("strengths", [])
+    cautions = synastry_res.get("cautions", [])
+    lucky_colors = synastry_res.get("luckyColors", [])
+    merit_advice = synastry_res.get("meritAdvice", "")
+
+    p1_name = p1.get("name") or "คุณ"
+    p2_name = p2.get("name") or "หวานใจ"
+    p1_asc = p1.get("ascendant", "เมษ")
+    p1_elem = p1.get("element", "ไฟ")
+    p2_asc = p2.get("ascendant", "ตุลย์")
+    p2_elem = p2.get("element", "ลม")
+
+    # Score color
+    score_color = "#f43f5e" if overall_score >= 85 else "#fbbf24" if overall_score >= 75 else "#60a5fa"
+
+    # Pre-encoded viral share text for 1-click LINE invite
+    share_msg = urllib.parse.quote(
+        f"💖 ผลตรวจดวงสมพงษ์ระหว่าง {p1_name} กับ {p2_name} ได้ {overall_score}%!\n"
+        f"🌟 ระดับ: {tier_title}\n"
+        f"🔮 ลัคนาคู่: {p1_asc} ({p1_elem}) x {p2_asc} ({p2_elem})\n"
+        f"💬 คำทำนาย: \"{summary_quote}\"\n\n"
+        f"👉 ลองมาตรวจดวงคู่กันได้ฟรีที่: {web_url}/#synastry"
+    )
+    line_share_url = f"https://line.me/R/msg/text/?{share_msg}"
+    synastry_liff_url = make_liff_url(web_url, user, extra_query="#synastry")
+
+    def make_dimension_row(label, icon, score_val, bar_color):
+        return {
+            "type": "box",
+            "layout": "vertical",
+            "spacing": "xs",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {"type": "text", "text": f"{icon} {label}", "size": "xxs", "color": "#cbd5e1", "flex": 1},
+                        {"type": "text", "text": f"{score_val}%", "size": "xxs", "weight": "bold", "color": bar_color, "align": "end"}
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#1e293b",
+                    "height": "6px",
+                    "cornerRadius": "3px",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "backgroundColor": bar_color,
+                            "height": "6px",
+                            "width": f"{score_val}%",
+                            "cornerRadius": "3px"
+                        }
+                    ]
+                }
+            ]
+        }
+
+    love_row = make_dimension_row("ความรักใคร่ เสน่หา", "❤️", scores.get("love", 80), "#f43f5e")
+    wealth_row = make_dimension_row("การเงิน & ขุมทรัพย์ร่วม", "💰", scores.get("wealth", 80), "#10b981")
+    career_row = make_dimension_row("การงาน & เกื้อกูลบารมี", "💼", scores.get("career", 80), "#38bdf8")
+    family_row = make_dimension_row("ครอบครัว & ความมั่นคง", "🏡", scores.get("family", 80), "#fbbf24")
+
+    strength_text = strengths[0] if strengths else "มีคลื่นพลังงานเกื้อกูลกันอย่างอบอุ่น"
+    caution_text = cautions[0] if cautions else "หมั่นรับฟังและเว้นระยะให้อภัยกันยามเห็นต่าง"
+    lucky_col_text = " • ".join(lucky_colors[:2]) if lucky_colors else "สีชมพู • สีขาวมุก"
+
+    bubble = {
+        "type": "bubble",
+        "size": "mega",
+        "hero": {
+            "type": "image",
+            "url": f"{web_url}/bear_love.jpg",
+            "size": "full",
+            "aspectRatio": "20:13",
+            "aspectMode": "cover",
+            "action": {
+                "type": "uri",
+                "uri": synastry_liff_url
+            }
+        },
+        "header": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "14px",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {"type": "text", "text": "💖 ผลตรวจดวงสมพงษ์ & เนื้อคู่แท้", "weight": "bold", "color": "#fb7185", "size": "sm", "flex": 1},
+                        {"type": "text", "text": "สุริยยาตร์แท้", "color": "#94a3b8", "size": "xxs", "align": "end"}
+                    ]
+                },
+                {"type": "text", "text": "คำนวณสมผุสลัคนาคู่ • องศาดาวจันทร์ • ธาตุสมพงษ์", "color": "#cbd5e1", "size": "xxs", "margin": "xs"}
+            ]
+        },
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#090d1a",
+            "paddingAll": "16px",
+            "spacing": "md",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "backgroundColor": "#131b2e",
+                    "cornerRadius": "12px",
+                    "paddingAll": "10px",
+                    "alignItems": "center",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "flex": 4,
+                            "contents": [
+                                {"type": "text", "text": p1_name, "weight": "bold", "color": "#ffffff", "size": "xs", "wrap": True},
+                                {"type": "text", "text": f"ลัคนา{p1_asc} ({p1_elem})", "color": "#fb7185", "size": "xxs"}
+                            ]
+                        },
+                        {
+                            "type": "text",
+                            "text": "💖",
+                            "size": "md",
+                            "align": "center",
+                            "flex": 2
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "flex": 4,
+                            "contents": [
+                                {"type": "text", "text": p2_name, "weight": "bold", "color": "#ffffff", "size": "xs", "align": "end", "wrap": True},
+                                {"type": "text", "text": f"ลัคนา{p2_asc} ({p2_elem})", "color": "#f472b6", "size": "xxs", "align": "end"}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#111827",
+                    "borderColor": "#f43f5e",
+                    "borderWidth": "1px",
+                    "cornerRadius": "14px",
+                    "paddingAll": "14px",
+                    "alignItems": "center",
+                    "contents": [
+                        {"type": "text", "text": f"{overall_score}%", "weight": "bold", "size": "xxl", "color": score_color},
+                        {"type": "text", "text": "คะแนนความสมพงษ์", "size": "xxs", "color": "#94a3b8", "margin": "xs"},
+                        {"type": "text", "text": tier_title, "weight": "bold", "size": "xs", "color": "#fda4af", "margin": "sm", "wrap": True, "align": "center"},
+                        {"type": "text", "text": f'"{summary_quote}"', "size": "xxs", "color": "#cbd5e1", "wrap": True, "align": "center", "margin": "xs"}
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#0f172a",
+                    "cornerRadius": "12px",
+                    "paddingAll": "12px",
+                    "spacing": "sm",
+                    "contents": [
+                        {"type": "text", "text": "📊 วิเคราะห์ความสัมพันธ์ 4 มิติชีวิต:", "weight": "bold", "size": "xs", "color": "#fbbf24"},
+                        love_row,
+                        wealth_row,
+                        career_row,
+                        family_row
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#17122b",
+                    "cornerRadius": "10px",
+                    "paddingAll": "10px",
+                    "spacing": "xs",
+                    "contents": [
+                        {"type": "text", "text": f"🌟 ภพชะตา: {aspect_title}", "weight": "bold", "size": "xxs", "color": "#c084fc"},
+                        {"type": "text", "text": f"• {aspect_meaning}", "size": "xxs", "color": "#cbd5e1", "wrap": True},
+                        {"type": "text", "text": f"💫 ธาตุคู่: {elem_title}", "weight": "bold", "size": "xxs", "color": "#f472b6", "margin": "xs"},
+                        {"type": "text", "text": f"• {elem_meaning}", "size": "xxs", "color": "#cbd5e1", "wrap": True}
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#0b1f17",
+                    "cornerRadius": "10px",
+                    "paddingAll": "10px",
+                    "contents": [
+                        {"type": "text", "text": "✨ จุดเด่นเกื้อกูล:", "weight": "bold", "size": "xxs", "color": "#34d399"},
+                        {"type": "text", "text": f"• {strength_text}", "size": "xxs", "color": "#a7f3d0", "wrap": True}
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#291804",
+                    "cornerRadius": "10px",
+                    "paddingAll": "10px",
+                    "contents": [
+                        {"type": "text", "text": "⚠️ จุดควรระวัง & แนวทางปรับจูน:", "weight": "bold", "size": "xxs", "color": "#fbbf24"},
+                        {"type": "text", "text": f"• {caution_text}", "size": "xxs", "color": "#fde68a", "wrap": True}
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#1e1329",
+                    "cornerRadius": "10px",
+                    "paddingAll": "10px",
+                    "spacing": "xs",
+                    "contents": [
+                        {"type": "text", "text": f"🎨 สีคู่มงคล: {lucky_col_text}", "size": "xxs", "color": "#f472b6", "weight": "bold"},
+                        {"type": "text", "text": f"🪷 ทำบุญร่วมชาติ: {merit_advice}", "size": "xxs", "color": "#cbd5e1", "wrap": True}
+                    ]
+                }
+            ]
+        },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "12px",
+            "spacing": "xs",
+            "contents": [
+                {
+                    "type": "button",
+                    "style": "primary",
+                    "color": "#059669",
+                    "height": "sm",
+                    "action": {
+                        "type": "uri",
+                        "label": "📲 ส่งผลตรวจให้คนรักทาง LINE",
+                        "uri": line_share_url
+                    }
+                },
+                {
+                    "type": "button",
+                    "style": "secondary",
+                    "color": "#1e293b",
+                    "height": "sm",
+                    "action": {
+                        "type": "uri",
+                        "label": "📸 ดูการ์ด Story & เจาะลึกบนเว็บ",
+                        "uri": synastry_liff_url
+                    }
+                }
+            ]
+        }
+    }
+
+    return {
+        "type": "flex",
+        "altText": f"💖 ผลตรวจดวงสมพงษ์ {p1_name} x {p2_name}: ได้ {overall_score}% ({tier_title}) ✨",
+        "contents": bubble,
+        "quickReply": {
+            "items": [
+                {"type": "action", "action": {"type": "message", "label": "💖 ตรวจคู่ใหม่", "text": "คู่ 14/02/2540"}},
                 {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวงวันนี้", "text": "สรุปดวงประจำวัน"}},
-                {"type": "action", "action": {"type": "message", "label": "🗓️ ดวงรายเดือน 28 วัน", "text": "ดวงรายเดือน"}},
+                {"type": "action", "action": {"type": "message", "label": "🗓️ ดวงรายเดือน", "text": "ดวงรายเดือน"}},
                 {"type": "action", "action": {"type": "message", "label": "🥠 เสี่ยงเซียมซี", "text": "เซียมซี"}}
             ]
         }
     }
+
 
 
