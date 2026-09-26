@@ -1186,19 +1186,29 @@ def compute_wedding_muhurta(person1_dict: dict, person2_dict: dict, days_ahead: 
             "ราชาฤกษ์": "เกื้อกูลเกียรติยศชื่อเสียง มีผู้ใหญ่สนับสนุนค้ำชู บารมีส่งเสริมคู่ชะตา"
         }
 
+        full_d = f"{thai_full_days[cur_w]}ที่ {cur_date.day} {thai_full_months[cur_date.month]} พ.ศ. {cur_date.year + 543}"
         candidates.append({
             "date": cur_date.strftime("%Y-%m-%d"),
             "dayName": thai_days[cur_w],
             "displayDate": f"วัน{thai_days[cur_w]}ที่ {cur_date.day} {thai_months[cur_date.month]} {cur_date.year + 543}",
-            "fullDate": f"วัน{thai_full_days[cur_w]}ที่ {cur_date.day} {thai_full_months[cur_date.month]} พ.ศ. {cur_date.year + 543}",
+            "fullDate": full_d,
+            "thaiDate": full_d,
             "paksha": paksha,
             "muhurtaCategory": cat_name,
+            "nakshatra": cat_name,
+            "nakshatraMeaning": cat_desc,
             "muhurtaMeaning": cat_desc,
             "score": min(score, 99),
             "morningWindow": "09:09 - 10:29 น. (มงคลสวมแหวน & พิธีสงฆ์)",
             "afternoonWindow": "14:19 - 15:49 น. (มงคลส่งตัวเข้าเรือนหอ)",
             "luckyColor": lucky_col,
-            "blessing": blessings.get(cat_name, "ดวงดาวเกื้อหนุนให้ชีวิตคู่ร่มเย็นเป็นสุข")
+            "blessing": blessings.get(cat_name, "ดวงดาวเกื้อหนุนให้ชีวิตคู่ร่มเย็นเป็นสุข"),
+            "highlights": [
+                "ปลอดวันกาลกิณีตามหลักทักษาของทั้งสองฝ่าย 100%",
+                f"จันทร์เสวย{cat_name} ({cat_desc})",
+                f"ดิถีมงคล: {paksha} ไร้ดาวบาปเคราะห์เบียน",
+                blessings.get(cat_name, "ดวงดาวเกื้อหนุนให้ชีวิตคู่ร่มเย็นเป็นสุข")
+            ]
         })
 
     candidates.sort(key=lambda x: -x["score"])
@@ -1239,6 +1249,8 @@ def compute_wedding_muhurta(person1_dict: dict, person2_dict: dict, days_ahead: 
         "scannedDays": scan_limit,
         "totalAuspiciousFound": len(candidates),
         "topDates": top_dates,
+        "luckyThemeColors": ["ชมพูโรสโกลด์ (Rose Gold)", "ครีมงาช้างมงคล (Ivory Cream)", "ทองคำประกาย (Warm Champagne Gold)"],
+        "summaryBlessing": "ขออำนวยพรให้คู่บ่าวสาวครองเรือนเคียงคู่ร่มเย็นเป็นสุข ปรารถนาสิ่งใดขอให้สำเร็จ มั่งคั่งด้วยทรัพย์สินบริวาร และมีความรักที่ยืนยาวตราบเท่านาน ✨",
         "kalakiniRule": f"คัดกรองปลอดวันกาลกิณีของ {name1} ({kala1_text}) และ {name2} ({kala2_text}) 100%"
     }
 
