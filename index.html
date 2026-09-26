@@ -3,8 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PLB โหราศาสตร์ - แอพดูดวงรายวันลัคนาราศีและดวงจร</title>
+  <title>PLB โหราศาสตร์ ✨ ดูดวงรายวันลัคนาราศี • ตรวจดวงสมพงษ์คู่แท้ • กราฟดวง 28 วัน</title>
+  
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="PLB โหราศาสตร์ ✨ คำนวณลัคนาราศีและดวงชะตาส่วนบุคคล">
+  <meta name="description" content="เว็บแอปพลิเคชันดูดวงรายวันคำนวณตามคัมภีร์สุริยยาตร์แท้ ตรวจดวงสมพงษ์คู่แท้ กราฟดวง 28 วันล่วงหน้า ตารางสีเสื้อมงคล และเลขเด็ดมหาทักษา รองรับ 77 จังหวัดทั่วไทย">
+  <meta name="keywords" content="ดูดวง, โหราศาสตร์ไทย, ลัคนาราศี, ดวงสมพงษ์, เนื้อคู่, ดวงรายวัน, สุริยยาตร์, สีเสื้อมงคล, เลขเด็ด">
+  <meta name="author" content="Earth PLB">
+  <meta name="theme-color" content="#030611">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PLB โหราศาสตร์">
+
+  <!-- Open Graph / Facebook / LINE -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://plb-horoscope.vercel.app/">
+  <meta property="og:site_name" content="PLB โหราศาสตร์">
+  <meta property="og:title" content="PLB โหราศาสตร์ ✨ ดูดวงรายวันลัคนาราศี & ตรวจดวงสมพงษ์คู่แท้">
+  <meta property="og:description" content="คำนวณดวงชะตาแม่นยำตามคัมภีร์สุริยยาตร์ ตรวจดวงสมพงษ์คู่แท้ กราฟดวง 28 วันล่วงหน้า สีเสื้อมงคล และขอเลขเด็ดมหาทักษาฟรี!">
+  <meta property="og:image" content="https://plb-horoscope.vercel.app/share_poster.jpg">
+  <meta property="og:image:width" content="1080">
+  <meta property="og:image:height" content="1920">
+  <meta property="og:locale" content="th_TH">
+
+  <!-- Twitter / X -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://plb-horoscope.vercel.app/">
+  <meta property="twitter:title" content="PLB โหราศาสตร์ ✨ ดูดวงรายวันลัคนาราศี & ตรวจดวงสมพงษ์คู่แท้">
+  <meta property="twitter:description" content="คำนวณดวงชะตาแม่นยำตามคัมภีร์สุริยยาตร์ ตรวจดวงสมพงษ์คู่แท้ กราฟดวง 28 วันล่วงหน้า สีเสื้อมงคล และขอเลขเด็ดมหาทักษาฟรี!">
+  <meta property="twitter:image" content="https://plb-horoscope.vercel.app/share_poster.jpg">
+
   <link rel="icon" type="image/jpeg" href="/logo.jpg">
+  <link rel="apple-touch-icon" href="/logo.jpg">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -611,6 +641,9 @@
           </button>
           <button onclick="setCategoryTab('love')" id="tab-love" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 transition-all active:scale-95 flex items-center gap-1.5 hover:text-white">
             <span>🐻‍❄️❤️</span> <span>ความรัก</span>
+          </button>
+          <button onclick="setCategoryTab('synastry')" id="tab-synastry" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-gradient-to-r from-rose-950/80 to-pink-950/80 hover:bg-rose-900/80 border border-rose-500/50 text-rose-300 transition-all active:scale-95 flex items-center gap-1.5 hover:text-white shadow-sm">
+            <span>🐻‍❄️💖</span> <span>ตรวจดวงสมพงษ์คู่แท้</span>
           </button>
           <button onclick="setCategoryTab('health')" id="tab-health" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 transition-all active:scale-95 flex items-center gap-1.5 hover:text-white">
             <span>🐻‍❄️🩺</span> <span>สุขภาพ</span>
@@ -2462,6 +2495,12 @@
         return;
       }
 
+      if (state.activeTab === 'synastry') {
+        luckySec.classList.add('hidden');
+        renderSynastryView(container);
+        return;
+      }
+
       luckySec.classList.remove('hidden');
 
       let list = [];
@@ -2710,6 +2749,7 @@
       career: "💼 หมวดการงาน ผู้ใหญ่เมตตา งานสำเร็จลุล่วงแน่นอนครับ! 🌟",
       finance: "💰 หมวดการเงิน กระเป๋าตุง รับทรัพย์เฮงๆ ปังๆ ครับ! 💵",
       love: "❤️ หมวดความรัก เสน่ห์แพรวพราว ใครเห็นก็หลงรักครับ 💕",
+      synastry: "💖 ผูกดวงสมพงษ์คู่แท้ วิเคราะห์ 4 มิติด้วยโหราศาสตร์ไทยโบราณ เช็กความเข้ากันได้ทันทีครับ! 🐻‍❄️✨",
       health: "🩺 หมวดสุขภาพ พลังกายพลังใจสดใส ร่างกายแข็งแรงครับ! 🛡️",
       monthly: "🗓️ สรุปดวงรายเดือน 28 วัน วางแผนชีวิต รู้ล่วงหน้าวันทองทำการใหญ่ & วันควรระวังครับ! 🐻‍❄️✨",
       lucky: "🔮 เกร็ดมงคล เลขเด็ด สีนำโชค เสริมดวงพุ่งแรงครับ ✨",
@@ -3369,6 +3409,895 @@
       renderSelectedDayInspector(initialDay);
     }
 
+    // =======================================================
+    // VIRAL ASTROLOGICAL COMPATIBILITY & SYNASTRY (ผูกดวงสมพงษ์)
+    // =======================================================
+    let synastryState = {
+      person1: null,
+      person2: {
+        name: "คนรัก / หวานใจ",
+        birthDate: "2540-02-14",
+        birthTime: "08:30",
+        birthProvince: "กรุงเทพมหานคร"
+      },
+      relationshipType: "love", // love, crush, friend, business
+      result: null,
+      loading: false
+    };
+
+    function initSynastryPerson1() {
+      if (!synastryState.person1) {
+        let bDate = "";
+        let bTime = "08:30";
+        let bProv = "กรุงเทพมหานคร";
+        let pName = "ตัวคุณ";
+
+        if (state.birth && state.birth.date) {
+          bDate = state.birth.date;
+          bTime = state.birth.time || "08:30";
+          bProv = state.birth.province || "กรุงเทพมหานคร";
+        }
+        if (state.name || state.profileName) {
+          pName = state.name || state.profileName;
+        }
+
+        synastryState.person1 = {
+          name: pName,
+          birthDate: bDate || "2538-08-12",
+          birthTime: bTime,
+          birthProvince: bProv
+        };
+      }
+    }
+
+    function buildClientSynastryModel(p1, p2, relType) {
+      const zodiacSigns = [
+        { id: 0, name: "เมษ", element: "ไฟ", label: "ราศีเมษ (ธาตุไฟ)" },
+        { id: 1, name: "พฤษภ", element: "ดิน", label: "ราศีพฤษภ (ธาตุดิน)" },
+        { id: 2, name: "เมถุน", element: "ลม", label: "ราศีเมถุน (ธาตุลม)" },
+        { id: 3, name: "กรกฎ", element: "น้ำ", label: "ราศีกรกฎ (ธาตุน้ำ)" },
+        { id: 4, name: "สิงห์", element: "ไฟ", label: "ราศีสิงห์ (ธาตุไฟ)" },
+        { id: 5, name: "กันย์", element: "ดิน", label: "ราศีกันย์ (ธาตุดิน)" },
+        { id: 6, name: "ตุลย์", element: "ลม", label: "ราศีตุลย์ (ธาตุลม)" },
+        { id: 7, name: "พิจิก", element: "น้ำ", label: "ราศีพิจิก (ธาตุน้ำ)" },
+        { id: 8, name: "ธนู", element: "ไฟ", label: "ราศีธนู (ธาตุไฟ)" },
+        { id: 9, name: "มังกร", element: "ดิน", label: "ราศีมังกร (ธาตุดิน)" },
+        { id: 10, name: "กุมภ์", element: "ลม", label: "ราศีกุมภ์ (ธาตุลม)" },
+        { id: 11, name: "มีน", element: "น้ำ", label: "ราศีมีน (ธาตุน้ำ)" }
+      ];
+
+      function parseSign(p, defaultId) {
+        if (!p || !p.birthDate) return zodiacSigns[defaultId];
+        let parts = p.birthDate.split('-');
+        let m = parseInt(parts[1], 10) || 5;
+        let d = parseInt(parts[2], 10) || 15;
+        let tParts = (p.birthTime || "08:30").split(':');
+        let hr = parseInt(tParts[0], 10) || 8;
+        let sunSign = (m + (d > 15 ? 0 : 11)) % 12;
+        let ascSign = (sunSign + Math.floor((hr - 6 + 24) / 2)) % 12;
+        return zodiacSigns[ascSign];
+      }
+
+      const sign1 = (state.data && state.data.natalChart && state.data.natalChart.ascendant && p1.name === (state.name || state.profileName || "ตัวคุณ"))
+        ? (zodiacSigns.find(z => z.name === state.data.natalChart.ascendant.signName) || parseSign(p1, 0))
+        : parseSign(p1, 0);
+      const sign2 = parseSign(p2, 6);
+
+      const houseDiff = (sign2.id - sign1.id + 12) % 12;
+      let aspectScore = 70;
+      let aspectTitle = "มุมสัมพันธ์ทั่วไป (Aspect)";
+      let aspectMeaning = "ดวงชะตาส่งพลังเกื้อกูลในระดับมาตรฐาน ต้องอาศัยการปรับตัว";
+
+      if (houseDiff === 0) {
+        aspectScore = 92;
+        aspectTitle = "ลัคนาร่วมราศี (กุมลัคน์ • ตนุลัคน์)";
+        aspectMeaning = "มีบุคลิก ทัศนคติ และรสนิยมคล้ายกันมาก คุยกันถูกคอ เข้าใจความรู้สึกกันได้โดยไม่ต้องพูดเยอะ";
+      } else if (houseDiff === 6) {
+        aspectScore = 95;
+        aspectTitle = "คู่สร้างคู่สมตามคัมภีร์ (ปัตนิ • เล็ง 180°)";
+        aspectMeaning = "เป็นคู่ตรงข้ามที่เติมเต็มกันได้อย่างลงตัว จุดแข็งของอีกฝ่ายกลบจุดอ่อนของอีกฝ่ายอย่างสมบูรณ์แบบ";
+      } else if (houseDiff === 4 || houseDiff === 8) {
+        aspectScore = 90;
+        aspectTitle = "มุมตรีโกณมหาโชค (ปุตตะ & ศุภะ • 120°)";
+        aspectMeaning = "เกณฑ์คู่บุญบารมี อยู่ด้วยกันแล้วชีวิตมีแต่ความเจริญก้าวหน้า มีโชคลาภ และผู้ใหญ่ให้ความเมตตา";
+      } else if (houseDiff === 2 || houseDiff === 10) {
+        aspectScore = 86;
+        aspectTitle = "มุมโยกหน้า-โยกหลัง (สหัชชะ & ลาภะ • 60°)";
+        aspectMeaning = "เป็นคู่มิตรที่ปรึกษากันได้ทุกเรื่อง เกื้อหนุนเรื่องการติดต่อสื่อสารและผลประโยชน์ร่วม";
+      } else if (houseDiff === 1 || houseDiff === 11) {
+        aspectScore = 78;
+        aspectTitle = "มุมกดุมภะ & วินาศ (เกื้อกูลทรัพย์สิน)";
+        aspectMeaning = "อีกฝ่ายช่วยเก็บเงินหรือนำโอกาสทางการเงินมาให้ ต้องระวังเรื่องการใช้จ่ายที่ไม่ตรงกัน";
+      } else {
+        aspectScore = 72;
+        aspectTitle = "มุมอุปสรรคชวนพัฒนา (อริ / มรณะ)";
+        aspectMeaning = "มีมุมมองชีวิตคนละขั้ว แต่หากผ่านบททดสอบและเข้าใจกันได้ จะกลายเป็นคู่คิดที่มั่นคงแข็งแกร่ง";
+      }
+
+      const e1 = sign1.element;
+      const e2 = sign2.element;
+      let elemScore = 75;
+      let elemTitle = `ธาตุ${e1} x ธาตุ${e2}`;
+      let elemMeaning = "ธาตุต่างขั้ว ต้องการการเปิดใจรับฟัง";
+
+      if (e1 === e2) {
+        elemScore = 94;
+        elemTitle = `ธาตุเดียวกัน (ธาตุ${e1} x ธาตุ${e2})`;
+        elemMeaning = "คลื่นพลังงานธาตุสอดคล้องอย่างเป็นธรรมชาติ สบายใจยามอยู่ใกล้ชิด";
+      } else if ((e1 === 'ไฟ' && e2 === 'ลม') || (e1 === 'ลม' && e2 === 'ไฟ')) {
+        elemScore = 92;
+        elemTitle = "ลมหนุนไฟ (คู่ธาตุส่งเสริมพลัง)";
+        elemMeaning = "ลมพัดให้ไฟลุกโชนอย่างอบอุ่น ไอเดียและการกระทำเกื้อหนุนกันอย่างสร้างสรรค์";
+      } else if ((e1 === 'ดิน' && e2 === 'น้ำ') || (e1 === 'น้ำ' && e2 === 'ดิน')) {
+        elemScore = 90;
+        elemTitle = "ดินชุ่มน้ำ (คู่ธาตุความอุดมสมบูรณ์)";
+        elemMeaning = "น้ำทำให้ดินชุ่มชื้น ดินโอบอุ้มน้ำให้มั่นคง ก่อเกิดความมั่นคงมั่งคั่งในชีวิต";
+      } else if ((e1 === 'ไฟ' && e2 === 'น้ำ') || (e1 === 'น้ำ' && e2 === 'ไฟ')) {
+        elemScore = 68;
+        elemTitle = "ไฟกับน้ำ (คู่ธาตุปรับสมดุล)";
+        elemMeaning = "ไฟร้อนแรง น้ำเย็นสงบ ต้องคอยรักษาระดับอุณหภูมิ ไม่ให้ความใจร้อนทำลายความสัมพันธ์";
+      } else {
+        elemScore = 80;
+        elemTitle = `คู่ผสมผสาน (ธาตุ${e1} x ธาตุ${e2})`;
+        elemMeaning = "เติมเต็มความต่างได้อย่างสมดุลหากเคารพพื้นที่ส่วนตัวของกันและกัน";
+      }
+
+      let baseOverall = Math.round((aspectScore * 0.55) + (elemScore * 0.45));
+      baseOverall = Math.max(62, Math.min(98, baseOverall));
+
+      let loveScore = Math.min(99, Math.round(baseOverall * 1.02));
+      let wealthScore = Math.min(99, Math.round(baseOverall * 0.96));
+      let careerScore = Math.min(99, Math.round(baseOverall * 0.94));
+      let familyScore = Math.min(99, Math.round(baseOverall * 0.98));
+
+      if (relType === 'business') {
+        careerScore = Math.min(99, Math.round(baseOverall * 1.05));
+        wealthScore = Math.min(99, Math.round(baseOverall * 1.03));
+      } else if (relType === 'friend') {
+        careerScore = Math.min(99, Math.round(baseOverall * 1.02));
+        loveScore = Math.min(99, Math.round(baseOverall * 0.90));
+      }
+
+      let tierTitle = "💖 คู่สร้างคู่สม บุพเพสันนิวาส (Soulmate)";
+      let badgeLabel = "บุพเพสันนิวาส";
+      let summaryQuote = "คู่บุญบารมีที่โคจรมาพบเพื่อส่งเสริมวาสนา เป็นที่พึ่งทางใจและร่วมสร้างอนาคตอันสดใส";
+
+      if (baseOverall >= 90) {
+        tierTitle = "💖 คู่สร้างคู่สม บุพเพสันนิวาส (Soulmate)";
+        badgeLabel = "บุพเพสันนิวาส";
+        summaryQuote = "คู่บุญบารมีที่โคจรมาพบเพื่อส่งเสริมวาสนา เป็นที่พึ่งทางใจและร่วมสร้างอนาคตอันสดใส";
+      } else if (baseOverall >= 82) {
+        tierTitle = "💖 คู่แท้เกื้อกูลสร้างอนาคต (Destined Harmony)";
+        badgeLabel = "คู่แท้เกื้อกูล";
+        summaryQuote = "มีคลื่นพลังงานความเข้าใจสูง ช่วยเหลือและคอยเป็นกำลังใจให้กันอย่างมั่นคง";
+      } else if (baseOverall >= 74) {
+        tierTitle = "🤝 คู่มิตรแท้ ผูกพันลึกซึ้ง (True Companion)";
+        badgeLabel = "คู่มิตรผูกพัน";
+        summaryQuote = "มีความต่างที่ช่วยเปิดมุมมองใหม่ หากคุยกันด้วยเหตุผลจะเป็นคู่หูที่ไม่มีวันทอดทิ้งกัน";
+      } else {
+        tierTitle = "🌟 คู่บทเรียนชีวิต พัฒนาสู่ความเข้าใจ (Karmic Growth)";
+        badgeLabel = "คู่เรียนรู้ร่วมกัน";
+        summaryQuote = "ความสัมพันธ์นี้มาเพื่อฝึกความอดทนและการให้อภัย การรับฟังจะเปลี่ยนอุปสรรคเป็นความผูกพัน";
+      }
+
+      return {
+        person1: {
+          name: p1.name || "ดวงชะตาคุณ",
+          ascendant: sign1.name,
+          element: sign1.element,
+          zodiacLabel: sign1.label,
+          birthDate: p1.birthDate
+        },
+        person2: {
+          name: p2.name || "ดวงอีกฝ่าย",
+          ascendant: sign2.name,
+          element: sign2.element,
+          zodiacLabel: sign2.label,
+          birthDate: p2.birthDate
+        },
+        relationshipType: relType,
+        overallScore: baseOverall,
+        tierTitle: tierTitle,
+        badgeLabel: badgeLabel,
+        tier: { title: tierTitle, badge: badgeLabel },
+        summaryQuote: summaryQuote,
+        aspectTitle: aspectTitle,
+        aspectMeaning: aspectMeaning,
+        elementTitle: elemTitle,
+        elementMeaning: elemMeaning,
+        scores: {
+          love: loveScore,
+          wealth: wealthScore,
+          career: careerScore,
+          family: familyScore
+        },
+        strengths: [
+          `พลังธาตุคู่ (${sign1.element} & ${sign2.element}) เสริมส่งให้เกิดความอบอุ่นและความมีชีวิตชีวา`,
+          `เกณฑ์ภพชะตา: ${aspectTitle} ช่วยให้มีความเข้าใจในตัวตนของกันและกันได้เร็ว`,
+          `มีเป้าหมายชีวิตและการมองความสำเร็จในทิศทางที่เกื้อหนุนกัน`
+        ],
+        cautions: [
+          `เมื่อเกิดความขัดแย้ง ควรหลีกเลี่ยงการใช้อารมณ์หรือคำพูดประชดประชัน ให้เว้นระยะแล้วค่อยปรับความเข้าใจ`,
+          `หมั่นเปิดใจปรึกษาเรื่องการเงินและการวางแผนอนาคตอย่างโปร่งใส`
+        ],
+        luckyColors: ["สีชมพูโรสโกลด์ (เสริมเมตตามหานิยม)", "สีขาวมุกบริสุทธิ์ (เสริมความสงบสุข)", "สีเขียวมรกต (เสริมทรัพย์คู่)"],
+        meritAdvice: "ร่วมกันทำบุญถวายของเป็นคู่ เช่น หลอดไฟคู่, เชิงเทียนคู่, หรือร่วมทำบุญปล่อยปลา จะช่วยส่งเสริมให้ความสัมพันธ์สว่างไสวและราบรื่นยิ่งขึ้น"
+      };
+    }
+
+    window.setSynastryRelType = function(type) {
+      synastryState.relationshipType = type;
+      const container = document.getElementById('cardsContainer');
+      if (container && state.activeTab === 'synastry') {
+        renderSynastryView(container);
+      }
+    };
+
+    window.resetSynastryCheck = function() {
+      synastryState.result = null;
+      const container = document.getElementById('cardsContainer');
+      if (container) renderSynastryView(container);
+    };
+
+    window.calculateSynastry = async function() {
+      const n1 = document.getElementById('syn_p1_name')?.value?.trim() || synastryState.person1?.name || "ดวงฝ่ายที่ 1";
+      const b1 = document.getElementById('syn_p1_date')?.value || synastryState.person1?.birthDate;
+      const t1 = document.getElementById('syn_p1_time')?.value || synastryState.person1?.birthTime || "08:30";
+      const p1 = document.getElementById('syn_p1_prov')?.value || synastryState.person1?.birthProvince || "กรุงเทพมหานคร";
+
+      const n2 = document.getElementById('syn_p2_name')?.value?.trim() || synastryState.person2?.name || "ดวงฝ่ายที่ 2";
+      const b2 = document.getElementById('syn_p2_date')?.value || synastryState.person2?.birthDate;
+      const t2 = document.getElementById('syn_p2_time')?.value || synastryState.person2?.birthTime || "08:30";
+      const p2 = document.getElementById('syn_p2_prov')?.value || synastryState.person2?.birthProvince || "กรุงเทพมหานคร";
+
+      if (!b1 || !b2) {
+        alert("กรุณาระบุวันเดือนปีเกิดของทั้งสองฝ่ายให้ครบถ้วนครับ");
+        return;
+      }
+
+      synastryState.person1 = { name: n1, birthDate: b1, birthTime: t1, birthProvince: p1 };
+      synastryState.person2 = { name: n2, birthDate: b2, birthTime: t2, birthProvince: p2 };
+      synastryState.loading = true;
+
+      const container = document.getElementById('cardsContainer');
+      if (container) renderSynastryView(container);
+
+      try {
+        const payload = {
+          person1: synastryState.person1,
+          person2: synastryState.person2,
+          relationshipType: synastryState.relationshipType,
+          action: "compute_synastry"
+        };
+        const r = await fetch('/api/astrology/synastry', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (r.ok) {
+          const json = await r.json();
+          if (json.success && json.data) {
+            synastryState.result = json.data;
+          }
+        }
+      } catch (err) {
+        console.warn("Synastry API offline or failed, fallback to client calculation:", err);
+      }
+
+      if (!synastryState.result) {
+        synastryState.result = buildClientSynastryModel(synastryState.person1, synastryState.person2, synastryState.relationshipType);
+      }
+
+      synastryState.loading = false;
+      if (container) renderSynastryView(container);
+
+      if (typeof addAstroXP === 'function') {
+        addAstroXP(15, `ผูกดวงสมพงษ์ ${n1} x ${n2} 💖`, `synastry_${Date.now()}`);
+      }
+
+      const topCard = document.getElementById('synastryResultCard');
+      if (topCard) {
+        const y = topCard.getBoundingClientRect().top + window.pageYOffset - 110;
+        window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+      }
+    };
+
+    window.shareSynastryToLine = function() {
+      const res = synastryState.result;
+      if (!res) return;
+      const text = `💖 ผลตรวจดวงสมพงษ์ระหว่าง "${res.person1.name}" กับ "${res.person2.name}"\n` +
+        `✨ คะแนนความสมพงษ์: ${res.overallScore}% (${res.tierTitle || res.tier?.title || 'คู่แท้'})\n` +
+        `🔮 ลัคนาคู่: ${res.person1.ascendant} (${res.person1.element}) x ${res.person2.ascendant} (${res.person2.element})\n` +
+        `💬 คำทำนาย: "${res.summaryQuote}"\n\n` +
+        `👉 ลองมาผูกดวงตรวจดวงคู่กันได้ฟรีที่: https://plb-horoscope.vercel.app/#synastry`;
+      window.open(`https://line.me/R/msg/text/?${encodeURIComponent(text)}`, '_blank');
+    };
+
+    window.generateCoupleStoryCard = async function() {
+      const res = synastryState.result;
+      if (!res) return;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = 1080;
+      canvas.height = 1920;
+      const ctx = canvas.getContext('2d');
+
+      // Background Gradient
+      const bgGrad = ctx.createLinearGradient(0, 0, 1080, 1920);
+      bgGrad.addColorStop(0, '#030611');
+      bgGrad.addColorStop(0.35, '#230b2e');
+      bgGrad.addColorStop(0.7, '#120a2b');
+      bgGrad.addColorStop(1, '#02040a');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, 1080, 1920);
+
+      // Star Particles
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      for (let i = 0; i < 90; i++) {
+        const x = (i * 123) % 1080;
+        const y = (i * 327) % 1920;
+        const r = (i % 3) + 1;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Ornate Border
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.45)';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(36, 36, 1080 - 72, 1920 - 72);
+
+      ctx.strokeStyle = 'rgba(244, 63, 94, 0.35)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(48, 48, 1080 - 96, 1920 - 96);
+
+      // App Brand Title
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 30px "Prompt", sans-serif';
+      ctx.fillText('✨ PLB THAI ASTROLOGY • โหราศาสตร์ไทยโบราณ ✨', 540, 130);
+
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = '24px "Prompt", sans-serif';
+      ctx.fillText('การผูกดวงสมพงษ์ & ค้นหาเนื้อคู่แท้ตามคัมภีร์สุริยยาตร์', 540, 175);
+
+      // Couple Names
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 54px "Prompt", sans-serif';
+      ctx.fillText(`${res.person1.name}  💖  ${res.person2.name}`, 540, 270);
+
+      // Lagna pair label
+      ctx.fillStyle = '#f43f5e';
+      ctx.font = 'bold 28px "Prompt", sans-serif';
+      ctx.fillText(`ลัคนา${res.person1.ascendant} (ธาตุ${res.person1.element})  ×  ลัคนา${res.person2.ascendant} (ธาตุ${res.person2.element})`, 540, 325);
+
+      // Big Score Circle
+      const cx = 540;
+      const cy = 520;
+      const rad = 140;
+
+      // Glow behind circle
+      const glowGrad = ctx.createRadialGradient(cx, cy, 50, cx, cy, rad + 40);
+      glowGrad.addColorStop(0, 'rgba(244, 63, 94, 0.35)');
+      glowGrad.addColorStop(1, 'rgba(244, 63, 94, 0)');
+      ctx.fillStyle = glowGrad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, rad + 40, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Outer ring
+      ctx.lineWidth = 14;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.beginPath();
+      ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Progress arc
+      ctx.strokeStyle = '#f43f5e';
+      ctx.lineWidth = 14;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      const startAngle = -Math.PI / 2;
+      const endAngle = startAngle + (Math.PI * 2 * (res.overallScore / 100));
+      ctx.arc(cx, cy, rad, startAngle, endAngle);
+      ctx.stroke();
+
+      // Score Text
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 92px "Prompt", sans-serif';
+      ctx.fillText(`${res.overallScore}%`, cx, cy + 24);
+
+      ctx.fillStyle = '#fbcfe8';
+      ctx.font = '24px "Prompt", sans-serif';
+      ctx.fillText('คะแนนความสมพงษ์', cx, cy + 65);
+
+      // Tier Badge Box
+      const tierText = res.tierTitle || res.tier?.title || '💖 คู่สร้างคู่สม บุพเพสันนิวาส';
+      ctx.font = 'bold 36px "Prompt", sans-serif';
+      const textWidth = ctx.measureText(tierText).width;
+      const badgeW = textWidth + 80;
+      const badgeH = 70;
+      const badgeX = 540 - (badgeW / 2);
+      const badgeY = 705;
+
+      ctx.fillStyle = 'rgba(244, 63, 94, 0.2)';
+      ctx.strokeStyle = '#f43f5e';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 35);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#fda4af';
+      ctx.fillText(tierText, 540, badgeY + 48);
+
+      // Quote Banner
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(90, 810, 900, 140, 24);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#fde68a';
+      ctx.font = 'italic 28px "Prompt", sans-serif';
+      const quote = `"${res.summaryQuote}"`;
+      ctx.fillText(quote.length > 55 ? quote.substring(0, 52) + '..."' : quote, 540, 890);
+
+      // 4 Dimension Progress Bars Box
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.7)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(90, 985, 900, 480, 24);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 32px "Prompt", sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('📊 วิเคราะห์ความสัมพันธ์ 4 มิติชีวิต', 130, 1045);
+
+      const dims = [
+        { label: '❤️ ความรักใคร่ เสน่หา (Love)', score: res.scores.love, color: '#f43f5e' },
+        { label: '💰 การเงิน & ขุมทรัพย์ร่วม (Wealth)', score: res.scores.wealth, color: '#10b981' },
+        { label: '💼 การงาน & เกื้อกูลบารมี (Career)', score: res.scores.career, color: '#3b82f6' },
+        { label: '🏡 ครอบครัว & ความมั่นคง (Family)', score: res.scores.family, color: '#f59e0b' }
+      ];
+
+      dims.forEach((d, idx) => {
+        const startY = 1110 + (idx * 85);
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = '26px "Prompt", sans-serif';
+        ctx.fillText(d.label, 130, startY);
+
+        ctx.textAlign = 'right';
+        ctx.fillStyle = d.color;
+        ctx.font = 'bold 26px "Prompt", sans-serif';
+        ctx.fillText(`${d.score}%`, 950, startY);
+        ctx.textAlign = 'left';
+
+        // Bar track
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.beginPath();
+        ctx.roundRect(130, startY + 12, 820, 16, 8);
+        ctx.fill();
+
+        // Bar filled
+        ctx.fillStyle = d.color;
+        ctx.beginPath();
+        ctx.roundRect(130, startY + 12, (820 * d.score) / 100, 16, 8);
+        ctx.fill();
+      });
+
+      // Astrological Aspects Box
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.7)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(90, 1495, 900, 210, 24);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 26px "Prompt", sans-serif';
+      ctx.fillText(`🌟 ${res.aspectTitle}`, 130, 1550);
+
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = '22px "Prompt", sans-serif';
+      const m1 = res.aspectMeaning.length > 55 ? res.aspectMeaning.substring(0, 52) + '...' : res.aspectMeaning;
+      ctx.fillText(`• ${m1}`, 130, 1595);
+
+      ctx.fillStyle = '#f43f5e';
+      ctx.font = 'bold 26px "Prompt", sans-serif';
+      ctx.fillText(`💫 ${res.elementTitle}`, 130, 1640);
+
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = '22px "Prompt", sans-serif';
+      const m2 = res.elementMeaning.length > 55 ? res.elementMeaning.substring(0, 52) + '...' : res.elementMeaning;
+      ctx.fillText(`• ${m2}`, 130, 1680);
+
+      // Story Footer / Watermark
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 30px "Prompt", sans-serif';
+      ctx.fillText('📲 ตรวจดวงสมพงษ์ & เช็กคู่แท้ของคุณได้ฟรีที่:', 540, 1775);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 34px "Prompt", sans-serif';
+      ctx.fillText('https://plb-horoscope.vercel.app/#synastry', 540, 1825);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '20px "Prompt", sans-serif';
+      ctx.fillText('AI x โหราศาสตร์ไทยประยุกต์โบราณ • PLB Horoscope', 540, 1870);
+
+      // Download triggered
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `PLB-ดวงสมพงษ์-${res.person1.name}-${res.person2.name}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      if (typeof showToast === 'function') {
+        showToast('📸 บันทึกรูปการ์ดคู่เรียบร้อย! นำไปลง IG / Facebook / LINE Story ได้เลยครับ ✨');
+      } else {
+        alert('📸 บันทึกรูปการ์ดคู่เรียบร้อย! นำไปแชร์ลง Story ได้ทันทีครับ ✨');
+      }
+    };
+
+    function renderSynastryView(container) {
+      initSynastryPerson1();
+      const p1 = synastryState.person1;
+      const p2 = synastryState.person2;
+      const res = synastryState.result;
+      const relType = synastryState.relationshipType;
+
+      if (synastryState.loading) {
+        container.innerHTML = `
+          <div class="col-span-full py-16 flex flex-col items-center justify-center text-center">
+            <div class="relative w-28 h-28 mb-6">
+              <div class="absolute inset-0 rounded-full border-4 border-rose-500/20 border-t-rose-500 animate-spin"></div>
+              <img src="/bear_love.jpg" class="w-24 h-24 rounded-full object-cover p-1.5 absolute inset-2 shadow-lg">
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-rose-300 mb-2">🔮 แม่หมอกำลังผูกดวงชะตาคู่...</h3>
+            <p class="text-sm text-slate-400 max-w-md">คำนวณองศาดาวจันทร์ ลัคนาคู่ และตรวจเช็กธาตุสมพงษ์ 4 มิติด้วยคัมภีร์สุริยยาตร์แท้</p>
+          </div>
+        `;
+        return;
+      }
+
+      const relOptions = [
+        { id: 'love', label: '💖 แฟน / คู่ครอง', desc: 'ตรวจความรักเสน่หาและความยืนยาว' },
+        { id: 'crush', label: '💌 คนที่แอบชอบ', desc: 'เช็กเคมีและโอกาสพัฒนาความสัมพันธ์' },
+        { id: 'friend', label: '🤝 มิตรแท้เพื่อนสนิท', desc: 'เช็กความเข้ากันได้และการช่วยเหลือ' },
+        { id: 'business', label: '💼 หุ้นส่วนธุรกิจ', desc: 'เช็กโชคลาภการเงินและความร่วมมือ' }
+      ];
+
+      const provOptions = ALL_77_PROVINCES.map(pr => `<option value="${pr}">${pr}</option>`).join('');
+
+      let resultHtml = '';
+      if (res) {
+        const scoreColor = res.overallScore >= 85 ? 'from-rose-500 to-pink-500 text-rose-300'
+          : res.overallScore >= 75 ? 'from-amber-400 to-rose-400 text-amber-300'
+          : 'from-blue-400 to-indigo-400 text-blue-300';
+
+        resultHtml = `
+          <!-- Synastry Result Card -->
+          <div id="synastryResultCard" class="bg-gradient-to-b from-slate-900/90 via-slate-950/95 to-slate-900/90 border-2 border-rose-500/40 rounded-3xl p-5 sm:p-8 shadow-2xl relative overflow-hidden mb-8">
+            <div class="absolute -top-32 -right-32 w-80 h-80 bg-rose-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-32 -left-32 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <!-- Header Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+              <div class="flex items-center gap-2">
+                <span class="px-3.5 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40">
+                  💖 ผลตรวจดวงสมพงษ์ & เนื้อคู่แท้
+                </span>
+                <span class="text-xs text-slate-400">สุริยยาตร์แท้ 100%</span>
+              </div>
+              <button onclick="resetSynastryCheck()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 active:scale-95 transition-all flex items-center gap-1">
+                <span>🔄</span> <span>ตรวจคู่ใหม่</span>
+              </button>
+            </div>
+
+            <!-- Couple Names & Ascendants -->
+            <div class="text-center mb-8">
+              <div class="flex items-center justify-center gap-3 sm:gap-6 mb-3">
+                <div class="text-center">
+                  <div class="text-base sm:text-xl font-bold text-white">${res.person1.name}</div>
+                  <div class="text-xs text-rose-400">ลัคนา${res.person1.ascendant} (ธาตุ${res.person1.element})</div>
+                </div>
+                <div class="text-2xl sm:text-3xl animate-pulse">💖</div>
+                <div class="text-center">
+                  <div class="text-base sm:text-xl font-bold text-white">${res.person2.name}</div>
+                  <div class="text-xs text-pink-400">ลัคนา${res.person2.ascendant} (ธาตุ${res.person2.element})</div>
+                </div>
+              </div>
+
+              <!-- Score Dial Hero -->
+              <div class="my-6 inline-flex flex-col items-center justify-center p-6 sm:p-8 rounded-full bg-slate-950/80 border-4 border-rose-500/40 shadow-inner relative">
+                <div class="text-5xl sm:text-7xl font-extrabold bg-gradient-to-r ${scoreColor} bg-clip-text text-transparent">
+                  ${res.overallScore}%
+                </div>
+                <div class="text-xs sm:text-sm font-semibold text-rose-300 mt-1">คะแนนความสมพงษ์</div>
+              </div>
+
+              <!-- Tier Title -->
+              <div class="text-lg sm:text-2xl font-bold text-amber-300 mb-2">
+                ${res.tierTitle || res.tier?.title || '💖 คู่สร้างคู่สม บุพเพสันนิวาส'}
+              </div>
+              <p class="text-sm sm:text-base text-slate-300 max-w-xl mx-auto italic leading-relaxed">
+                "${res.summaryQuote}"
+              </p>
+            </div>
+
+            <!-- 4 Dimensions Progress -->
+            <div class="bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4 sm:p-6 mb-6">
+              <h4 class="text-sm sm:text-base font-bold text-slate-200 mb-4 flex items-center gap-2">
+                <span>📊</span> <span>วิเคราะห์ความสมพงษ์ 4 มิติชีวิต</span>
+              </h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between items-center mb-1.5">
+                    <span class="text-xs sm:text-sm font-medium text-slate-300">❤️ ความรักใคร่ เสน่หา (Love)</span>
+                    <span class="text-xs sm:text-sm font-bold text-rose-400">${res.scores.love}%</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                    <div class="bg-gradient-to-r from-rose-500 to-pink-500 h-2.5 rounded-full" style="width: ${res.scores.love}%"></div>
+                  </div>
+                </div>
+
+                <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between items-center mb-1.5">
+                    <span class="text-xs sm:text-sm font-medium text-slate-300">💰 การเงิน & ขุมทรัพย์ร่วม (Wealth)</span>
+                    <span class="text-xs sm:text-sm font-bold text-emerald-400">${res.scores.wealth}%</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                    <div class="bg-gradient-to-r from-emerald-500 to-teal-500 h-2.5 rounded-full" style="width: ${res.scores.wealth}%"></div>
+                  </div>
+                </div>
+
+                <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between items-center mb-1.5">
+                    <span class="text-xs sm:text-sm font-medium text-slate-300">💼 การงาน & เกื้อกูลบารมี (Career)</span>
+                    <span class="text-xs sm:text-sm font-bold text-blue-400">${res.scores.career}%</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-500 to-indigo-500 h-2.5 rounded-full" style="width: ${res.scores.career}%"></div>
+                  </div>
+                </div>
+
+                <div class="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
+                  <div class="flex justify-between items-center mb-1.5">
+                    <span class="text-xs sm:text-sm font-medium text-slate-300">🏡 ครอบครัว & ความมั่นคง (Family)</span>
+                    <span class="text-xs sm:text-sm font-bold text-amber-400">${res.scores.family}%</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                    <div class="bg-gradient-to-r from-amber-500 to-yellow-500 h-2.5 rounded-full" style="width: ${res.scores.family}%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Astrological Aspects & Elements -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div class="bg-gradient-to-br from-indigo-950/40 to-slate-950/70 border border-indigo-500/30 rounded-2xl p-4 sm:p-5">
+                <div class="text-xs sm:text-sm font-bold text-indigo-300 mb-1.5 flex items-center gap-1.5">
+                  <span>🌟</span> <span>เกณฑ์ภพชะตา: ${res.aspectTitle}</span>
+                </div>
+                <div class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">${res.aspectMeaning}</div>
+              </div>
+
+              <div class="bg-gradient-to-br from-rose-950/40 to-slate-950/70 border border-rose-500/30 rounded-2xl p-4 sm:p-5">
+                <div class="text-xs sm:text-sm font-bold text-rose-300 mb-1.5 flex items-center gap-1.5">
+                  <span>💫</span> <span>เกณฑ์ธาตุสมพงษ์: ${res.elementTitle}</span>
+                </div>
+                <div class="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">${res.elementMeaning}</div>
+              </div>
+            </div>
+
+            <!-- Strengths & Cautions -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div class="bg-emerald-950/30 border border-emerald-500/30 rounded-2xl p-4 sm:p-5">
+                <div class="text-xs sm:text-sm font-bold text-emerald-400 mb-2 flex items-center gap-1.5">
+                  <span>✨</span> <span>จุดเด่นเกื้อกูลของคู่นี้</span>
+                </div>
+                <ul class="text-xs sm:text-sm text-slate-300 space-y-2 list-disc list-inside">
+                  ${(res.strengths || []).map(s => `<li>${s}</li>`).join('')}
+                </ul>
+              </div>
+
+              <div class="bg-amber-950/30 border border-amber-500/30 rounded-2xl p-4 sm:p-5">
+                <div class="text-xs sm:text-sm font-bold text-amber-400 mb-2 flex items-center gap-1.5">
+                  <span>⚠️</span> <span>จุดควรระวัง & แนวทางปรับจูน</span>
+                </div>
+                <ul class="text-xs sm:text-sm text-slate-300 space-y-2 list-disc list-inside">
+                  ${(res.cautions || []).map(c => `<li>${c}</li>`).join('')}
+                </ul>
+              </div>
+            </div>
+
+            <!-- Auspicious Extras -->
+            <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-4 sm:p-5 mb-8">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <div class="text-xs sm:text-sm font-bold text-pink-300 mb-1 flex items-center gap-1">
+                    <span>🎨</span> <span>สีคู่มงคลนำโชค:</span>
+                  </div>
+                  <div class="text-xs sm:text-sm text-slate-200">${(res.luckyColors || []).join(' • ')}</div>
+                </div>
+                <div>
+                  <div class="text-xs sm:text-sm font-bold text-yellow-300 mb-1 flex items-center gap-1">
+                    <span>🪷</span> <span>เคล็ดลับทำบุญเสริมวาสนาร่วมชาติ:</span>
+                  </div>
+                  <div class="text-xs sm:text-sm text-slate-200">${res.meritAdvice || '-'}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Viral Sharing Buttons -->
+            <div class="pt-2 border-t border-slate-800/80">
+              <div class="text-center mb-4">
+                <span class="text-xs sm:text-sm font-bold text-slate-300">📲 ส่งต่อความหวาน & แชร์ผลลัพธ์ให้เพื่อน</span>
+              </div>
+              <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button onclick="shareSynastryToLine()" class="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white font-bold text-sm shadow-lg shadow-green-600/30 active:scale-95 transition-all flex items-center justify-center gap-2">
+                  <span>💬</span> <span>ส่งผลตรวจให้คนรักทาง LINE</span>
+                </button>
+                <button onclick="generateCoupleStoryCard()" class="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-rose-600 via-pink-600 to-purple-600 hover:from-rose-500 hover:to-purple-500 text-white font-bold text-sm shadow-lg shadow-pink-600/30 active:scale-95 transition-all flex items-center justify-center gap-2">
+                  <span>📸</span> <span>บันทึกรูปการ์ดคู่ (Story Card)</span>
+                </button>
+                <button onclick="resetSynastryCheck()" class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm border border-slate-700 active:scale-95 transition-all flex items-center justify-center gap-1.5">
+                  <span>🔄</span> <span>คำนวณคู่ใหม่</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      container.innerHTML = `
+        <div class="col-span-full">
+          <!-- Hero Header Banner -->
+          <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-rose-950/80 via-slate-900 to-pink-950/80 border border-rose-500/30 p-5 sm:p-8 mb-8 shadow-xl">
+            <div class="flex flex-col md:flex-row items-center gap-6">
+              <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shadow-lg border-2 border-rose-400/50 flex-shrink-0">
+                <img src="/bear_love.jpg" class="w-full h-full object-cover">
+              </div>
+              <div class="flex-1 text-center md:text-left">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/30 mb-2">
+                  <span>💖</span> <span>โหราศาสตร์ไทยโบราณ x ระบบตรวจดวงสมพงษ์</span>
+                </div>
+                <h2 class="text-xl sm:text-3xl font-extrabold text-white mb-2">
+                  ผูกดวงสมพงษ์ & เช็กเนื้อคู่แท้ 4 มิติชีวิต
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
+                  คำนวณตามคัมภีร์สุริยยาตร์แท้ เทียบลัคนาคู่ องศาดาวจันทร์ และมุมดาวศุกร์-อังคาร-พฤหัสบดี วิเคราะห์ความรัก การเงิน การงาน และความผูกพันครอบครัว
+                </p>
+              </div>
+            </div>
+          </div>
+
+          ${resultHtml}
+
+          <!-- Dual Profile Input Form (Shown if not computed or to recompute) -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-5 sm:p-8 shadow-xl mb-8">
+            <h3 class="text-base sm:text-lg font-bold text-white mb-4 flex items-center gap-2">
+              <span>🔮</span> <span>${res ? 'แก้ไขข้อมูลดวงชะตาเพื่อคำนวณใหม่' : 'กรอกข้อมูลวันเกิดทั้งสองฝ่าย'}</span>
+            </h3>
+
+            <!-- Relationship Type Selector -->
+            <div class="mb-6">
+              <label class="block text-xs font-semibold text-slate-300 mb-2">เลือกประเภทความสัมพันธ์:</label>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                ${relOptions.map(ro => {
+                  const isActive = relType === ro.id;
+                  const activeCls = isActive
+                    ? 'bg-rose-600 text-white border-rose-400 shadow-md shadow-rose-600/30 font-bold'
+                    : 'bg-slate-950/70 text-slate-300 border-slate-800 hover:bg-slate-800';
+                  return `
+                    <button type="button" onclick="setSynastryRelType('${ro.id}')" class="p-3 rounded-2xl border text-left transition-all active:scale-95 ${activeCls}">
+                      <div class="text-xs sm:text-sm font-semibold">${ro.label}</div>
+                      <div class="text-[10px] opacity-80 mt-0.5">${ro.desc}</div>
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+
+            <!-- Dual Columns -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <!-- Person 1 (You) -->
+              <div class="bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4 sm:p-5">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="text-xs sm:text-sm font-bold text-rose-300 flex items-center gap-1.5">
+                    <span>👤</span> <span>ดวงของคุณ (ฝ่ายที่ 1)</span>
+                  </div>
+                  <span class="text-[10px] px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-medium">กรอกอัตโนมัติแล้ว</span>
+                </div>
+
+                <div class="space-y-3">
+                  <div>
+                    <label class="block text-[11px] font-medium text-slate-400 mb-1">ชื่อหรือชื่อเล่น:</label>
+                    <input type="text" id="syn_p1_name" value="${p1?.name || 'ตัวคุณ'}" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-rose-500">
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-medium text-slate-400 mb-1">วันเดือนปีเกิด (พ.ศ. หรือ ค.ศ.):</label>
+                    <input type="date" id="syn_p1_date" value="${p1?.birthDate || '1995-08-12'}" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-rose-500">
+                  </div>
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label class="block text-[11px] font-medium text-slate-400 mb-1">เวลาเกิด (น.):</label>
+                      <input type="time" id="syn_p1_time" value="${p1?.birthTime || '08:30'}" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-rose-500">
+                    </div>
+                    <div>
+                      <label class="block text-[11px] font-medium text-slate-400 mb-1">จังหวัดเกิด:</label>
+                      <select id="syn_p1_prov" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-rose-500">
+                        ${provOptions}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Person 2 (Partner/Friend) -->
+              <div class="bg-slate-950/70 border border-slate-800/80 rounded-2xl p-4 sm:p-5">
+                <div class="flex items-center justify-between mb-3">
+                  <div class="text-xs sm:text-sm font-bold text-pink-300 flex items-center gap-1.5">
+                    <span>💖</span> <span>ดวงของอีกฝ่าย (ฝ่ายที่ 2)</span>
+                  </div>
+                  <span class="text-[10px] px-2 py-0.5 rounded bg-pink-500/20 text-pink-300 font-medium">ระบุวันเกิด</span>
+                </div>
+
+                <div class="space-y-3">
+                  <div>
+                    <label class="block text-[11px] font-medium text-slate-400 mb-1">ชื่อหรือชื่อเล่น:</label>
+                    <input type="text" id="syn_p2_name" value="${p2?.name || 'คนรัก / หวานใจ'}" placeholder="เช่น น้องพลอย, พี่บาส" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-pink-500">
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-medium text-slate-400 mb-1">วันเดือนปีเกิด (พ.ศ. หรือ ค.ศ.):</label>
+                    <input type="date" id="syn_p2_date" value="${p2?.birthDate || '1997-02-14'}" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-pink-500">
+                  </div>
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label class="block text-[11px] font-medium text-slate-400 mb-1">เวลาเกิด (ถ้าไม่ทราบใส่ 08:30):</label>
+                      <input type="time" id="syn_p2_time" value="${p2?.birthTime || '08:30'}" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-pink-500">
+                    </div>
+                    <div>
+                      <label class="block text-[11px] font-medium text-slate-400 mb-1">จังหวัดเกิด:</label>
+                      <select id="syn_p2_prov" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-pink-500">
+                        ${provOptions}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="text-center">
+              <button onclick="calculateSynastry()" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-rose-600 via-pink-600 to-rose-700 hover:from-rose-500 hover:to-pink-500 text-white font-bold text-sm sm:text-base shadow-xl shadow-rose-600/30 border border-rose-400/50 active:scale-95 transition-all inline-flex items-center gap-2">
+                <span>💖</span> <span>คำนวณผูกดวงสมพงษ์ & เช็กคู่แท้</span> <span>✨</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Pre-select province dropdown values if set
+      setTimeout(() => {
+        const s1 = document.getElementById('syn_p1_prov');
+        if (s1 && p1?.birthProvince) s1.value = p1.birthProvince;
+        const s2 = document.getElementById('syn_p2_prov');
+        if (s2 && p2?.birthProvince) s2.value = p2.birthProvince;
+      }, 50);
+    }
+
     function setCategoryTab(tab) {
       state.activeTab = tab;
       document.querySelectorAll('.cat-tab').forEach(b => {
@@ -3396,6 +4325,7 @@
           career: 'การงาน & บารมี',
           finance: 'การเงิน & โชคลาภ',
           love: 'ความรัก & เสน่ห์',
+          synastry: 'ตรวจดวงสมพงษ์คู่แท้',
           health: 'สุขภาพ & อารมณ์',
           monthly: 'ดวงรายเดือน 28 วัน',
           shirt: 'ตารางสีเสื้อมงคล',
@@ -5316,13 +6246,17 @@
     window.open('/share_poster.jpg', '_blank');
   }
 
-  // URL Hash Listener for #share and #monthly
+  // URL Hash Listener for #share, #monthly, and #synastry
   window.addEventListener('DOMContentLoaded', () => {
     if (window.location.hash === '#share') {
       toggleShareModal(true);
     } else if (window.location.hash === '#monthly') {
       setTimeout(() => {
         if (typeof setCategoryTab === 'function') setCategoryTab('monthly');
+      }, 350);
+    } else if (window.location.hash === '#synastry' || window.location.hash === '#compatibility' || window.location.hash === '#love-match') {
+      setTimeout(() => {
+        if (typeof setCategoryTab === 'function') setCategoryTab('synastry');
       }, 350);
     }
   });
@@ -5331,6 +6265,8 @@
       toggleShareModal(true);
     } else if (window.location.hash === '#monthly') {
       if (typeof setCategoryTab === 'function') setCategoryTab('monthly');
+    } else if (window.location.hash === '#synastry' || window.location.hash === '#compatibility' || window.location.hash === '#love-match') {
+      if (typeof setCategoryTab === 'function') setCategoryTab('synastry');
     }
   });
 

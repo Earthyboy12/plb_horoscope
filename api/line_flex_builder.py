@@ -1365,6 +1365,18 @@ def build_category_menu_flex(web_url: str = "https://plb-horoscope.vercel.app", 
                     {
                         "type": "button",
                         "style": "primary",
+                        "color": "#ec4899",
+                        "height": "sm",
+                        "action": {
+                            "type": "postback" if pb_meta else "message",
+                            "label": "💖 ตรวจดวงสมพงษ์ & เนื้อคู่แท้",
+                            "data": f"action=synastry{pb_meta}" if pb_meta else "ดวงสมพงษ์",
+                            "displayText": "ดวงสมพงษ์"
+                        }
+                    },
+                    {
+                        "type": "button",
+                        "style": "primary",
                         "color": "#b45309",
                         "height": "sm",
                         "action": {
@@ -4110,4 +4122,156 @@ def build_wallpaper_rewards_flex(user: dict = None, web_url: str = "https://plb-
             ]
         }
     }
+
+
+def build_synastry_intro_flex(web_url: str = "https://plb-horoscope.vercel.app", user: dict = None) -> dict:
+    """Build a romantic, luxury cosmic Flex Message for Astrological Compatibility & Synastry."""
+    import urllib.parse
+    web_url = web_url or "https://plb-horoscope.vercel.app"
+    user_name = user.get("name", "คุณ") if user else "คุณ"
+    pb_meta = get_postback_meta(user) if user else ""
+    
+    synastry_liff_url = make_liff_url(web_url, user, extra_query="#synastry")
+    
+    # Pre-encoded viral share text for 1-click LINE invite
+    invite_text = urllib.parse.quote(
+        "💖 ชวนมาตรวจดวงสมพงษ์ & ผูกดวงเนื้อคู่แท้ด้วยกัน! ✨\n"
+        "วิเคราะห์ลัคนา ธาตุคู่สมพงษ์ และความสัมพันธ์ 4 มิติ ด้วยโหราศาสตร์ไทยโบราณ\n"
+        "ตรวจฟรี ไม่ต้องลงทะเบียน 👉 https://plb-horoscope.vercel.app/#synastry"
+    )
+    line_invite_url = f"https://line.me/R/msg/text/?{invite_text}"
+    
+    bubble = {
+        "type": "bubble",
+        "size": "mega",
+        "hero": {
+            "type": "image",
+            "url": f"{web_url}/bear_love.jpg",
+            "size": "full",
+            "aspectRatio": "20:13",
+            "aspectMode": "cover",
+            "action": {
+                "type": "uri",
+                "uri": synastry_liff_url
+            }
+        },
+        "header": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "16px",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {"type": "text", "text": "💖 ผูกดวงสมพงษ์ & เนื้อคู่แท้", "weight": "bold", "color": "#fb7185", "size": "md", "flex": 1},
+                        {"type": "text", "text": "โหราศาสตร์ไทยโบราณ", "color": "#cbd5e1", "size": "xxs", "align": "end"}
+                    ]
+                },
+                {"type": "text", "text": "วิเคราะห์ความสัมพันธ์ 4 มิติ ลัคนา • ธาตุคู่ • องศาดาวจันทร์", "color": "#94a3b8", "size": "xs", "margin": "xs"}
+            ]
+        },
+        "body": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#090d1a",
+            "paddingAll": "16px",
+            "spacing": "md",
+            "contents": [
+                {
+                    "type": "text",
+                    "text": f"สวัสดีครับคุณ {user_name}! น้องหมีแม่หมอขอพาท่านมาผูกดวงชะตาสมพงษ์ เช็กเกณฑ์บุพเพสันนิวาสและความเข้ากันได้เฉพาะคู่ครับ 🔮",
+                    "size": "xs",
+                    "color": "#e2e8f0",
+                    "wrap": True
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#131b2e",
+                    "cornerRadius": "12px",
+                    "paddingAll": "12px",
+                    "spacing": "xs",
+                    "contents": [
+                        {"type": "text", "text": "🌟 4 มิติวิเคราะห์ความสมพงษ์:", "weight": "bold", "size": "xs", "color": "#f43f5e"},
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {"type": "text", "text": "❤️ ความรักเสน่หา", "size": "xxs", "color": "#cbd5e1", "flex": 1},
+                                {"type": "text", "text": "💰 การเงินร่วมสร้าง", "size": "xxs", "color": "#cbd5e1", "flex": 1}
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "contents": [
+                                {"type": "text", "text": "💼 การงานเกื้อหนุน", "size": "xxs", "color": "#cbd5e1", "flex": 1},
+                                {"type": "text", "text": "🏡 ครอบครัวมั่นคง", "size": "xxs", "color": "#cbd5e1", "flex": 1}
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#1c1024",
+                    "borderColor": "#a855f7",
+                    "borderWidth": "1px",
+                    "cornerRadius": "10px",
+                    "paddingAll": "10px",
+                    "contents": [
+                        {"type": "text", "text": "✨ รองรับทั้งดูดวงคนรัก, คนคุยแอบชอบ, เพื่อนสนิท และหุ้นส่วนธุรกิจ พร้อมเคล็ดลับทำบุญเสริมวาสนาร่วมชาติ", "size": "xxs", "color": "#d8b4fe", "wrap": True}
+                    ]
+                }
+            ]
+        },
+        "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "backgroundColor": "#030712",
+            "paddingAll": "14px",
+            "spacing": "sm",
+            "contents": [
+                {
+                    "type": "button",
+                    "style": "primary",
+                    "color": "#e11d48",
+                    "height": "sm",
+                    "action": {
+                        "type": "uri",
+                        "label": "💖 ตรวจดวงสมพงษ์บนเว็บทันที",
+                        "uri": synastry_liff_url
+                    }
+                },
+                {
+                    "type": "button",
+                    "style": "secondary",
+                    "color": "#1e293b",
+                    "height": "sm",
+                    "action": {
+                        "type": "uri",
+                        "label": "📲 ชวนคนรัก / เพื่อนมาตรวจคู่กัน",
+                        "uri": line_invite_url
+                    }
+                }
+            ]
+        }
+    }
+    
+    return {
+        "type": "flex",
+        "altText": f"💖 ตรวจดวงสมพงษ์ & ผูกดวงเนื้อคู่แท้ของคุณ {user_name} 🔮",
+        "contents": bubble,
+        "quickReply": {
+            "items": [
+                {"type": "action", "action": {"type": "uri", "label": "💖 ตรวจดวงสมพงษ์", "uri": synastry_liff_url}},
+                {"type": "action", "action": {"type": "message", "label": "🌟 สรุปดวงวันนี้", "text": "สรุปดวงประจำวัน"}},
+                {"type": "action", "action": {"type": "message", "label": "🗓️ ดวงรายเดือน 28 วัน", "text": "ดวงรายเดือน"}},
+                {"type": "action", "action": {"type": "message", "label": "🥠 เสี่ยงเซียมซี", "text": "เซียมซี"}}
+            ]
+        }
+    }
+
 

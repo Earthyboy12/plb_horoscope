@@ -19,7 +19,7 @@ if hasattr(sys.stdout, 'reconfigure'):
 if hasattr(sys.stderr, 'reconfigure'):
     sys.stderr.reconfigure(encoding='utf-8')
 
-from thai_astrology import get_horoscope, PROVINCES_DICT
+from thai_astrology import get_horoscope, compute_28day_forecast, compute_synastry, PROVINCES_DICT
 from user_store import get_user, save_user, update_transit_location, record_user_check
 from line_bot_engine import (
     verify_signature,
@@ -122,6 +122,46 @@ class HoroscopeHandler(http.server.SimpleHTTPRequestHandler):
             except Exception as e:
                 self.send_response(500)
                 self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+        elif parsed.path in ("/api/astrology/synastry", "/api/synastry"):
+            content_length = int(self.headers.get("Content-Length", 0))
+            body_bytes = self.rfile.read(content_length)
+            try:
+                payload = json.loads(body_bytes.decode("utf-8")) if body_bytes else {}
+                p1 = payload.get("person1", {})
+                p2 = payload.get("person2", {})
+                rel = payload.get("relationshipType", "love")
+                result = compute_synastry(p1, p2, rel)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "data": result}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
+            return
+        elif parsed.path in ("/api/monthly", "/api/astrology/monthly"):
+            content_length = int(self.headers.get("Content-Length", 0))
+            body_bytes = self.rfile.read(content_length)
+            try:
+                payload = json.loads(body_bytes.decode("utf-8")) if body_bytes else {}
+                target_date = payload.get("targetDate", "")
+                result = compute_28day_forecast(payload, target_date)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "data": result}, ensure_ascii=False).encode("utf-8"))
+            except Exception as e:
+                self.send_response(500)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode("utf-8"))
             return

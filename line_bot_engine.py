@@ -39,6 +39,7 @@ try:
         build_poster_preview_flex,
         build_stats_flex,
         build_monthly_forecast_flex,
+        build_synastry_intro_flex,
         get_category_quick_reply
     )
 except ImportError:
@@ -63,6 +64,7 @@ except ImportError:
         build_poster_preview_flex,
         build_stats_flex,
         build_monthly_forecast_flex,
+        build_synastry_intro_flex,
         get_category_quick_reply
     )
 
@@ -482,6 +484,12 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             reply([monthly_flex])
             return
 
+        # Check Synastry / Astrological Compatibility ("ดวงสมพงษ์", "เนื้อคู่", "ดวงเนื้อคู่", "ผูกดวงคู่", "ตรวจดวงสมพงษ์", "ดวงคู่", "คู่แท้", "synastry", "compatibility")
+        if any(k in text_lower for k in ["ดวงสมพงษ์", "สมพงษ์", "เนื้อคู่", "ดวงเนื้อคู่", "ผูกดวงคู่", "ตรวจดวงสมพงษ์", "ดวงคู่", "คู่แท้", "คู่มิตร", "คู่สร้างคู่สม", "synastry", "compatibility"]):
+            synastry_flex = build_synastry_intro_flex(web_url=web_url, user=user)
+            reply([synastry_flex])
+            return
+
         # Check Personal Astro Stats & Streak Gimmick (สถิติดวงย้อนหลัง & กราฟ 7 วัน)
         if any(k in text_lower for k in ["stats", "สถิติ", "ประวัติ", "กี่ครั้ง", "streak", "ย้อนหลัง", "กิมมิก", "คะแนนย้อนหลัง"]):
             if not is_registered:
@@ -840,6 +848,11 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             forecast_28 = compute_28day_forecast(user)
             monthly_flex = build_monthly_forecast_flex(user, forecast_28, liff_url, web_url)
             reply([monthly_flex])
+            return
+
+        elif action in ("synastry", "compatibility", "love_match"):
+            flex = build_synastry_intro_flex(web_url=web_url, user=user)
+            reply([flex])
             return
 
         elif action == "stats":

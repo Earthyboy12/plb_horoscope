@@ -862,3 +862,172 @@ def compute_28day_forecast(birth_dict: dict, start_date_str: str = None) -> dict
         "days": days
     }
 
+def compute_synastry(person1_dict: dict, person2_dict: dict, relationship_type: str = "love") -> dict:
+    """
+    Compute classical Thai astrology Synastry (ดวงสมพงษ์) between two birth charts.
+    Analyzes:
+      - Ascendant (Lagna) aspect & Zodiac Element compatibility (ธาตุเกื้อหนุน)
+      - Moon signs (จิตใจและอารมณ์ความรู้สึก)
+      - Venus & Mars / Jupiter friendship (ความเสน่หาและความเมตตาอุปถัมภ์)
+      - 4 Dimensions: Love/Harmony, Wealth, Career, Family/Long-term
+      - Concrete relationship strengths, mindful tips, lucky couple colors, and merit advice.
+    """
+    chart1 = get_horoscope(person1_dict)
+    chart2 = get_horoscope(person2_dict)
+
+    asc1 = chart1.get("natalChart", {}).get("ascendant", {})
+    asc2 = chart2.get("natalChart", {}).get("ascendant", {})
+    sign1_id = asc1.get("signId", 0)
+    sign2_id = asc2.get("signId", 0)
+    name1 = (person1_dict.get("name") or "คุณ").strip()
+    name2 = (person2_dict.get("name") or "คนรัก").strip()
+
+    ELEMENT_MAP = {
+        0: ("ไฟ", "♈ เมษ"), 1: ("ดิน", "♉ พฤษภ"), 2: ("ลม", "♊ เมถุน"),
+        3: ("น้ำ", "♋ กรกฎ"), 4: ("ไฟ", "♌ สิงห์"), 5: ("ดิน", "♍ กันย์"),
+        6: ("ลม", "♎ ตุลย์"), 7: ("น้ำ", "♏ พิจิก"), 8: ("ไฟ", "♐ ธนู"),
+        9: ("ดิน", "♑ มังกร"), 10: ("ลม", "♒ กุมภ์"), 11: ("น้ำ", "♓ มีน")
+    }
+    elem1, sign1_name = ELEMENT_MAP[sign1_id]
+    elem2, sign2_name = ELEMENT_MAP[sign2_id]
+
+    planets1 = {p["id"]: p for p in chart1.get("natalChart", {}).get("planets", [])}
+    planets2 = {p["id"]: p for p in chart2.get("natalChart", {}).get("planets", [])}
+    moon1_sign = planets1.get(2, {}).get("signId", sign1_id)
+    moon2_sign = planets2.get(2, {}).get("signId", sign2_id)
+    venus1_sign = planets1.get(6, {}).get("signId", sign1_id)
+    venus2_sign = planets2.get(6, {}).get("signId", sign2_id)
+    mars1_sign = planets1.get(3, {}).get("signId", sign1_id)
+    mars2_sign = planets2.get(3, {}).get("signId", sign2_id)
+
+    asc_diff = (sign2_id - sign1_id + 12) % 12
+    moon_diff = (moon2_sign - moon1_sign + 12) % 12
+
+    if elem1 == elem2:
+        elem_score = 96
+        elem_title = f"ธาตุ{elem1}ร่วมประสาน"
+        elem_desc = f"ทั้งคู่เป็นคนธาตุ{elem1}เหมือนกัน มีเคมีที่จูนติดง่าย มีความเข้าใจในธรรมชาติของกันและกันโดยแทบไม่ต้องเอ่ยปาก"
+    elif (elem1 in ("ไฟ", "ลม") and elem2 in ("ไฟ", "ลม")):
+        elem_score = 92
+        elem_title = f"ธาตุ{elem1}หนุนธาตุ{elem2} (ลมโหมไฟให้รุ่งโรจน์)"
+        elem_desc = f"ธาตุลมช่วยพัดให้ธาตุไฟเจิดจรัส เปี่ยมไปด้วยพลังความคิดสร้างสรรค์ เป็นแรงบันดาลใจและพลังผลักดันให้กันและกันก้าวหน้า"
+    elif (elem1 in ("ดิน", "น้ำ") and elem2 in ("ดิน", "น้ำ")):
+        elem_score = 92
+        elem_title = f"ธาตุ{elem1}คู่ธาตุ{elem2} (ดินโอบอุ้มน้ำ ชุ่มฉ่ำงอกเงย)"
+        elem_desc = f"ธาตุดินให้ความมั่นคง ธาตุน้ำหล่อเลี้ยงความชุ่มเย็น อยู่ด้วยกันแล้วร่มเย็น เป็นคู่ที่ร่วมกันสร้างฐานะและทรัพย์สินได้อย่างยั่งยืน"
+    elif (elem1 == "ไฟ" and elem2 == "น้ำ") or (elem1 == "น้ำ" and elem2 == "ไฟ"):
+        elem_score = 75
+        elem_title = f"ธาตุ{elem1}กับธาตุ{elem2} (ไฟกับน้ำ ดุลยภาพที่ต้องใช้ความเข้าใจ)"
+        elem_desc = f"ฝ่ายหนึ่งกระตือรือร้นดั่งเปลวไฟ อีกฝ่ายอ่อนโยนลึกซึ้งดั่งสายน้ำ หากใช้น้ำเย็นเข้าลูบและใช้ไฟสร้างพลังบวก จะเป็นคู่ที่ลงตัวอย่างน่าอัศจรรย์"
+    else:
+        elem_score = 78
+        elem_title = f"ธาตุ{elem1}กับธาตุ{elem2} (ดินกับลม ต่างมุมมองที่เติมเต็ม)"
+        elem_desc = f"คนหนึ่งหนักแน่นเป็นจริง อีกคนคล่องแคล่วเปี่ยมจินตนาการ ต้องเปิดใจรับฟังและจัดสรรบทบาทให้เกื้อหนุนกันอย่างชัดเจน"
+
+    ASPECT_DATA = {
+        0: ("ตนุ-ตนุ (สถิตราศีเดียวกัน)", 94, "คู่เคมีตรงกันดั่งกระจกเงา มีรสนิยมและความชอบคล้ายคลึงกัน"),
+        1: ("ตนุ-กดุมภะ (ภพการเงิน)", 82, "คู่สร้างฐานะ ส่งเสริมการออม การลงทุน และการมีทรัพย์สินร่วมกัน"),
+        2: ("ตนุ-สหัชชะ (โยคหน้า 60°)", 88, "คู่มิตรภาพคู่คิด ปรึกษาหารือกันได้ทุกเรื่อง คุยกันไม่มีเบื่อ"),
+        3: ("ตนุ-พันธุ (จตุโกณ 90°)", 84, "คู่รากฐานครอบครัว มุ่งสร้างความมั่นคงและหลักแหล่งที่อบอุ่น"),
+        4: ("ตนุ-ปุตตะ (ตรีโกณ 120°)", 95, "คู่บุพเพสันนิวาส เกื้อกูลโชคลาภ นำพาความสุขสดชื่นและไอเดียใหม่ๆ สู่ชีวิต"),
+        5: ("ตนุ-อริ (ภพ 6)", 72, "คู่ขัดเกลาบททดสอบ มีข้อต่างทางทัศนคติ ต้องใช้ความอ่อนโยนและการยอมรับข้อบกพร่อง"),
+        6: ("ตนุ-ปัตนิ (เล็งตรงข้าม 180°)", 93, "คู่สร้างคู่สม (ปัตนิ) เติมเต็มสิ่งที่อีกฝ่ายขาดหาย ดั่งหยินหยางที่สมดุล"),
+        7: ("ตนุ-มรณะ (ภพ 8)", 70, "คู่เรียนรู้จิตวิญญาณ ความรักลึกซึ้งแต่อาจต้องผ่านบททดสอบเพื่อพิสูจน์ความจริงใจ"),
+        8: ("ตนุ-ศุภะ (ตรีโกณ 120°)", 96, "คู่บุญบารมีค้ำจุนศีลธรรม นำพาความเจริญก้าวหน้า ผู้ใหญ่ทั้งสองฝ่ายให้ความเมตตา"),
+        9: ("ตนุ-กัมมะ (จตุโกณ 90°)", 86, "คู่ผลงานและเกียรติยศ ช่วยส่งเสริมการงานและเป้าหมายชีวิตให้ประสบความสำเร็จ"),
+        10: ("ตนุ-ลาภะ (โยคหลัง 60°)", 90, "คู่โชคลาภและความมั่งคั่ง เข้ามาเพื่อเพิ่มพูนสิ่งดีๆ นำพาลู่ทางรายได้ใหม่ๆ"),
+        11: ("ตนุ-วินาศ (ภพ 12)", 73, "คู่เบื้องหลังความสำเร็จ ต้องให้พื้นที่ส่วนตัวแก่กัน และไม่เก็บความรู้สึกไว้คนเดียว")
+    }
+    aspect_title, aspect_base_score, aspect_desc = ASPECT_DATA.get(asc_diff, ("คู่สัมพันธ์แห่งโชคชะตา", 80, "เกื้อหนุนดวงชะตาตามวาสนา"))
+
+    moon_harmony = 90 if moon_diff in (0, 4, 6, 8) else 82 if moon_diff in (2, 10) else 74
+
+    vm_diff1 = abs(venus1_sign - mars2_sign) % 12
+    vm_diff2 = abs(venus2_sign - mars1_sign) % 12
+    romantic_attraction = 92 if (vm_diff1 in (0, 4, 6, 8) or vm_diff2 in (0, 4, 6, 8)) else 80
+
+    love_score = round((aspect_base_score * 0.45 + moon_harmony * 0.35 + romantic_attraction * 0.20))
+    wealth_score = round((elem_score * 0.40 + (92 if asc_diff in (1, 3, 4, 8, 10) else 78) * 0.60))
+    career_score = round(((94 if asc_diff in (2, 8, 9, 10) else 80) * 0.60 + elem_score * 0.40))
+    family_score = round(((95 if asc_diff in (0, 3, 4, 6, 8) else 76) * 0.60 + moon_harmony * 0.40))
+
+    if relationship_type == "business":
+        overall_score = round(career_score * 0.45 + wealth_score * 0.35 + love_score * 0.10 + family_score * 0.10)
+    elif relationship_type == "friend":
+        overall_score = round(love_score * 0.35 + career_score * 0.30 + family_score * 0.20 + wealth_score * 0.15)
+    else:
+        overall_score = round(love_score * 0.40 + wealth_score * 0.25 + family_score * 0.20 + career_score * 0.15)
+
+    if overall_score >= 90:
+        tier_title = "👑 คู่บุญบารมีดั่งบุพเพสันนิวาส (Soulmates)"
+        badge_label = "ระดับสูงสุด • คู่แท้ 🌟🌟🌟🌟"
+        summary_quote = f"ดวงชะตาของ {name1} และ {name2} มีสายใยวาสนาเกื้อหนุนดั่งบุพเพสันนิวาส จิตวิญญาณและธาตุสอดประสาน อยู่ด้วยกันแล้วมีแต่ความเจริญรุ่งเรืองและอบอุ่นใจ"
+    elif overall_score >= 82:
+        tier_title = "💖 คู่แท้เกื้อกูลสร้างอนาคต (Destined Harmony)"
+        badge_label = "ดีเยี่ยม • เกื้อหนุน 🌟🌟🌟"
+        summary_quote = f"ดวงชะตาของทั้งสองส่งเสริมกันอย่างเด่นชัด เป็นคู่คิดที่ช่วยกันสร้างฐานะ ดึงดูดพลังงานบวกและช่วยให้ชีวิตก้าวหน้าอย่างมั่นคง"
+    elif overall_score >= 74:
+        tier_title = "🌿 คู่มิตรเพื่อนแท้ปรับจูนลงตัว (Supportive Companions)"
+        badge_label = "ราบรื่น • มิตรภาพแน่นแฟ้น 🌟🌟"
+        summary_quote = f"มีความสัมพันธ์ที่สบายใจเหมือนเพื่อนสนิทคู่คิด สื่อสารกันด้วยเหตุผล ปรับความเข้าใจได้เร็วและช่วยเหลือกันในยามจำเป็น"
+    else:
+        tier_title = "🛡️ คู่พัฒนาจิตวิญญาณร่วมกัน (Karmic Growth)"
+        badge_label = "มีบททดสอบ • เสริมสติ 🌟"
+        summary_quote = f"มีความแตกต่างในบางมุมมองซึ่งเป็นโอกาสอันดีที่จะได้เรียนรู้และเติบโต เพียงให้เกียรติและเปิดใจรับฟัง จะเปลี่ยนอุปสรรคเป็นความผูกพันที่แน่นแฟ้น"
+
+    strengths = [
+        f"เคมีธาตุกำเนิด ({elem1} + {elem2}): {elem_desc}",
+        f"ความผูกพันเชิงภพชะตา: {aspect_desc}",
+        f"ความสอดคล้องด้านอารมณ์: ดวงจันทร์ส่งอิทธิพลให้รับรู้อารมณ์ของอีกฝ่ายได้ไวและเข้าใจกันง่าย"
+    ]
+
+    cautions = [
+        "เมื่อมีความเห็นต่าง ให้หลีกเลี่ยงการใช้น้ำเสียงประชดประชันหรือการเงียบใส่กัน",
+        "ควรเปิดใจพูดคุยเรื่องความคาดหวังในอนาคตและการจัดสรรงบประมาณร่วมกันอย่างสม่ำเสมอ"
+    ]
+
+    lucky_colors_couple = ["สีขาวครีมมงคล (ความบริสุทธิ์ใจ)", "สีชมพูโรสโกลด์ (เสน่ห์เมตตา)", "สีเขียวมรกต (ความอุดมสมบูรณ์)"]
+    merit_advice = "ร่วมกันทำบุญถวายของเป็นคู่ เช่น แจกันดอกไม้คู่, หลอดไฟคู่, หรือร่วมบริจาคทำบุญปล่อยปลา จะช่วยส่งเสริมให้ความสัมพันธ์สว่างไสวและราบรื่นยิ่งขึ้น"
+
+    return {
+        "person1": {
+            "name": name1,
+            "ascendant": asc1.get("signName", "เมษ"),
+            "ascendantId": sign1_id,
+            "element": elem1,
+            "zodiacLabel": sign1_name,
+            "birthDate": person1_dict.get("birthDate", "1995-05-15")
+        },
+        "person2": {
+            "name": name2,
+            "ascendant": asc2.get("signName", "ตุลย์"),
+            "ascendantId": sign2_id,
+            "element": elem2,
+            "zodiacLabel": sign2_name,
+            "birthDate": person2_dict.get("birthDate", "1996-08-12")
+        },
+        "relationshipType": relationship_type,
+        "overallScore": overall_score,
+        "tierTitle": tier_title,
+        "badgeLabel": badge_label,
+        "tier": {
+            "title": tier_title,
+            "badge": badge_label
+        },
+        "summaryQuote": summary_quote,
+        "aspectTitle": aspect_title,
+        "aspectMeaning": aspect_desc,
+        "elementTitle": elem_title,
+        "elementMeaning": elem_desc,
+        "scores": {
+            "love": love_score,
+            "wealth": wealth_score,
+            "career": career_score,
+            "family": family_score
+        },
+        "strengths": strengths,
+        "cautions": cautions,
+        "luckyColors": lucky_colors_couple,
+        "meritAdvice": merit_advice
+    }
+
