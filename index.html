@@ -1657,6 +1657,27 @@
       if (saved) state.birth = { ...state.birth, ...JSON.parse(saved) };
     } catch(e) {}
 
+    // Auto-load birth params from URL if passed from LINE OA (no registration required)
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      const qB = sp.get('b') || sp.get('birthDate');
+      const qT = sp.get('t') || sp.get('birthTime');
+      const qP = sp.get('p') || sp.get('province');
+      const qTp = sp.get('tp') || sp.get('transitProvince');
+      const qN = sp.get('n') || sp.get('name');
+      if (qB) state.birth.birthDate = qB;
+      if (qT) state.birth.birthTime = qT;
+      if (qP) state.birth.province = qP;
+      if (qTp) {
+        state.birth.transitProvince = qTp;
+        state.birth.isSameLocation = (qP === qTp);
+      }
+      if (qN) state.birth.name = qN;
+      if (qB) {
+        localStorage.setItem('plb_horo_birth_v4', JSON.stringify(state.birth));
+      }
+    } catch(e) {}
+
     // ==========================================
     // ASTRO XP & GAMIFIED LEVEL ENGINE (LOCAL MEMORY)
     // ==========================================

@@ -710,10 +710,11 @@ def build_daily_summary_flex(user: dict, horoscope: dict, liff_url: str = "", we
         "quickReply": {
             "items": [
                 {"type": "action", "action": {"type": "message", "label": "🔮 เลือกหมวดดูดวง", "text": "เลือกหมวดอยากจะดูหมวดไหน"}},
+                {"type": "action", "action": {"type": "message", "label": "🗓️ ดวงรายเดือน", "text": "ดวงรายเดือน"}},
                 {"type": "action", "action": {"type": "message", "label": "🥠 เสี่ยงเซียมซี", "text": "เซียมซี"}},
                 {"type": "action", "action": {"type": "message", "label": "🎰 ขอเลขเด็ด", "text": "ขอเลขเด็ด"}},
                 {"type": "action", "action": {"type": "message", "label": "👕 สีเสื้อมงคล", "text": "สีเสื้อมงคล"}},
-                {"type": "action", "action": {"type": "message", "label": "📊 สถิติดวง", "text": "สถิติ"}},
+                {"type": "action", "action": {"type": "uri", "label": "🌐 ดูละเอียดบนเว็บ", "uri": make_liff_url(f"{web_url}/", user) if user else f"{web_url}/"}},
                 {"type": "action", "action": {"type": "message", "label": "📍 เปลี่ยนที่จร", "text": "เปลี่ยนสถานที่จร"}}
             ]
         }
@@ -1233,8 +1234,8 @@ def build_monthly_forecast_flex(user: dict, forecast_28: dict, liff_url: str = "
                         "color": "#f59e0b",
                         "action": {
                             "type": "uri",
-                            "label": "📊 ดูกราฟดวง 28 วันแบบเต็มบนเว็บ",
-                            "uri": f"{liff_url}#monthly"
+                            "label": "📊 ดูดวงละเอียดบนเว็บ (กราฟ 28 วัน)",
+                            "uri": make_liff_url(f"{web_url}/", user, extra_query="#monthly") if user else f"{web_url}/#monthly"
                         }
                     },
                     {
@@ -1255,7 +1256,7 @@ def build_monthly_forecast_flex(user: dict, forecast_28: dict, liff_url: str = "
                 {"type": "action", "action": {"type": "message", "label": "🌟 ดูดวงวันนี้", "text": "สรุปดวงประจำวัน"}},
                 {"type": "action", "action": {"type": "message", "label": "🔮 เลือกหมวดดวง", "text": "เลือกหมวดอยากจะดูหมวดไหน"}},
                 {"type": "action", "action": {"type": "message", "label": "🥠 เสี่ยงเซียมซี", "text": "เซียมซี"}},
-                {"type": "action", "action": {"type": "message", "label": "👕 สีเสื้อมงคล", "text": "สีเสื้อมงคล"}},
+                {"type": "action", "action": {"type": "uri", "label": "🌐 ดูละเอียดบนเว็บ", "uri": make_liff_url(f"{web_url}/", user, extra_query="#monthly") if user else f"{web_url}/#monthly"}},
                 {"type": "action", "action": {"type": "message", "label": "👥 ชวนเพื่อนมู", "text": "ชวนเพื่อน"}}
             ]
         }
