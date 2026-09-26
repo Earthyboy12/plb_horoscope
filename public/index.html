@@ -2076,14 +2076,25 @@
       }
 
       try {
+        const cleanPayload = {
+          name: state.birth?.name || "คุณดวงดี",
+          birthDate: state.birth?.birthDate || "1995-05-15",
+          birthTime: state.birth?.birthTime || "09:30",
+          province: state.birth?.province || "กรุงเทพมหานคร",
+          district: state.birth?.district || "พระนคร",
+          calcMethod: state.birth?.calcMethod || "suriyayatra",
+          isSameLocation: state.birth?.isSameLocation !== false,
+          transitProvince: state.birth?.transitProvince || state.birth?.province || "กรุงเทพมหานคร",
+          transitDistrict: state.birth?.transitDistrict || state.birth?.district || "พระนคร",
+          targetDate: state.targetDate || new Date().toISOString().split('T')[0],
+          action: "daily"
+        };
+
         const resp = await fetch('/api/astrology/daily', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',
-          body: JSON.stringify({
-            ...state.birth,
-            targetDate: state.targetDate
-          })
+          body: JSON.stringify(cleanPayload)
         });
 
         if (resp.status === 401) {
@@ -2119,6 +2130,7 @@
             renderApp();
           } catch (renderErr) {
             console.error("renderApp error:", renderErr);
+            if (heroTitle) heroTitle.innerText = state.data?.categories?.overall?.summary || "ดวงชะตาประจำวันของคุณ";
           }
         } else {
           throw new Error(res.error || "ไม่สามารถประมวลผลดวงชะตาได้");
@@ -2149,7 +2161,12 @@
     function renderApp() {
       if (!state.data) return;
       const d = state.data;
-      if (!d.natalChart || !d.natalChart.ascendant) return;
+      if (!d.natalChart || !d.natalChart.ascendant) {
+        console.error("natalChart or ascendant missing from API data:", d);
+        const heroTitle = document.getElementById('heroSummaryTitle');
+        if (heroTitle) heroTitle.innerText = d.categories?.overall?.summary || "ดวงชะตาประจำวันของคุณ";
+        return;
+      }
       const asc = d.natalChart.ascendant;
       const info = d.natalChart.birthInfo || {};
       const tLoc = d.transitLocation || {
@@ -2176,15 +2193,18 @@
       
       const heroLmtEl = document.getElementById('heroLmtBadge');
       if (heroLmtEl) {
-        heroLmtEl.innerText = isSuriyayatra ? `LMT เกิด: ${asc.lmtTime || '-'} น. (ตัด ${asc.lmtOffset ? asc.lmtOffset.toFixed(1) : '18'} นาที)` : `พิกัดองศา: ${asc.degree ? asc.degree.toFixed(2) : '-'}°`;
+        const lmtOffsetStr = typeof asc.lmtOffset === 'number' ? asc.lmtOffset.toFixed(1) : Number(asc.lmtOffset || 18).toFixed(1);
+        const degStr = typeof asc.degree === 'number' ? asc.degree.toFixed(2) : Number(asc.degree || 0).toFixed(2);
+        heroLmtEl.innerText = isSuriyayatra ? `LMT เกิด: ${asc.lmtTime || '-'} น. (ตัด ${lmtOffsetStr} นาที)` : `พิกัดองศา: ${degStr}°`;
       }
       
       const isSameLoc = tLoc.isSameLocation !== false;
       const heroTransitEl = document.getElementById('heroTransitBadge');
       if (heroTransitEl) {
+        const transitLmtStr = typeof tLoc.lmtOffsetMinutes === 'number' ? tLoc.lmtOffsetMinutes.toFixed(1) : Number(tLoc.lmtOffsetMinutes || 18).toFixed(1);
         heroTransitEl.innerText = isSameLoc 
           ? `🧭 สถิตภูมิลำเนาเดิม (${tLoc.province})`
-          : `🧭 ปัจจุบัน: ${tLoc.province} (${tLoc.district || ''}) • LMT ตัด ${tLoc.lmtOffsetMinutes ? tLoc.lmtOffsetMinutes.toFixed(1) : '18'} นาที`;
+          : `🧭 ปัจจุบัน: ${tLoc.province} (${tLoc.district || ''}) • LMT ตัด ${transitLmtStr} นาที`;
       }
 
       const heroLocEl = document.getElementById('heroLocationBadge');
@@ -6451,28 +6471,24 @@
   }
 
   // URL Hash Listener for #share, #monthly, and #synastry
-  window.addEventListener('DOMContentLoaded', () => {
-    if (window.location.hash === '#share') {
+  function handleUrlHash() {
+    const h = (window.location.hash || '').toLowerCase();
+    if (h === '#share') {
       toggleShareModal(true);
-    } else if (window.location.hash === '#monthly') {
+    } else if (h === '#monthly') {
       setTimeout(() => {
         if (typeof setCategoryTab === 'function') setCategoryTab('monthly');
-      }, 350);
-    } else if (window.location.hash === '#synastry' || window.location.hash === '#compatibility' || window.location.hash === '#love-match') {
+      }, 50);
+    } else if (h === '#synastry' || h === '#compatibility' || h === '#love-match') {
       setTimeout(() => {
         if (typeof setCategoryTab === 'function') setCategoryTab('synastry');
-      }, 350);
+      }, 50);
     }
-  });
-  window.addEventListener('hashchange', () => {
-    if (window.location.hash === '#share') {
-      toggleShareModal(true);
-    } else if (window.location.hash === '#monthly') {
-      if (typeof setCategoryTab === 'function') setCategoryTab('monthly');
-    } else if (window.location.hash === '#synastry' || window.location.hash === '#compatibility' || window.location.hash === '#love-match') {
-      if (typeof setCategoryTab === 'function') setCategoryTab('synastry');
-    }
-  });
+  }
+
+  handleUrlHash();
+  window.addEventListener('DOMContentLoaded', handleUrlHash);
+  window.addEventListener('hashchange', handleUrlHash);
 
 </script>
 </body>

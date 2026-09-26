@@ -168,7 +168,7 @@ class handler(BaseHTTPRequestHandler):
             return
 
         # 2. LIFF Registration / Transit Location
-        if 'line/register' in check_str or payload.get("action") in ("register_natal", "update_transit") or "line_user_id" in payload:
+        if ('line/register' in check_str or payload.get("action") in ("register_natal", "update_transit")) and ('daily' not in check_str and 'synastry' not in check_str and 'wedding' not in check_str):
             try:
                 action = payload.get("action", "register_natal")
                 user_id = payload.get("line_user_id", "")
