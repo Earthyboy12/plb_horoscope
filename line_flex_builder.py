@@ -4133,13 +4133,14 @@ def build_synastry_intro_flex(web_url: str = "https://plb-horoscope.vercel.app",
     
     synastry_liff_url = make_liff_url(web_url, user, extra_query="#synastry")
     
-    # Pre-encoded viral share text for 1-click LINE invite
+    # Pre-encoded viral share text for 1-click LINE invite (guaranteed < 950 chars for LINE URI limit)
     invite_text = urllib.parse.quote(
-        "💖 ชวนมาตรวจดวงสมพงษ์ & ผูกดวงเนื้อคู่แท้ด้วยกัน! ✨\n"
-        "วิเคราะห์ลัคนา ธาตุคู่สมพงษ์ และความสัมพันธ์ 4 มิติ ด้วยโหราศาสตร์ไทยโบราณ\n"
-        "ตรวจฟรี ไม่ต้องลงทะเบียน 👉 https://plb-horoscope.vercel.app/#synastry"
+        f"💖 ชวนตรวจดวงสมพงษ์คู่แท้ 4 มิติฟรี ✨\n"
+        f"👉 {web_url}/#synastry"
     )
     line_invite_url = f"https://line.me/R/msg/text/?{invite_text}"
+    if len(line_invite_url) > 950:
+        line_invite_url = f"{web_url}/#synastry"
     
     bubble = {
         "type": "bubble",
@@ -4319,15 +4320,15 @@ def build_synastry_result_flex(user: dict, synastry_res: dict, web_url: str = "h
     # Score color
     score_color = "#f43f5e" if overall_score >= 85 else "#fbbf24" if overall_score >= 75 else "#60a5fa"
 
-    # Pre-encoded viral share text for 1-click LINE invite
-    share_msg = urllib.parse.quote(
-        f"💖 ผลตรวจดวงสมพงษ์ระหว่าง {p1_name} กับ {p2_name} ได้ {overall_score}%!\n"
-        f"🌟 ระดับ: {tier_title}\n"
-        f"🔮 ลัคนาคู่: {p1_asc} ({p1_elem}) x {p2_asc} ({p2_elem})\n"
-        f"💬 คำทำนาย: \"{summary_quote}\"\n\n"
-        f"👉 ลองมาตรวจดวงคู่กันได้ฟรีที่: {web_url}/#synastry"
-    )
+    # Pre-encoded viral share text for 1-click LINE invite (guaranteed < 950 chars for LINE URI limit)
+    p1_short = str(p1_name)[:12]
+    p2_short = str(p2_name)[:12]
+    tier_short = str(tier_title)[:18]
+    share_msg_raw = f"💖 ผลตรวจดวงสมพงษ์ {p1_short} x {p2_short}: ได้ {overall_score}% ({tier_short}) ✨\n👉 ตรวจคู่ฟรีที่: {web_url}/#synastry"
+    share_msg = urllib.parse.quote(share_msg_raw)
     line_share_url = f"https://line.me/R/msg/text/?{share_msg}"
+    if len(line_share_url) > 950:
+        line_share_url = f"{web_url}/#synastry"
     synastry_liff_url = make_liff_url(web_url, user, extra_query="#synastry")
 
     def make_dimension_row(label, icon, score_val, bar_color):
@@ -4357,7 +4358,8 @@ def build_synastry_result_flex(user: dict, synastry_res: dict, web_url: str = "h
                             "backgroundColor": bar_color,
                             "height": "6px",
                             "width": f"{score_val}%",
-                            "cornerRadius": "3px"
+                            "cornerRadius": "3px",
+                            "contents": []
                         }
                     ]
                 }
