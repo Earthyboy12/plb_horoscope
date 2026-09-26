@@ -280,25 +280,48 @@ def get_postback_meta(user: dict) -> str:
 
 
 def make_liff_url(base_url: str, user: dict = None, extra_query: str = "") -> str:
-    """Build a LIFF URL embedding user id, check_count, streak, xp, and birth chart parameters."""
+    """Build a LIFF URL embedding user id, check_count, streak, xp, and birth chart parameters safely."""
     if not base_url:
         return ""
     import urllib.parse
     user = user or {}
-    uid = user.get("line_user_id", "")
-    cc = user.get("check_count", 0)
-    st = user.get("streak", 1)
-    xp = user.get("xp", 0)
-    lvl = user.get("level", 1)
-    ld = user.get("last_check_date", "")
-    n = urllib.parse.quote(str(user.get("name", "ผู้ใช้")))
-    b = user.get("birth_date", "")
-    t = user.get("birth_time", "")
-    p = urllib.parse.quote(str(user.get("birth_province", "กรุงเทพมหานคร")))
-    tp = urllib.parse.quote(str(user.get("transit_province", user.get("birth_province", "กรุงเทพมหานคร"))))
+    uid = user.get("line_user_id") or ""
+    cc = user.get("check_count") or 0
+    st = user.get("streak") or 1
+    xp = user.get("xp") or 0
+    lvl = user.get("level") or 1
+    ld = user.get("last_check_date") or ""
+    n_raw = user.get("name") or "ผู้ใช้"
+    if str(n_raw).lower() in ("none", "undefined", "null", ""):
+        n_raw = "ผู้ใช้"
+    n = urllib.parse.quote(str(n_raw))
+    
+    b = user.get("birth_date") or ""
+    if str(b).lower() in ("none", "undefined", "null"):
+        b = ""
+        
+    t = user.get("birth_time") or ""
+    if str(t).lower() in ("none", "undefined", "null"):
+        t = ""
+        
+    p_raw = user.get("birth_province") or "กรุงเทพมหานคร"
+    if str(p_raw).lower() in ("none", "undefined", "null", ""):
+        p_raw = "กรุงเทพมหานคร"
+    p = urllib.parse.quote(str(p_raw))
+    
+    tp_raw = user.get("transit_province") or p_raw
+    if str(tp_raw).lower() in ("none", "undefined", "null", ""):
+        tp_raw = p_raw
+    tp = urllib.parse.quote(str(tp_raw))
     
     clean_base = base_url.split("?")[0]
-    res = f"{clean_base}?userId={uid}&cc={cc}&st={st}&ld={ld}&n={n}&b={b}&t={t}&p={p}&tp={tp}&xp={xp}&lvl={lvl}"
+    query_parts = [f"userId={uid}", f"cc={cc}", f"st={st}", f"ld={ld}", f"n={n}", f"p={p}", f"tp={tp}", f"xp={xp}", f"lvl={lvl}"]
+    if b:
+        query_parts.append(f"b={b}")
+    if t:
+        query_parts.append(f"t={t}")
+        
+    res = f"{clean_base}?{'&'.join(query_parts)}"
     if extra_query:
         if extra_query.startswith("#"):
             res += extra_query

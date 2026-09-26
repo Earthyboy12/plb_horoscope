@@ -489,18 +489,79 @@ def calculate_transit_horizon(ty, tm, td, transit_coords, natal_asc_sign):
         "relationshipNote": aspect_notes.get(diff, "เกื้อหนุนดวงชะตา")
     }
 
+def _parse_birth_date(date_val):
+    if not date_val or not isinstance(date_val, str):
+        return 1995, 8, 12
+    s = date_val.strip()
+    if s.lower() in ("none", "undefined", "null", ""):
+        return 1995, 8, 12
+    parts = s.split("-")
+    if len(parts) != 3:
+        return 1995, 8, 12
+    try:
+        y, m, d = int(parts[0]), int(parts[1]), int(parts[2])
+        if y > 2400:
+            y -= 543
+        if not (1 <= m <= 12 and 1 <= d <= 31 and 1800 <= y <= 2650):
+            return 1995, 8, 12
+        return y, m, d
+    except Exception:
+        return 1995, 8, 12
+
+def _parse_birth_time(time_val):
+    if not time_val or not isinstance(time_val, str):
+        return 8, 30
+    s = time_val.strip()
+    if s.lower() in ("none", "undefined", "null", ""):
+        return 8, 30
+    parts = s.split(":")
+    if len(parts) < 2:
+        return 8, 30
+    try:
+        h, m = int(parts[0]), int(parts[1])
+        if not (0 <= h <= 23 and 0 <= m <= 59):
+            return 8, 30
+        return h, m
+    except Exception:
+        return 8, 30
+
+def _parse_target_date(target_val):
+    now_th = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=7)
+    if not target_val or not isinstance(target_val, str):
+        return now_th.year, now_th.month, now_th.day, now_th.strftime("%Y-%m-%d")
+    s = target_val.strip()
+    if s.lower() in ("none", "undefined", "null", ""):
+        return now_th.year, now_th.month, now_th.day, now_th.strftime("%Y-%m-%d")
+    parts = s.split("-")
+    if len(parts) != 3:
+        return now_th.year, now_th.month, now_th.day, now_th.strftime("%Y-%m-%d")
+    try:
+        y, m, d = int(parts[0]), int(parts[1]), int(parts[2])
+        if y > 2400:
+            y -= 543
+        if not (1 <= m <= 12 and 1 <= d <= 31):
+            return now_th.year, now_th.month, now_th.day, now_th.strftime("%Y-%m-%d")
+        return y, m, d, f"{y:04d}-{m:02d}-{d:02d}"
+    except Exception:
+        return now_th.year, now_th.month, now_th.day, now_th.strftime("%Y-%m-%d")
+
 def get_horoscope(birth_dict, target_date_str=""):
-    if not target_date_str:
-        target_date_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    ty, tm, td, target_date_str = _parse_target_date(target_date_str)
 
     # Parse birth info safely (supports camelCase and snake_case)
-    b_date = birth_dict.get("birthDate") or birth_dict.get("birth_date") or "1995-08-12"
-    b_time = birth_dict.get("birthTime") or birth_dict.get("birth_time") or "08:30"
-    by, bm, bd = [int(x) for x in b_date.split("-")]
-    bh, bmin = [int(x) for x in b_time.split(":")]
+    b_date_raw = birth_dict.get("birthDate") or birth_dict.get("birth_date")
+    b_time_raw = birth_dict.get("birthTime") or birth_dict.get("birth_time")
+    by, bm, bd = _parse_birth_date(b_date_raw)
+    bh, bmin = _parse_birth_time(b_time_raw)
     prov_name = birth_dict.get("province") or birth_dict.get("birth_province") or "กรุงเทพมหานคร"
+    if str(prov_name).lower() in ("none", "undefined", "null", ""):
+        prov_name = "กรุงเทพมหานคร"
     district_name = birth_dict.get("district") or birth_dict.get("birth_district") or "พระนคร"
+    if str(district_name).lower() in ("none", "undefined", "null", ""):
+        district_name = "พระนคร"
     calc_method = birth_dict.get("calcMethod") or birth_dict.get("calc_method") or "suriyayatra" # default suriyayatra
+    if str(calc_method).lower() in ("none", "undefined", "null", ""):
+        calc_method = "suriyayatra"
 
     # Resolve birth coordinates
     coords, prov_data = resolve_coordinates(prov_name, district_name)
@@ -539,7 +600,6 @@ def get_horoscope(birth_dict, target_date_str=""):
         })
 
     # Transit chart
-    ty, tm, td = [int(x) for x in target_date_str.split("-")]
     transit_dt = datetime.datetime(ty, tm, td, 6, 0) - datetime.timedelta(hours=7)
     jd_transit = date_to_julian_day(transit_dt.year, transit_dt.month, transit_dt.day, transit_dt.hour, transit_dt.minute)
     transit_planets = calculate_planets(jd_transit)

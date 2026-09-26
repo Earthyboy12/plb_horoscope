@@ -329,22 +329,30 @@ def compute_user_horoscope(user: dict, target_date: str = "") -> dict:
         now_th = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
         target_date = now_th.strftime("%Y-%m-%d")
         
-    birth_prov = user.get("birth_province", "กรุงเทพมหานคร")
-    birth_dist = user.get("birth_district", "พระนคร")
+    birth_prov = user.get("birth_province") or "กรุงเทพมหานคร"
+    birth_dist = user.get("birth_district") or "พระนคร"
     transit_prov = user.get("transit_province") or birth_prov
     transit_dist = user.get("transit_district") or birth_dist
     is_same = (transit_prov == birth_prov)
 
+    b_date = user.get("birth_date") or "1995-08-12"
+    if str(b_date).lower() in ("none", "undefined", "null", ""):
+        b_date = "1995-08-12"
+        
+    b_time = user.get("birth_time") or "08:30"
+    if str(b_time).lower() in ("none", "undefined", "null", ""):
+        b_time = "08:30"
+
     payload = {
-        "birthDate": user.get("birth_date", "1995-08-12"),
-        "birthTime": user.get("birth_time", "08:30"),
+        "birthDate": b_date,
+        "birthTime": b_time,
         "province": birth_prov,
         "district": birth_dist,
-        "calcMethod": user.get("calc_method", "suriyayatra"),
+        "calcMethod": user.get("calc_method") or "suriyayatra",
         "isSameLocation": is_same,
         "transitProvince": transit_prov,
         "transitDistrict": transit_dist,
-        "name": user.get("name", "ผู้ใช้")
+        "name": user.get("name") or "ผู้ใช้"
     }
     return get_horoscope(payload, target_date)
 

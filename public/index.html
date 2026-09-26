@@ -1651,13 +1651,52 @@
       exportTheme: "cosmic"
     };
 
-    // Load saved profile
+    function isValidDateString(val) {
+      if (!val || typeof val !== 'string') return false;
+      const s = val.trim();
+      if (s === 'None' || s === 'undefined' || s === 'null') return false;
+      const m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+      if (!m) return false;
+      const y = parseInt(m[1], 10);
+      const mon = parseInt(m[2], 10);
+      const d = parseInt(m[3], 10);
+      return (y >= 1800 && y <= 2650 && mon >= 1 && mon <= 12 && d >= 1 && d <= 31);
+    }
+
+    function isValidTimeString(val) {
+      if (!val || typeof val !== 'string') return false;
+      const s = val.trim();
+      if (s === 'None' || s === 'undefined' || s === 'null') return false;
+      const m = s.match(/^(\d{1,2}):(\d{1,2})$/);
+      if (!m) return false;
+      const h = parseInt(m[1], 10);
+      const min = parseInt(m[2], 10);
+      return (h >= 0 && h <= 23 && min >= 0 && min <= 59);
+    }
+
+    function isInvalidWord(val) {
+      if (!val || typeof val !== 'string') return true;
+      const s = val.trim();
+      return (s === '' || s === 'None' || s === 'undefined' || s === 'null');
+    }
+
+    // Load saved profile & sanitize corrupted entries
     try {
       const saved = localStorage.getItem('plb_horo_birth_v4') || localStorage.getItem('plb_horo_birth_v3');
-      if (saved) state.birth = { ...state.birth, ...JSON.parse(saved) };
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object') {
+          if (!isValidDateString(parsed.birthDate)) delete parsed.birthDate;
+          if (!isValidTimeString(parsed.birthTime)) delete parsed.birthTime;
+          if (isInvalidWord(parsed.province)) delete parsed.province;
+          if (isInvalidWord(parsed.transitProvince)) delete parsed.transitProvince;
+          if (isInvalidWord(parsed.name)) delete parsed.name;
+          state.birth = { ...state.birth, ...parsed };
+        }
+      }
     } catch(e) {}
 
-    // Auto-load birth params from URL if passed from LINE OA (no registration required)
+    // Auto-load birth params from URL if passed from LINE OA (safely sanitized)
     try {
       const sp = new URLSearchParams(window.location.search);
       const qB = sp.get('b') || sp.get('birthDate');
@@ -1665,15 +1704,17 @@
       const qP = sp.get('p') || sp.get('province');
       const qTp = sp.get('tp') || sp.get('transitProvince');
       const qN = sp.get('n') || sp.get('name');
-      if (qB) state.birth.birthDate = qB;
-      if (qT) state.birth.birthTime = qT;
-      if (qP) state.birth.province = qP;
-      if (qTp) {
-        state.birth.transitProvince = qTp;
-        state.birth.isSameLocation = (qP === qTp);
+
+      if (isValidDateString(qB)) state.birth.birthDate = qB.trim();
+      if (isValidTimeString(qT)) state.birth.birthTime = qT.trim();
+      if (!isInvalidWord(qP)) state.birth.province = qP.trim();
+      if (!isInvalidWord(qTp)) {
+        state.birth.transitProvince = qTp.trim();
+        state.birth.isSameLocation = (state.birth.province === state.birth.transitProvince);
       }
-      if (qN) state.birth.name = qN;
-      if (qB) {
+      if (!isInvalidWord(qN)) state.birth.name = qN.trim();
+
+      if (isValidDateString(qB)) {
         localStorage.setItem('plb_horo_birth_v4', JSON.stringify(state.birth));
       }
     } catch(e) {}
@@ -1891,11 +1932,11 @@
         transitProvSelect.appendChild(opt2);
       });
 
-      document.getElementById('inputName').value = state.birth.name;
-      document.getElementById('inputBirthDate').value = state.birth.birthDate;
-      document.getElementById('inputBirthTime').value = state.birth.birthTime;
+      document.getElementById('inputName').value = state.birth.name || "คุณดวงดี";
+      document.getElementById('inputBirthDate').value = isValidDateString(state.birth.birthDate) ? state.birth.birthDate : "1995-05-15";
+      document.getElementById('inputBirthTime').value = isValidTimeString(state.birth.birthTime) ? state.birth.birthTime : "09:30";
       document.getElementById('selectMethod').value = state.birth.calcMethod || "suriyayatra";
-      document.getElementById('inputCustomDate').value = state.targetDate;
+      document.getElementById('inputCustomDate').value = state.targetDate || new Date().toISOString().split('T')[0];
       
       const isSame = state.birth.isSameLocation !== false;
       document.getElementById('checkSameLocation').checked = isSame;
@@ -1964,11 +2005,42 @@
       }
     }
 
+    function resetProfileAndReload() {
+      try {
+        localStorage.removeItem('plb_horo_birth_v4');
+        localStorage.removeItem('plb_horo_birth_v3');
+      } catch(e) {}
+      state.birth = {
+        name: "คุณดวงดี",
+        birthDate: "1995-05-15",
+        birthTime: "09:30",
+        province: "กรุงเทพมหานคร",
+        district: "พระนคร",
+        calcMethod: "suriyayatra",
+        isSameLocation: true,
+        transitProvince: "กรุงเทพมหานคร",
+        transitDistrict: "พระนคร"
+      };
+      state.targetDate = new Date().toISOString().split('T')[0];
+      initInputs();
+      loadHoroscope();
+    }
+
     // Fetch horoscope from Python API
     async function loadHoroscope() {
       const heroTitle = document.getElementById('heroSummaryTitle');
       const heroDesc = document.getElementById('heroSummaryDesc');
       if (heroTitle) heroTitle.innerText = "กำลังคำนวณตำแหน่งดวงดาวและลัคนา...";
+
+      // Clean & sanitize state.birth
+      if (!isValidDateString(state.birth.birthDate)) state.birth.birthDate = "1995-05-15";
+      if (!isValidTimeString(state.birth.birthTime)) state.birth.birthTime = "09:30";
+      if (isInvalidWord(state.birth.province)) state.birth.province = "กรุงเทพมหานคร";
+      if (isInvalidWord(state.birth.transitProvince)) state.birth.transitProvince = state.birth.province;
+      if (isInvalidWord(state.birth.name)) state.birth.name = "คุณดวงดี";
+      if (!state.targetDate || !isValidDateString(state.targetDate)) {
+        state.targetDate = new Date().toISOString().split('T')[0];
+      }
 
       try {
         const resp = await fetch('/api/astrology/daily', {
@@ -2008,9 +2080,13 @@
         }
 
         const res = await resp.json();
-        if (res.success) {
+        if (res.success && res.data) {
           state.data = res.data;
-          renderApp();
+          try {
+            renderApp();
+          } catch (renderErr) {
+            console.error("renderApp error:", renderErr);
+          }
         } else {
           throw new Error(res.error || "ไม่สามารถประมวลผลดวงชะตาได้");
         }
@@ -2023,9 +2099,14 @@
           heroDesc.innerHTML = `
             <div class="mt-2 text-slate-300 text-xs sm:text-sm space-y-2">
               <p class="text-rose-300">${err.message || err}</p>
-              <button onclick="loadHoroscope()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold rounded-xl border border-slate-700 text-xs transition-all active:scale-95">
-                🔄 กดเพื่อลองใหม่อีกครั้ง
-              </button>
+              <div class="flex items-center gap-2 pt-1 flex-wrap">
+                <button onclick="loadHoroscope()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold rounded-xl border border-slate-700 text-xs transition-all active:scale-95">
+                  🔄 กดเพื่อลองใหม่อีกครั้ง
+                </button>
+                <button onclick="resetProfileAndReload()" class="px-4 py-2 bg-rose-950/60 hover:bg-rose-900/60 text-rose-300 font-bold rounded-xl border border-rose-700/60 text-xs transition-all active:scale-95">
+                  🧹 รีเซ็ตข้อมูลเริ่มต้น
+                </button>
+              </div>
             </div>
           `;
         }
@@ -2035,12 +2116,13 @@
     function renderApp() {
       if (!state.data) return;
       const d = state.data;
+      if (!d.natalChart || !d.natalChart.ascendant) return;
       const asc = d.natalChart.ascendant;
-      const info = d.natalChart.birthInfo;
+      const info = d.natalChart.birthInfo || {};
       const tLoc = d.transitLocation || {
         isSameLocation: true,
-        province: info.province,
-        district: info.district,
+        province: info.province || "กรุงเทพมหานคร",
+        district: info.district || "พระนคร",
         sunriseTime: "06:06",
         sunsetTime: "18:13",
         lmtOffsetMinutes: info.lmtOffset || 18.0
@@ -2048,28 +2130,66 @@
 
       // Update Method Badge
       const isSuriyayatra = (info.calcMethod || "suriyayatra") === "suriyayatra";
-      document.getElementById('headerMethodBadge').innerText = isSuriyayatra ? "สุริยยาตร์ (อันโตนาทีสามัญ)" : "นิรายนะ (ลาหิรี Ayanamsa)";
+      const headerMethodEl = document.getElementById('headerMethodBadge');
+      if (headerMethodEl) {
+        headerMethodEl.innerText = isSuriyayatra ? "สุริยยาตร์ (อันโตนาทีสามัญ)" : "นิรายนะ (ลาหิรี Ayanamsa)";
+      }
 
       // Update Hero
-      document.getElementById('heroAscendantBadge').innerText = `ลัคนาราศี${asc.signName} (${asc.signDegree}° ${asc.arcMinutes}')`;
-      document.getElementById('heroLmtBadge').innerText = isSuriyayatra ? `LMT เกิด: ${asc.lmtTime || '-'} น. (ตัด ${asc.lmtOffset ? asc.lmtOffset.toFixed(1) : '18'} นาที)` : `พิกัดองศา: ${asc.degree.toFixed(2)}°`;
+      const heroAscEl = document.getElementById('heroAscendantBadge');
+      if (heroAscEl) {
+        heroAscEl.innerText = `ลัคนาราศี${asc.signName} (${asc.signDegree}° ${asc.arcMinutes}')`;
+      }
+      
+      const heroLmtEl = document.getElementById('heroLmtBadge');
+      if (heroLmtEl) {
+        heroLmtEl.innerText = isSuriyayatra ? `LMT เกิด: ${asc.lmtTime || '-'} น. (ตัด ${asc.lmtOffset ? asc.lmtOffset.toFixed(1) : '18'} นาที)` : `พิกัดองศา: ${asc.degree ? asc.degree.toFixed(2) : '-'}°`;
+      }
       
       const isSameLoc = tLoc.isSameLocation !== false;
-      document.getElementById('heroTransitBadge').innerText = isSameLoc 
-        ? `🧭 สถิตภูมิลำเนาเดิม (${tLoc.province})`
-        : `🧭 ปัจจุบัน: ${tLoc.province} (${tLoc.district || ''}) • LMT ตัด ${tLoc.lmtOffsetMinutes ? tLoc.lmtOffsetMinutes.toFixed(1) : '18'} นาที`;
+      const heroTransitEl = document.getElementById('heroTransitBadge');
+      if (heroTransitEl) {
+        heroTransitEl.innerText = isSameLoc 
+          ? `🧭 สถิตภูมิลำเนาเดิม (${tLoc.province})`
+          : `🧭 ปัจจุบัน: ${tLoc.province} (${tLoc.district || ''}) • LMT ตัด ${tLoc.lmtOffsetMinutes ? tLoc.lmtOffsetMinutes.toFixed(1) : '18'} นาที`;
+      }
 
-      document.getElementById('heroLocationBadge').innerText = `📍 กำเนิด: ${info.name} • ${info.province} (${info.district || ''})`;
-      document.getElementById('heroTransitSunriseBadge').innerText = `☀️ อาทิตย์อุทัยวันนี้ (${tLoc.province}): ${tLoc.sunriseTime} น. (ตก ${tLoc.sunsetTime} น.)`;
-      document.getElementById('heroSummaryTitle').innerText = d.categories.overall.summary;
-      document.getElementById('heroSummaryDesc').innerText = d.categories.overall.highlights[0];
-      document.getElementById('heroScoreVal').innerText = `${d.categories.overall.score}%`;
+      const heroLocEl = document.getElementById('heroLocationBadge');
+      if (heroLocEl) {
+        heroLocEl.innerText = `📍 กำเนิด: ${info.name || 'ผู้ใช้'} • ${info.province || ''} (${info.district || ''})`;
+      }
       
-      document.getElementById('activeUserBadge').innerText = isSameLoc
-        ? `${info.name} • ลัคนาราศี${asc.signName} (${info.province})`
-        : `${info.name} • ลัคนาราศี${asc.signName} (เกิด: ${info.province} ➔ ปัจจุบัน: ${tLoc.province})`;
+      const heroSunriseEl = document.getElementById('heroTransitSunriseBadge');
+      if (heroSunriseEl) {
+        heroSunriseEl.innerText = `☀️ อาทิตย์อุทัยวันนี้ (${tLoc.province}): ${tLoc.sunriseTime || '06:00'} น. (ตก ${tLoc.sunsetTime || '18:00'} น.)`;
+      }
+      
+      const heroTitleEl = document.getElementById('heroSummaryTitle');
+      if (heroTitleEl) {
+        heroTitleEl.innerText = d.categories?.overall?.summary || 'ดวงชะตาประจำวันของคุณ';
+      }
+      
+      const heroDescEl = document.getElementById('heroSummaryDesc');
+      if (heroDescEl) {
+        heroDescEl.innerText = (d.categories?.overall?.highlights && d.categories.overall.highlights[0]) || '';
+      }
+      
+      const heroScoreEl = document.getElementById('heroScoreVal');
+      if (heroScoreEl) {
+        heroScoreEl.innerText = `${d.categories?.overall?.score ?? 80}%`;
+      }
+      
+      const activeUserEl = document.getElementById('activeUserBadge');
+      if (activeUserEl) {
+        activeUserEl.innerText = isSameLoc
+          ? `${info.name || 'ผู้ใช้'} • ลัคนาราศี${asc.signName} (${info.province || ''})`
+          : `${info.name || 'ผู้ใช้'} • ลัคนาราศี${asc.signName} (เกิด: ${info.province || ''} ➔ ปัจจุบัน: ${tLoc.province})`;
+      }
 
-      document.getElementById('chartAscSignBadge').innerText = `ลัคนาสถิตราศี${asc.signName} • ${asc.nakshatra || ''}`;
+      const chartAscEl = document.getElementById('chartAscSignBadge');
+      if (chartAscEl) {
+        chartAscEl.innerText = `ลัคนาสถิตราศี${asc.signName} • ${asc.nakshatra || ''}`;
+      }
 
       // Render Zodiac 12 Grid
       const signs = [
