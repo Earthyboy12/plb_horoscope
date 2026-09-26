@@ -9,6 +9,126 @@ Compatible with LINE Messaging API specifications.
 import datetime
 import re
 
+def build_new_friend_welcome_flex(liff_url: str, web_url: str = "https://plb-horoscope.vercel.app") -> dict:
+    """Build a world-class, ultra-cute 3D mascot welcome onboarding card for new LINE OA friends."""
+    web_url = web_url or "https://plb-horoscope.vercel.app"
+    return {
+        "type": "flex",
+        "altText": "🐻‍❄️ ยินดีต้อนรับเพื่อนใหม่สู่น้องหมีแม่หมอพยากรณ์ ✨",
+        "contents": {
+            "type": "bubble",
+            "size": "mega",
+            "hero": {
+                "type": "image",
+                "url": f"{web_url}/bear_welcome.jpg",
+                "size": "full",
+                "aspectRatio": "16:9",
+                "aspectMode": "cover",
+                "action": {
+                    "type": "uri",
+                    "uri": liff_url
+                }
+            },
+            "header": {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#0b0f19",
+                "paddingAll": "16px",
+                "contents": [
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                            {"type": "text", "text": "🐻‍❄️ ยินดีต้อนรับเพื่อนใหม่ ✨", "weight": "bold", "color": "#fbbf24", "size": "md", "flex": 1},
+                            {"type": "text", "text": "AI x ดาราศาสตร์", "color": "#94a3b8", "size": "xxs", "align": "end"}
+                        ]
+                    },
+                    {"type": "text", "text": "น้องหมีแม่หมอ • ผู้พิทักษ์ดวงชะตาประจำวันของคุณ", "color": "#cbd5e1", "size": "xs", "margin": "xs"}
+                ]
+            },
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#0f172a",
+                "paddingAll": "18px",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": "สวัสดีครับ! น้องหมียินดีที่ได้รู้จักนะครับ 💖",
+                        "weight": "bold",
+                        "size": "md",
+                        "color": "#f8fafc"
+                    },
+                    {
+                        "type": "text",
+                        "text": "น้องหมีพร้อมพาคุณมาผูกดวงชะตาเฉพาะบุคคล คำนวณลัคนาแม่นยำ พร้อมอัปเดตสีเสื้อมงคลและเสี่ยงเซียมซีได้ฟรีทุกวันครับ 🔮",
+                        "size": "xs",
+                        "color": "#cbd5e1",
+                        "wrap": True,
+                        "margin": "xs"
+                    },
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "margin": "md",
+                        "backgroundColor": "#1e293b",
+                        "cornerRadius": "12px",
+                        "paddingAll": "12px",
+                        "contents": [
+                            {"type": "text", "text": "🌟 ฟีเจอร์ที่คุณจะได้รับฟรีทุกวัน:", "weight": "bold", "size": "xs", "color": "#fbbf24"},
+                            {"type": "text", "text": "• คำนวณลัคนาราศีและดวง 4 มิติชีวิต (งาน เงิน รัก สุขภาพ)", "size": "xxs", "color": "#94a3b8", "margin": "xs"},
+                            {"type": "text", "text": "• ตารางสีเสื้อมงคลประจำวัน เสริมโชคลาภ & กาลกิณี", "size": "xxs", "color": "#94a3b8", "margin": "xs"},
+                            {"type": "text", "text": "• เสี่ยงเซียมซี 28 ใบ พร้อมใบคำทำนายมงคล 24 ชม.", "size": "xxs", "color": "#94a3b8", "margin": "xs"},
+                            {"type": "text", "text": "• สถิติวาสนาสะสม คลื่นดวง 7 วัน & กิมมิกเลขเด็ด", "size": "xxs", "color": "#94a3b8", "margin": "xs"}
+                        ]
+                    },
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "margin": "sm",
+                        "backgroundColor": "#06281e",
+                        "borderColor": "#10b981",
+                        "borderWidth": "1px",
+                        "cornerRadius": "10px",
+                        "paddingAll": "10px",
+                        "contents": [
+                            {"type": "text", "text": "🛡️ ปลอดภัย 100% เจ้าของแอปไม่มีการเก็บข้อมูลส่วนตัวใด ๆ ทั้งสิ้น", "size": "xxs", "color": "#86efac", "weight": "bold", "wrap": True}
+                        ]
+                    }
+                ]
+            },
+            "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#0b0f19",
+                "paddingAll": "14px",
+                "spacing": "sm",
+                "contents": [
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#f59e0b",
+                        "action": {
+                            "type": "uri",
+                            "label": "🌟 แตะผูกดวง & เริ่มต้นใช้งาน",
+                            "uri": liff_url
+                        }
+                    },
+                    {
+                        "type": "button",
+                        "style": "secondary",
+                        "color": "#1e293b",
+                        "action": {
+                            "type": "message",
+                            "label": "👥 ชวนเพื่อน & รับรูปโปสเตอร์มู",
+                            "text": "โปสเตอร์"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+
 def build_welcome_flex(liff_url: str) -> dict:
     """Build a welcoming onboarding card prompting the user to register birth info."""
     return {
@@ -1603,17 +1723,17 @@ def get_category_quick_reply() -> dict:
     }
 
 def build_share_flex(web_url: str = "https://plb-horoscope.vercel.app") -> dict:
-    """Build a cute share invitation card for LINE OA."""
+    """Build an upgraded multi-channel share invitation card for LINE OA."""
     web_url = web_url or "https://plb-horoscope.vercel.app"
     return {
         "type": "flex",
-        "altText": "ชวนเพื่อนมาดูดวงกับน้องหมี PLB โหราศาสตร์ 🐻‍❄️✨",
+        "altText": "ชวนเพื่อนมาดูดวงกับน้องหมีแม่หมอพยากรณ์ 🐻‍❄️✨",
         "contents": {
             "type": "bubble",
             "size": "mega",
             "hero": {
                 "type": "image",
-                "url": f"{web_url}/bear_love.jpg",
+                "url": f"{web_url}/bear_share_3d.jpg",
                 "size": "full",
                 "aspectRatio": "20:13",
                 "aspectMode": "cover"
@@ -1624,8 +1744,8 @@ def build_share_flex(web_url: str = "https://plb-horoscope.vercel.app") -> dict:
                 "backgroundColor": "#0b0f19",
                 "paddingAll": "16px",
                 "contents": [
-                    {"type": "text", "text": "🐻‍❄️ PLB หมีดูดวง • ชวนเพื่อน", "weight": "bold", "color": "#fbbf24", "size": "md"},
-                    {"type": "text", "text": "แชร์ความแม่นยำให้เพื่อนๆ เช็คดวงฟรี!", "color": "#94a3b8", "size": "xxs"}
+                    {"type": "text", "text": "🐻‍❄️ น้องหมีชวนเพื่อนมู • ส่งต่อความเฮง ✨", "weight": "bold", "color": "#fbbf24", "size": "md"},
+                    {"type": "text", "text": "แชร์ความแม่นยำให้เพื่อน ๆ เช็กดวง & รับพลังบวกฟรี!", "color": "#94a3b8", "size": "xxs"}
                 ]
             },
             "body": {
@@ -1634,8 +1754,8 @@ def build_share_flex(web_url: str = "https://plb-horoscope.vercel.app") -> dict:
                 "backgroundColor": "#0f172a",
                 "paddingAll": "16px",
                 "contents": [
-                    {"type": "text", "text": "ส่งต่อความเฮงให้เพื่อนของคุณ ✨", "weight": "bold", "size": "sm", "color": "#f8fafc"},
-                    {"type": "text", "text": "ชวนเพื่อนมารู้จักลัคนาราศีที่แท้จริง พร้อมคำนวณคะแนนชีวิต 4 ด้านและเลขมงคลประจำวันได้ฟรีทุกวันครับ 🔮", "size": "xs", "color": "#cbd5e1", "wrap": True, "margin": "xs"},
+                    {"type": "text", "text": "ส่งต่อความเฮงให้เพื่อนของคุณ 💖", "weight": "bold", "size": "sm", "color": "#f8fafc"},
+                    {"type": "text", "text": "ชวนเพื่อนมารู้จักลัคนาราศีที่แท้จริง ตรวจเช็กสีเสื้อมงคล และเสี่ยงเซียมซีฟรีตลอด 24 ชั่วโมงครับ 🔮", "size": "xs", "color": "#cbd5e1", "wrap": True, "margin": "xs"},
                     {
                         "type": "box",
                         "layout": "vertical",
@@ -1645,7 +1765,8 @@ def build_share_flex(web_url: str = "https://plb-horoscope.vercel.app") -> dict:
                         "paddingAll": "12px",
                         "contents": [
                             {"type": "text", "text": "📲 LINE ID สำหรับเพิ่มเพื่อน:", "size": "xs", "color": "#38bdf8", "weight": "bold"},
-                            {"type": "text", "text": "@374xcoto", "size": "lg", "weight": "bold", "color": "#fbbf24", "margin": "xs"}
+                            {"type": "text", "text": "@374xcoto", "size": "lg", "weight": "bold", "color": "#fbbf24", "margin": "xs"},
+                            {"type": "text", "text": "หรือแชร์ลิงก์: https://line.me/R/ti/p/@374xcoto", "size": "xxs", "color": "#94a3b8", "margin": "xs"}
                         ]
                     }
                 ]
@@ -1655,6 +1776,7 @@ def build_share_flex(web_url: str = "https://plb-horoscope.vercel.app") -> dict:
                 "layout": "vertical",
                 "backgroundColor": "#0b0f19",
                 "paddingAll": "12px",
+                "spacing": "sm",
                 "contents": [
                     {
                         "type": "button",
@@ -1663,6 +1785,98 @@ def build_share_flex(web_url: str = "https://plb-horoscope.vercel.app") -> dict:
                         "action": {
                             "type": "uri",
                             "label": "📤 แตะเพื่อแชร์ให้เพื่อนใน LINE",
+                            "uri": "https://line.me/R/nv/recommendOA/@374xcoto"
+                        }
+                    },
+                    {
+                        "type": "button",
+                        "style": "secondary",
+                        "color": "#1e293b",
+                        "action": {
+                            "type": "message",
+                            "label": "🖼️ รับรูปโปสเตอร์ & QR Code",
+                            "text": "โปสเตอร์"
+                        }
+                    },
+                    {
+                        "type": "button",
+                        "style": "secondary",
+                        "color": "#1e293b",
+                        "action": {
+                            "type": "uri",
+                            "label": "🌐 Social Share Hub (FB / X / IG)",
+                            "uri": f"{web_url}#share"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+
+def build_poster_preview_flex(web_url: str = "https://plb-horoscope.vercel.app") -> dict:
+    """Build a poster preview Flex card with download and share links."""
+    web_url = web_url or "https://plb-horoscope.vercel.app"
+    return {
+        "type": "flex",
+        "altText": "🖼️ โปสเตอร์ชวนเพื่อนมู & QR Code น้องหมีแม่หมอ 🐻‍❄️✨",
+        "contents": {
+            "type": "bubble",
+            "size": "mega",
+            "hero": {
+                "type": "image",
+                "url": f"{web_url}/share_poster.jpg",
+                "size": "full",
+                "aspectRatio": "9:16",
+                "aspectMode": "cover",
+                "action": {
+                    "type": "uri",
+                    "uri": f"{web_url}/share_poster.jpg"
+                }
+            },
+            "header": {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#0b0f19",
+                "paddingAll": "14px",
+                "contents": [
+                    {"type": "text", "text": "🖼️ โปสเตอร์ชวนเพื่อนมู & QR Code ✨", "weight": "bold", "color": "#fbbf24", "size": "md"},
+                    {"type": "text", "text": "Thai Daily Horoscope • LINE OA: @374xcoto", "color": "#94a3b8", "size": "xxs"}
+                ]
+            },
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#0f172a",
+                "paddingAll": "16px",
+                "contents": [
+                    {"type": "text", "text": "เซฟรูปโปสเตอร์นี้ไปแชร์ได้ทันที 🐻‍❄️💖", "weight": "bold", "size": "sm", "color": "#f8fafc"},
+                    {"type": "text", "text": "โพสต์ลง IG Story, Facebook, Twitter, Threads หรือแชร์เข้ากลุ่ม LINE ให้เพื่อน ๆ สแกนเพิ่มเพื่อนได้ง่าย ๆ เลยครับ!", "size": "xs", "color": "#cbd5e1", "wrap": True, "margin": "xs"}
+                ]
+            },
+            "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#0b0f19",
+                "paddingAll": "12px",
+                "spacing": "sm",
+                "contents": [
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#f59e0b",
+                        "action": {
+                            "type": "uri",
+                            "label": "📥 แตะเพื่อเปิด/บันทึกรูปโปสเตอร์ HD",
+                            "uri": f"{web_url}/share_poster.jpg"
+                        }
+                    },
+                    {
+                        "type": "button",
+                        "style": "secondary",
+                        "color": "#059669",
+                        "action": {
+                            "type": "uri",
+                            "label": "📤 แนะนำเพื่อนผ่าน LINE OA",
                             "uri": "https://line.me/R/nv/recommendOA/@374xcoto"
                         }
                     }

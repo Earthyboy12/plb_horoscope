@@ -65,7 +65,20 @@ def test_all():
     
     dn_flex = build_donation_flex("081-234-5678", "พร้อมเพย์ Earth PLB")
     assert dn_flex["type"] == "flex"
-    print("   Flex Message Builders: PASS (All JSON valid)")
+
+    from line_flex_builder import build_new_friend_welcome_flex, build_poster_preview_flex, build_share_flex
+    nfw_flex = build_new_friend_welcome_flex("https://liff.line.me/test-liff")
+    assert nfw_flex["type"] == "flex"
+    assert "bear_welcome.jpg" in json.dumps(nfw_flex, ensure_ascii=False)
+
+    sh_flex = build_share_flex()
+    assert sh_flex["type"] == "flex"
+    assert "bear_share_3d.jpg" in json.dumps(sh_flex, ensure_ascii=False)
+
+    post_flex = build_poster_preview_flex()
+    assert post_flex["type"] == "flex"
+    assert "share_poster.jpg" in json.dumps(post_flex, ensure_ascii=False)
+    print("   Flex Message Builders: PASS (All JSON valid, Welcome & Share & Poster verified)")
 
     print("5. Testing Signature Verification...")
     valid = verify_signature(b'{"events":[]}', "", "")

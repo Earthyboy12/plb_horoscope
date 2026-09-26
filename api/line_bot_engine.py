@@ -22,6 +22,7 @@ try:
     from user_store import get_user, save_user, update_transit_location, record_user_check
     from line_flex_builder import (
         build_welcome_flex,
+        build_new_friend_welcome_flex,
         build_daily_summary_flex,
         build_category_menu_flex,
         build_category_flex,
@@ -35,6 +36,7 @@ try:
         build_wallpaper_rewards_flex,
         build_donation_flex,
         build_share_flex,
+        build_poster_preview_flex,
         build_stats_flex,
         get_category_quick_reply
     )
@@ -43,6 +45,7 @@ except ImportError:
     from api.user_store import get_user, save_user, update_transit_location, record_user_check
     from api.line_flex_builder import (
         build_welcome_flex,
+        build_new_friend_welcome_flex,
         build_daily_summary_flex,
         build_category_menu_flex,
         build_category_flex,
@@ -56,6 +59,7 @@ except ImportError:
         build_wallpaper_rewards_flex,
         build_donation_flex,
         build_share_flex,
+        build_poster_preview_flex,
         build_stats_flex,
         get_category_quick_reply
     )
@@ -368,7 +372,7 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
     
     # 1. Event: Follow (User adds LINE OA as friend)
     if event_type == "follow":
-        welcome_flex = build_welcome_flex(liff_url)
+        welcome_flex = build_new_friend_welcome_flex(liff_url, web_url)
         reply([welcome_flex])
         return
     
@@ -383,7 +387,8 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                     "items": [
                         {"type": "action", "action": {"type": "uri", "label": "🌟 ลงทะเบียนวันเกิด", "uri": liff_url}},
                         {"type": "action", "action": {"type": "message", "label": "💡 ตัวอย่างพิมพ์บอก", "text": "เกิด 12/08/2538 08:30 กทม"}},
-                        {"type": "action", "action": {"type": "uri", "label": "👥 ชวนเพื่อนดูดวง", "uri": "https://line.me/R/nv/recommendOA/@374xcoto"}}
+                        {"type": "action", "action": {"type": "message", "label": "👥 ชวนเพื่อนมู", "text": "ชวนเพื่อน"}},
+                        {"type": "action", "action": {"type": "message", "label": "🖼️ รูปโปสเตอร์", "text": "โปสเตอร์"}}
                     ]
                 }
             },
@@ -474,9 +479,21 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             reply([welcome_flex])
             return
 
+        # Check Poster / QR Code command
+        if any(k in text_lower for k in ["โปสเตอร์", "poster", "qr", "คิวอาร์", "รูปแชร์", "รูปชวนเพื่อน", "รูปโปรโมท"]):
+            poster_flex = build_poster_preview_flex(web_url)
+            reply([
+                {
+                    "type": "text",
+                    "text": "🖼️ นี่คือโปสเตอร์ชวนเพื่อนมูฉบับพรีเมียมของน้องหมีแม่หมอครับ 🐻‍❄️✨\n\nคุณสามารถแตะปุ่มเพื่อเปิดบันทึกรูปภาพ HD หรือนำไปโพสต์ลง IG Story, Facebook, X (Twitter) และแชร์เข้ากลุ่ม LINE ได้เลยครับ!"
+                },
+                poster_flex
+            ])
+            return
+
         # Check Share LINE OA command
-        if any(k in text for k in ["แชร์", "ชวนเพื่อน", "แชร์ให้เพื่อน", "share", "ชวน"]):
-            reply([build_share_flex()])
+        if any(k in text_lower for k in ["แชร์", "ชวนเพื่อน", "แชร์ให้เพื่อน", "share", "ชวน", "social", "โซเชียล", "โปรโมท"]):
+            reply([build_share_flex(web_url)])
             return
 
         # Check Noon Daily Reminder test command
