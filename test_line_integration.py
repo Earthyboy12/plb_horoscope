@@ -143,7 +143,31 @@ def test_all():
     print(f"   Unregistered/new user count: {u2['check_count']}, level: {u2['level']}")
     print("   Interaction / Message Counting: PASS")
 
-    print("\n🎉 ALL 10 TESTS PASSED SUCCESSFULLY! 🔮")
+    print("11. Testing 28-Day Monthly Astrological Forecast Calculation...")
+    from thai_astrology import compute_28day_forecast
+    f28 = compute_28day_forecast(user_with_check)
+    assert len(f28["days"]) == 28
+    assert len(f28["weeks"]) == 4
+    assert "averageScore" in f28 and f28["averageScore"] > 0
+    assert "goldenDays" in f28 and len(f28["goldenDays"]) > 0
+    assert "cautionDays" in f28 and len(f28["cautionDays"]) > 0
+    assert "actionAdvice" in f28["goldenDays"][0]
+    assert "actionAdvice" in f28["cautionDays"][0]
+    print(f"   28-day range: {f28['dateRangeLabel']}, avg score: {f28['averageScore']}%")
+    print(f"   Golden days count: {len(f28['goldenDays'])}, Caution days count: {len(f28['cautionDays'])}")
+    print("   28-Day Monthly Forecast Calculation: PASS")
+
+    print("12. Testing Monthly Forecast Flex Message Builder...")
+    from line_flex_builder import build_monthly_forecast_flex
+    m_flex = build_monthly_forecast_flex(user_with_check, f28)
+    assert m_flex["type"] == "flex"
+    assert "ดวงรายเดือน 28 วัน" in m_flex["altText"]
+    assert "bear_monthly.jpg" in json.dumps(m_flex, ensure_ascii=False)
+    assert "ทำการใหญ่" in json.dumps(m_flex, ensure_ascii=False)
+    assert "วันควรระวัง" in json.dumps(m_flex, ensure_ascii=False)
+    print("   Monthly Forecast Flex Message Builder: PASS")
+
+    print("\n🎉 ALL 12 TESTS PASSED SUCCESSFULLY! 🔮")
 
 if __name__ == "__main__":
     test_all()

@@ -615,6 +615,9 @@
           <button onclick="setCategoryTab('health')" id="tab-health" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 transition-all active:scale-95 flex items-center gap-1.5 hover:text-white">
             <span>🐻‍❄️🩺</span> <span>สุขภาพ</span>
           </button>
+          <button onclick="setCategoryTab('monthly')" id="tab-monthly" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-gradient-to-r from-emerald-950/80 to-teal-950/80 hover:bg-emerald-900/80 border border-emerald-500/50 text-emerald-300 transition-all active:scale-95 flex items-center gap-1.5 hover:text-white shadow-sm">
+            <span>🐻‍❄️🗓️</span> <span>ดวงรายเดือน 28 วัน</span>
+          </button>
           <button onclick="setCategoryTab('lucky')" id="tab-lucky" class="cat-tab px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm whitespace-nowrap bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-slate-300 transition-all active:scale-95 flex items-center gap-1.5 hover:text-white">
             <span>🐻‍❄️🔮</span> <span>เกร็ดมงคล</span>
           </button>
@@ -2312,6 +2315,12 @@
         return;
       }
 
+      if (state.activeTab === 'monthly') {
+        luckySec.classList.add('hidden');
+        renderMonthlyForecastView(container);
+        return;
+      }
+
       luckySec.classList.remove('hidden');
 
       let list = [];
@@ -2561,6 +2570,7 @@
       finance: "💰 หมวดการเงิน กระเป๋าตุง รับทรัพย์เฮงๆ ปังๆ ครับ! 💵",
       love: "❤️ หมวดความรัก เสน่ห์แพรวพราว ใครเห็นก็หลงรักครับ 💕",
       health: "🩺 หมวดสุขภาพ พลังกายพลังใจสดใส ร่างกายแข็งแรงครับ! 🛡️",
+      monthly: "🗓️ สรุปดวงรายเดือน 28 วัน วางแผนชีวิต รู้ล่วงหน้าวันทองทำการใหญ่ & วันควรระวังครับ! 🐻‍❄️✨",
       lucky: "🔮 เกร็ดมงคล เลขเด็ด สีนำโชค เสริมดวงพุ่งแรงครับ ✨",
       lottery: "🎰 ขอเลขเด็ด เลขมงคลประจำวัน ดาวเด่นเปิดทรัพย์ เฮงๆ ปังๆ ครับ! 💵",
       shirt: "👕 ตารางสีเสื้อมงคลประจำวัน เสริมเดช เสริมศรี เสริมมนตรี ครบสูตรครับ! ✨"
@@ -2588,6 +2598,634 @@
         mascotCheerIdx = (mascotCheerIdx + 1) % MASCOT_RANDOM_CHEERS.length;
         speech.textContent = MASCOT_RANDOM_CHEERS[mascotCheerIdx];
       }
+    }
+
+    // =======================================================
+    // MONTHLY HOROSCOPE 28-DAY FORECAST & AUSPICIOUS CALENDAR
+    // =======================================================
+    let monthlyForecastState = {
+      data: null,
+      loading: false,
+      selectedIndex: 0
+    };
+
+    function buildClientMonthlyModel() {
+      const today = state.targetDate ? new Date(state.targetDate) : new Date();
+      const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+      const thaiFullMonths = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+      const thaiWeekdays = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
+      const thaiShortWeekdays = ["อา.", "จ.", "อ.", "พ.", "พฤ.", "ศ.", "ส."];
+      
+      const ascName = (state.data && state.data.natalChart && state.data.natalChart.ascendant) ? state.data.natalChart.ascendant.signName : "เมษ";
+      const baseScore = (state.data && state.data.categories && state.data.categories.overall) ? state.data.categories.overall.score : 78;
+
+      const days = [];
+      const houseThemes = [
+        "วันแห่งความมั่นใจ พลังกายใจเต็มเปี่ยม เริ่มต้นสิ่งใหม่ (ตนุ)",
+        "วันแห่งสภาพคล่อง ทรัพย์สินงอกเงย มีลาภลอย (กดุมภะ)",
+        "วันแห่งการเจรจา การเดินทาง สังคมและการติดต่อประสานงาน (สหัชชะ)",
+        "วันแห่งความอบอุ่น ครอบครัว หลักทรัพย์ ความมั่นคง (พันธุ)",
+        "วันแห่งไอเดียสร้างสรรค์ บริวาร โชคจากความเสี่ยง (ปุตตะ)",
+        "วันแห่งการแก้ปัญหา สู้กับอุปสรรค ชัยชนะเหนือคู่แข่ง (อริ)",
+        "วันแห่งความสัมพันธ์ หุ้นส่วน คู่ครอง มิตรภาพที่ดี (ปัตนิ)",
+        "วันแห่งการปรับปรุงฟื้นฟู เคลียร์สิ่งคั่งค้าง และเรียนรู้สิ่งลึกซึ้ง (มรณะ)",
+        "วันแห่งความเจริญก้าวหน้า ผู้ใหญ่เมตตา โอกาสอันดี (ศุภะ)",
+        "วันแห่งเกียรติยศ การงานโดดเด่น ผลงานเป็นที่ประจักษ์ (กัมมะ)",
+        "วันแห่งโชคลาภ ผลประโยชน์ ความสำเร็จ และมิตรภาพที่เกื้อกูล (ลาภะ)",
+        "วันแห่งความสงบ การอยู่เบื้องหลัง การวางแผนและการตั้งรับ (วินาศ)"
+      ];
+
+      for (let i = 0; i < 28; i++) {
+        const cur = new Date(today);
+        cur.setDate(today.getDate() + i);
+        const y = cur.getFullYear();
+        const m = cur.getMonth();
+        const d = cur.getDate();
+        const w = cur.getDay();
+        const dateStr = `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const shortLabel = `${thaiShortWeekdays[w]} ${d} ${thaiMonths[m]}`;
+        const fullLabel = `วัน${thaiWeekdays[w]}ที่ ${d} ${thaiFullMonths[m]}`;
+
+        // Cyclical wave with deterministic variation
+        const wave = Math.sin((i / 28) * Math.PI * 3.5 + 0.3) * 12;
+        const subWave = Math.cos((i / 7) * Math.PI * 2) * 5;
+        let score = Math.round(baseScore + wave + subWave);
+        score = Math.max(60, Math.min(96, score));
+
+        let status = 'normal';
+        let badge = '🌿 ราบรื่นคล่องตัว';
+        let actionAdvice = 'ดำเนินชีวิตตามแผนงานปกติ เจรจาและสะสางงานทั่วไปได้ราบรื่น';
+
+        if (score >= 82) {
+          status = 'golden';
+          badge = '🌟 วันมงคลทำการใหญ่';
+          actionAdvice = 'เหมาะเซ็นสัญญา เจรจาธุรกิจ ออกรถใหม่ เปิดตัวงาน หรือเริ่มโปรเจกต์สำคัญ';
+        } else if (score <= 68) {
+          status = 'caution';
+          badge = '⚠️ วันควรระวังรอบคอบ';
+          actionAdvice = 'ควรระวังเอกสารสัญญาผิดพลาด ชะลอการตัดสินใจเรื่องใหญ่ และมีสติกับอารมณ์';
+        }
+
+        const theme = houseThemes[i % houseThemes.length];
+        days.push({
+          offset: i,
+          dayIndex: i + 1,
+          date: dateStr,
+          day: d,
+          month: m + 1,
+          weekday: thaiWeekdays[w],
+          shortLabel: shortLabel,
+          fullLabel: fullLabel,
+          score: score,
+          theme: theme,
+          status: status,
+          badge: badge,
+          actionAdvice: actionAdvice,
+          scores: {
+            overall: score,
+            career: Math.min(98, Math.max(55, score + (i % 3 === 0 ? 5 : -4))),
+            finance: Math.min(98, Math.max(55, score + (i % 2 === 0 ? 6 : -3))),
+            love: Math.min(98, Math.max(55, score + (i % 4 === 0 ? 4 : -5))),
+            health: Math.min(98, Math.max(55, score + (i % 5 === 0 ? 3 : -6)))
+          }
+        });
+      }
+
+      const goldenDays = days.filter(d => d.status === 'golden');
+      const cautionDays = days.filter(d => d.status === 'caution');
+      const sortedByScore = [...days].sort((a, b) => b.score - a.score);
+      const peakDay = sortedByScore[0];
+      const lowestDay = sortedByScore[sortedByScore.length - 1];
+      const avgScore = Math.round(days.reduce((acc, cur) => acc + cur.score, 0) / days.length);
+
+      const weeks = [];
+      for (let w = 0; w < 4; w++) {
+        const wDays = days.slice(w * 7, (w + 1) * 7);
+        const wAvg = Math.round(wDays.reduce((a, c) => a + c.score, 0) / 7);
+        weeks.push({
+          weekNumber: w + 1,
+          label: `สัปดาห์ที่ ${w + 1} (${wDays[0].shortLabel} - ${wDays[6].shortLabel})`,
+          avgScore: wAvg,
+          theme: w === 0 ? "สัปดาห์แห่งการเริ่มต้นและวางรากฐาน"
+               : w === 1 ? "สัปดาห์แห่งการเร่งเครื่องและเจรจาขยายงาน"
+               : w === 2 ? "สัปดาห์แห่งการเก็บเกี่ยวและสร้างผลกำไร"
+               : "สัปดาห์แห่งการสรุปผลและปรับแต่งกลยุทธ์",
+          days: wDays
+        });
+      }
+
+      return {
+        startDate: days[0].date,
+        endDate: days[27].date,
+        dateRangeLabel: `${days[0].day} ${thaiMonths[days[0].month - 1]} - ${days[27].day} ${thaiMonths[days[27].month - 1]} 2569`,
+        ascendant: ascName,
+        averageScore: avgScore,
+        highestScore: peakDay.score,
+        lowestScore: lowestDay.score,
+        peakDay: peakDay,
+        lowestDay: lowestDay,
+        goldenDays: goldenDays,
+        cautionDays: cautionDays,
+        weeks: weeks,
+        days: days
+      };
+    }
+
+    async function getMonthlyForecastData() {
+      if (monthlyForecastState.data) return monthlyForecastState.data;
+      monthlyForecastState.loading = true;
+      try {
+        const payload = {
+          action: "compute_28day",
+          name: (state.birth && state.birth.name) || "ผู้ใช้",
+          birthDate: (state.birth && state.birth.birthDate) || "1995-05-15",
+          birthTime: (state.birth && state.birth.birthTime) || "09:30",
+          province: (state.birth && state.birth.province) || "กรุงเทพมหานคร",
+          district: (state.birth && state.birth.district) || "พระนคร",
+          transitProvince: (state.birth && (state.birth.transitProvince || state.birth.province)) || "กรุงเทพมหานคร",
+          transitDistrict: (state.birth && (state.birth.transitDistrict || state.birth.district)) || "พระนคร",
+          targetDate: state.targetDate || new Date().toISOString().split('T')[0]
+        };
+        const resp = await fetch('/api', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (resp.ok) {
+          const res = await resp.json();
+          if (res.success && res.data) {
+            monthlyForecastState.data = res.data;
+            monthlyForecastState.loading = false;
+            const peakIdx = res.data.days.findIndex(d => d.date === res.data.peakDay.date);
+            monthlyForecastState.selectedIndex = peakIdx >= 0 ? peakIdx : 0;
+            return res.data;
+          }
+        }
+      } catch (err) {
+        console.warn("API 28day fetch failed, building client-side model:", err);
+      }
+      monthlyForecastState.data = buildClientMonthlyModel();
+      monthlyForecastState.loading = false;
+      return monthlyForecastState.data;
+    }
+
+    function renderMonthlyChartSVG(days, selectedIndex) {
+      if (!days || !days.length) return '';
+      const W = 840;
+      const H = 240;
+      const padL = 40;
+      const padR = 25;
+      const padT = 25;
+      const padB = 40;
+      const plotW = W - padL - padR;
+      const plotH = H - padT - padB;
+      const minScore = 55;
+      const maxScore = 95;
+
+      const getX = (i) => padL + (i * (plotW / (days.length - 1)));
+      const getY = (s) => padT + plotH - (((s - minScore) / (maxScore - minScore)) * plotH);
+
+      const points = days.map((d, i) => ({ x: getX(i), y: getY(d.score), ...d }));
+
+      let pathD = `M ${points[0].x} ${points[0].y}`;
+      for (let i = 0; i < points.length - 1; i++) {
+        const p0 = points[Math.max(0, i - 1)];
+        const p1 = points[i];
+        const p2 = points[i + 1];
+        const p3 = points[Math.min(points.length - 1, i + 2)];
+
+        const cp1x = p1.x + (p2.x - p0.x) / 6;
+        const cp1y = p1.y + (p2.y - p0.y) / 6;
+        const cp2x = p2.x - (p3.x - p1.x) / 6;
+        const cp2y = p2.y - (p3.y - p1.y) / 6;
+
+        pathD += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+      }
+
+      const areaD = `${pathD} L ${points[points.length - 1].x} ${padT + plotH} L ${points[0].x} ${padT + plotH} Z`;
+
+      const y80 = getY(80);
+      const y68 = getY(68);
+
+      return `
+        <svg viewBox="0 0 ${W} ${H}" class="w-full h-auto overflow-visible select-none font-sans">
+          <defs>
+            <linearGradient id="waveFillGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.35"/>
+              <stop offset="60%" stop-color="#10b981" stop-opacity="0.12"/>
+              <stop offset="100%" stop-color="#0f172a" stop-opacity="0.0"/>
+            </linearGradient>
+            <linearGradient id="waveStrokeGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#38bdf8"/>
+              <stop offset="35%" stop-color="#34d399"/>
+              <stop offset="70%" stop-color="#fbbf24"/>
+              <stop offset="100%" stop-color="#f43f5e"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Background reference grid -->
+          <line x1="${padL}" y1="${y80}" x2="${W - padR}" y2="${y80}" stroke="#fbbf24" stroke-dasharray="4,4" stroke-opacity="0.45" stroke-width="1.2"/>
+          <text x="${padL + 6}" y="${y80 - 4}" fill="#fbbf24" font-size="10" font-weight="bold" opacity="0.85">🌟 80% เขตวันมงคลทำการใหญ่</text>
+
+          <line x1="${padL}" y1="${y68}" x2="${W - padR}" y2="${y68}" stroke="#f43f5e" stroke-dasharray="4,4" stroke-opacity="0.45" stroke-width="1.2"/>
+          <text x="${padL + 6}" y="${y68 - 4}" fill="#f43f5e" font-size="10" font-weight="bold" opacity="0.85">⚠️ 68% เขตวันควรระวังรอบคอบ</text>
+
+          <!-- Baseline -->
+          <line x1="${padL}" y1="${padT + plotH}" x2="${W - padR}" y2="${padT + plotH}" stroke="#334155" stroke-width="1"/>
+
+          <!-- Area fill -->
+          <path d="${areaD}" fill="url(#waveFillGrad)"/>
+
+          <!-- Stroke line -->
+          <path d="${pathD}" fill="none" stroke="url(#waveStrokeGrad)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <!-- X Axis Markers (Days 1, 7, 14, 21, 28) -->
+          ${[0, 6, 13, 20, 27].map(idx => {
+            const pt = points[idx];
+            return `
+              <line x1="${pt.x}" y1="${padT + plotH}" x2="${pt.x}" y2="${padT + plotH + 5}" stroke="#475569" stroke-width="1"/>
+              <text x="${pt.x}" y="${padT + plotH + 18}" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="500">
+                ${pt.shortLabel}
+              </text>
+            `;
+          }).join('')}
+
+          <!-- Interactive Data Points -->
+          ${points.map((pt, i) => {
+            const isSel = (i === selectedIndex);
+            const isGolden = pt.status === 'golden';
+            const isCaution = pt.status === 'caution';
+
+            const dotFill = isGolden ? '#fbbf24' : isCaution ? '#f43f5e' : '#38bdf8';
+            const dotStroke = isGolden ? '#ffffff' : isCaution ? '#ffe4e6' : '#e0f2fe';
+            const r = isSel ? 8 : (isGolden ? 6 : (isCaution ? 5.5 : 4.5));
+
+            return `
+              <g class="cursor-pointer group" onclick="selectMonthlyDay(${i})">
+                <circle cx="${pt.x}" cy="${pt.y}" r="15" fill="transparent"/>
+                ${isSel ? `
+                  <circle cx="${pt.x}" cy="${pt.y}" r="14" fill="${dotFill}" opacity="0.25"/>
+                  <circle cx="${pt.x}" cy="${pt.y}" r="12" fill="none" stroke="${dotFill}" stroke-width="2" opacity="0.8"/>
+                ` : ''}
+                <circle cx="${pt.x}" cy="${pt.y}" r="${r}" fill="${dotFill}" stroke="${dotStroke}" stroke-width="${isSel ? 2.5 : 1.5}"
+                        class="transition-all transform duration-200 group-hover:scale-125"/>
+                ${isGolden || isSel ? `
+                  <text x="${pt.x}" y="${pt.y - 12}" text-anchor="middle" fill="${dotFill}" font-size="10" font-weight="bold">
+                    ${pt.score}%
+                  </text>
+                ` : ''}
+              </g>
+            `;
+          }).join('')}
+        </svg>
+      `;
+    }
+
+    function renderSelectedDayInspector(day) {
+      const el = document.getElementById('monthlyInspectorCard');
+      if (!el || !day) return;
+
+      const isGolden = day.status === 'golden';
+      const isCaution = day.status === 'caution';
+      const borderClass = isGolden ? 'border-amber-400/80 shadow-amber-500/20' : isCaution ? 'border-rose-500/80 shadow-rose-500/20' : 'border-sky-500/40 shadow-sky-500/10';
+      const badgeClass = isGolden ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : isCaution ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' : 'bg-sky-500/20 text-sky-300 border-sky-500/40';
+      const scoreColor = isGolden ? 'text-amber-300' : isCaution ? 'text-rose-400' : 'text-sky-300';
+
+      el.className = `p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-slate-900/95 via-slate-900/90 to-slate-950 border-2 ${borderClass} shadow-xl transition-all duration-300`;
+      el.innerHTML = `
+        <div class="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-white/10">
+          <div class="flex items-center gap-2">
+            <span class="text-xl sm:text-2xl">${isGolden ? '🌟' : isCaution ? '🛡️' : '🌿'}</span>
+            <div>
+              <h4 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                <span>${day.fullLabel}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full ${badgeClass} border font-bold">
+                  ${day.badge}
+                </span>
+              </h4>
+              <p class="text-xs text-slate-300 mt-0.5">วันที่ ${day.dayIndex} ของรอบ 28 วัน</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-2xl sm:text-3xl font-black ${scoreColor}">${day.score}%</span>
+            <span class="block text-[10px] text-slate-400 uppercase font-semibold">ดัชนีดวงชะตา</span>
+          </div>
+        </div>
+
+        <!-- Astrological Meaning & Theme -->
+        <div class="mt-3.5 p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-xs sm:text-sm text-slate-200 leading-relaxed">
+          <strong class="text-amber-400">🪐 สภาวะดาวจร & ภพชะตา:</strong> ${day.theme}
+        </div>
+
+        <!-- Action / Caution Advice Card -->
+        <div class="mt-3 p-3.5 rounded-xl ${isGolden ? 'bg-amber-950/40 border border-amber-500/40 text-amber-200' : isCaution ? 'bg-rose-950/40 border border-rose-500/40 text-rose-200' : 'bg-slate-950/60 border border-slate-800 text-slate-300'} text-xs sm:text-sm font-medium leading-relaxed">
+          <div class="font-bold mb-1 flex items-center gap-1.5 ${isGolden ? 'text-amber-300' : isCaution ? 'text-rose-300' : 'text-sky-300'}">
+            <span>${isGolden ? '🎯 เหมาะสำหรับทำการใหญ่:' : isCaution ? '⚠️ ข้อควรระวังและแนวทางตั้งรับ:' : '💡 คำแนะนำประจำวัน:'}</span>
+          </div>
+          <div>${day.actionAdvice}</div>
+        </div>
+
+        <!-- 4-Dimension Sub Scores -->
+        <div class="mt-3.5 grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs">
+          <div class="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800">
+            <span class="text-slate-400 block text-[11px]">💼 การงาน</span>
+            <span class="font-bold text-sm text-slate-100">${day.scores ? day.scores.career : day.score}%</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800">
+            <span class="text-slate-400 block text-[11px]">💰 การเงิน</span>
+            <span class="font-bold text-sm text-emerald-400">${day.scores ? day.scores.finance : day.score}%</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800">
+            <span class="text-slate-400 block text-[11px]">❤️ ความรัก</span>
+            <span class="font-bold text-sm text-pink-400">${day.scores ? day.scores.love : day.score}%</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800">
+            <span class="text-slate-400 block text-[11px]">🩺 สุขภาพ</span>
+            <span class="font-bold text-sm text-cyan-400">${day.scores ? day.scores.health : day.score}%</span>
+          </div>
+        </div>
+      `;
+    }
+
+    window.selectMonthlyDay = function(idx) {
+      if (!monthlyForecastState.data) return;
+      monthlyForecastState.selectedIndex = idx;
+      const day = monthlyForecastState.data.days[idx];
+      renderSelectedDayInspector(day);
+      const chartContainer = document.getElementById('monthlyChartSvgWrapper');
+      if (chartContainer) {
+        chartContainer.innerHTML = renderMonthlyChartSVG(monthlyForecastState.data.days, idx);
+      }
+      document.querySelectorAll('.monthly-day-chip').forEach((el, i) => {
+        if (i === idx) {
+          el.className = el.className.replace(/ring-2 ring-amber-400 scale-105 bg-amber-500\/30/g, '') + ' ring-2 ring-amber-400 scale-105 bg-amber-500/30';
+        } else {
+          el.className = el.className.replace(/ring-2 ring-amber-400 scale-105 bg-amber-500\/30/g, '');
+        }
+      });
+    };
+
+    window.jumpToPeakDay = function() {
+      if (!monthlyForecastState.data) return;
+      const peak = monthlyForecastState.data.peakDay;
+      const idx = monthlyForecastState.data.days.findIndex(d => d.date === peak.date);
+      if (idx >= 0) selectMonthlyDay(idx);
+    };
+
+    window.jumpToLowestDay = function() {
+      if (!monthlyForecastState.data) return;
+      const low = monthlyForecastState.data.lowestDay;
+      const idx = monthlyForecastState.data.days.findIndex(d => d.date === low.date);
+      if (idx >= 0) selectMonthlyDay(idx);
+    };
+
+    window.refreshMonthlyForecast = async function() {
+      monthlyForecastState.data = null;
+      const container = document.getElementById('cardsContainer');
+      if (container) renderMonthlyForecastView(container);
+    };
+
+    async function renderMonthlyForecastView(container) {
+      container.innerHTML = `
+        <div class="p-8 text-center text-slate-300 space-y-3 bg-slate-900/90 border border-slate-800 rounded-3xl animate-fade-in">
+          <div class="w-16 h-16 mx-auto rounded-2xl overflow-hidden border-2 border-amber-400/60 shadow-lg animate-bounce">
+            <img src="/bear_monthly.jpg" class="w-full h-full object-cover">
+          </div>
+          <p class="font-bold text-base text-amber-300">🐻‍❄️ กำลังวิเคราะห์กระแสดวงดาว 28 วันล่วงหน้า...</p>
+          <p class="text-xs text-slate-400">คำนวณสมผุสดาวจร คัมภีร์สุริยยาตร์ และสถิติลัคนาราศี</p>
+        </div>
+      `;
+
+      const data = await getMonthlyForecastData();
+      if (!data) return;
+
+      const peakDay = data.peakDay || data.days[0];
+      const lowestDay = data.lowestDay || data.days[0];
+      const goldenDays = data.goldenDays || [];
+      const cautionDays = data.cautionDays || [];
+      const weeks = data.weeks || [];
+
+      let selIdx = monthlyForecastState.selectedIndex;
+      if (selIdx < 0 || selIdx >= data.days.length) selIdx = 0;
+      const initialDay = data.days[selIdx];
+
+      container.innerHTML = `
+        <div class="bg-gradient-to-br from-[#0c1427] via-[#09101d] to-[#040811] border-2 border-emerald-500/50 rounded-3xl p-4 sm:p-7 shadow-2xl space-y-6 animate-fade-in">
+          
+          <!-- Hero Header -->
+          <div class="flex items-center justify-between flex-wrap gap-3 pb-4 border-b border-emerald-500/20">
+            <div class="flex items-center gap-3">
+              <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden border-2 border-emerald-400 ring-2 ring-emerald-400/40 shadow-xl flex-shrink-0">
+                <img src="/bear_monthly.jpg" class="w-full h-full object-cover">
+              </div>
+              <div>
+                <h3 class="text-lg sm:text-2xl font-black text-white flex items-center gap-2">
+                  <span>🗓️ สรุปดวงรายเดือน 28 วัน</span>
+                  <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold hidden sm:inline-block">
+                    วางแผนชีวิตล่วงหน้า
+                  </span>
+                </h3>
+                <p class="text-xs sm:text-sm text-slate-300 mt-0.5">
+                  ลัคนา${data.ascendant || 'ราศี'} • ช่วง ${data.dateRangeLabel || ''} (28 วันข้างหน้า)
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="refreshMonthlyForecast()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 active:scale-95 transition-all flex items-center gap-1">
+                <span>🔄</span> คำนวณใหม่
+              </button>
+            </div>
+          </div>
+
+          <!-- KPI Summary Metrics (3 Boxes) -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="p-3.5 sm:p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-lg flex-shrink-0">
+                📊
+              </div>
+              <div>
+                <span class="text-[11px] text-slate-400 font-semibold block">คะแนนเฉลี่ย 28 วัน</span>
+                <span class="text-xl sm:text-2xl font-black text-white">${data.averageScore}%</span>
+                <span class="text-[10px] text-emerald-400 block font-medium">ภาพรวมเกณฑ์ดีมาก</span>
+              </div>
+            </div>
+
+            <div class="p-3.5 sm:p-4 rounded-2xl bg-amber-950/30 border border-amber-500/40 flex items-center gap-3 cursor-pointer hover:bg-amber-950/50 transition-all"
+                 onclick="jumpToPeakDay()">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-lg flex-shrink-0">
+                🎯
+              </div>
+              <div>
+                <span class="text-[11px] text-amber-300 font-semibold block">วันทองมงคลทำการใหญ่</span>
+                <span class="text-xl sm:text-2xl font-black text-amber-300">${goldenDays.length} วัน</span>
+                <span class="text-[10px] text-amber-200 block truncate">พีคสุด: ${peakDay.shortLabel} (${peakDay.score}%)</span>
+              </div>
+            </div>
+
+            <div class="p-3.5 sm:p-4 rounded-2xl bg-rose-950/30 border border-rose-500/40 flex items-center gap-3 cursor-pointer hover:bg-rose-950/50 transition-all"
+                 onclick="jumpToLowestDay()">
+              <div class="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-lg flex-shrink-0">
+                🛡️
+              </div>
+              <div>
+                <span class="text-[11px] text-rose-300 font-semibold block">วันควรระวังและตั้งรับ</span>
+                <span class="text-xl sm:text-2xl font-black text-rose-300">${cautionDays.length} วัน</span>
+                <span class="text-[10px] text-rose-200 block truncate">ระวังสุด: ${lowestDay.shortLabel} (${lowestDay.score}%)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 28-Day Interactive SVG Wave Chart -->
+          <div class="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-slate-950/80 border border-slate-800 space-y-3">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <h4 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                  <span>📈 กราฟคลื่นดวงชะตา 28 วันข้างหน้า</span>
+                  <span class="text-[11px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                    แตะที่จุดเพื่อดูรายละเอียด
+                  </span>
+                </h4>
+                <p class="text-xs text-slate-400">วิเคราะห์จังหวะชีวิตขึ้น-ลงตามคัมภีร์สุริยยาตร์</p>
+              </div>
+              <div class="flex items-center gap-3 text-[11px] text-slate-300">
+                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block"></span> วันมงคล</span>
+                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-sky-400 inline-block"></span> ราบรื่น</span>
+                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> ควรระวัง</span>
+              </div>
+            </div>
+
+            <!-- SVG Container -->
+            <div id="monthlyChartSvgWrapper" class="w-full overflow-x-auto">
+              ${renderMonthlyChartSVG(data.days, selIdx)}
+            </div>
+          </div>
+
+          <!-- Selected Day Inspector Card -->
+          <div id="monthlyInspectorCard">
+            <!-- Injected via renderSelectedDayInspector -->
+          </div>
+
+          <!-- Section 1: Concrete Golden Days (วันทองทำการใหญ่) -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-base sm:text-lg font-bold text-amber-300 flex items-center gap-2">
+                  <span>🎯</span> วันทองมงคล ฤกษ์ทำการใหญ่ (คะแนน 80% ขึ้นไป)
+                </h4>
+                <p class="text-xs text-slate-300">เหมาะสำหรับ: เซ็นสัญญา, เจรจาธุรกิจ, ออกรถใหม่, เปิดตัวงาน, ซื้อบ้าน/ที่ดิน, เริ่มโปรเจกต์ใหญ่</p>
+              </div>
+              <span class="text-xs px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40">
+                ${goldenDays.length} วันมงคล
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              ${goldenDays.map(gd => `
+                <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-amber-950/40 to-slate-950/90 border border-amber-500/40 hover:border-amber-400 transition-all cursor-pointer group space-y-2 shadow-lg"
+                     onclick="selectMonthlyDay(${gd.dayIndex - 1})">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs sm:text-sm font-bold text-white group-hover:text-amber-300 transition-colors flex items-center gap-1.5">
+                      <span>🌟</span> ${gd.fullLabel}
+                    </span>
+                    <span class="text-sm font-black text-amber-300 px-2 py-0.5 rounded-lg bg-amber-500/20 border border-amber-500/30">
+                      ${gd.score}%
+                    </span>
+                  </div>
+                  <p class="text-xs text-slate-300 line-clamp-2">${gd.theme}</p>
+                  <div class="p-2 rounded-xl bg-amber-900/30 border border-amber-500/30 text-xs text-amber-200 font-medium">
+                    🎯 <strong>กิจกรรมมงคล:</strong> ${gd.actionAdvice}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Section 2: Concrete Caution Days (วันควรระวัง) -->
+          <div class="space-y-3 pt-2">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-base sm:text-lg font-bold text-rose-300 flex items-center gap-2">
+                  <span>🛡️</span> วันควรระวังและตั้งรับ (คะแนนต่ำกว่า 70%)
+                </h4>
+                <p class="text-xs text-slate-300">วันแห่งการตั้งรับ ชะลอเรื่องสำคัญ เลี่ยงการตัดสินใจเสี่ยง ระวังความขัดแย้งและมีสติรอบคอบ</p>
+              </div>
+              <span class="text-xs px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 font-bold border border-rose-500/40">
+                ${cautionDays.length} วันควรระวัง
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              ${cautionDays.map(cd => `
+                <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-rose-950/40 to-slate-950/90 border border-rose-500/40 hover:border-rose-400 transition-all cursor-pointer group space-y-2 shadow-lg"
+                     onclick="selectMonthlyDay(${cd.dayIndex - 1})">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs sm:text-sm font-bold text-white group-hover:text-rose-300 transition-colors flex items-center gap-1.5">
+                      <span>⚠️</span> ${cd.fullLabel}
+                    </span>
+                    <span class="text-sm font-black text-rose-400 px-2 py-0.5 rounded-lg bg-rose-500/20 border border-rose-500/30">
+                      ${cd.score}%
+                    </span>
+                  </div>
+                  <p class="text-xs text-slate-300 line-clamp-2">${cd.theme}</p>
+                  <div class="p-2 rounded-xl bg-rose-900/30 border border-rose-500/30 text-xs text-rose-200 font-medium">
+                    🛡️ <strong>ข้อควรระวัง:</strong> ${cd.actionAdvice}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Section 3: 4-Week Phase Breakdown -->
+          <div class="space-y-3 pt-2">
+            <h4 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+              <span>📅</span> สรุปจังหวะชีวิต 4 สัปดาห์ (Week 1 - 4)
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              ${weeks.map(w => `
+                <div class="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-2">
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="font-bold text-slate-200">${w.label.split('(')[0]}</span>
+                    <span class="font-black text-amber-300">${w.avgScore}%</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div class="bg-gradient-to-r from-teal-400 to-amber-400 h-1.5 rounded-full" style="width: ${w.avgScore}%;"></div>
+                  </div>
+                  <p class="text-[11px] text-slate-400 leading-snug">${w.theme}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Section 4: 28-Day Mini Calendar Matrix -->
+          <div class="space-y-2.5 pt-2">
+            <h4 class="text-xs sm:text-sm font-bold text-slate-300 flex items-center gap-1.5">
+              <span>🗓️</span> ปฏิทินเลือกวันในรอบ 28 วัน (แตะเพื่อสลับดูคะแนนรายวัน)
+            </h4>
+            <div class="grid grid-cols-4 sm:grid-cols-7 gap-1.5 sm:gap-2">
+              ${data.days.map((d, i) => {
+                const isG = d.status === 'golden';
+                const isC = d.status === 'caution';
+                const chipBg = isG ? 'bg-amber-950/50 border-amber-500/50 text-amber-200 hover:bg-amber-900/60'
+                             : isC ? 'bg-rose-950/50 border-rose-500/50 text-rose-200 hover:bg-rose-900/60'
+                             : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:bg-slate-800';
+                const isSel = (i === selIdx);
+                const selRing = isSel ? 'ring-2 ring-amber-400 scale-105 bg-amber-500/30' : '';
+                return `
+                  <div class="monthly-day-chip p-2 rounded-xl border text-center cursor-pointer transition-all active:scale-95 ${chipBg} ${selRing}"
+                       onclick="selectMonthlyDay(${i})">
+                    <span class="text-[10px] block opacity-75">${d.shortLabel.split(' ')[0]}</span>
+                    <span class="text-xs font-bold block">${d.day}</span>
+                    <span class="text-[10px] font-black ${isG ? 'text-amber-300' : isC ? 'text-rose-400' : 'text-slate-400'}">${d.score}%</span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+        </div>
+      `;
+
+      renderSelectedDayInspector(initialDay);
     }
 
     function setCategoryTab(tab) {
@@ -2618,6 +3256,7 @@
           finance: 'การเงิน & โชคลาภ',
           love: 'ความรัก & เสน่ห์',
           health: 'สุขภาพ & อารมณ์',
+          monthly: 'ดวงรายเดือน 28 วัน',
           shirt: 'ตารางสีเสื้อมงคล',
           lucky: 'เลขเด็ด & ทิศมงคล'
         };
@@ -4536,15 +5175,21 @@
     window.open('/share_poster.jpg', '_blank');
   }
 
-  // URL Hash Listener for #share
+  // URL Hash Listener for #share and #monthly
   window.addEventListener('DOMContentLoaded', () => {
     if (window.location.hash === '#share') {
       toggleShareModal(true);
+    } else if (window.location.hash === '#monthly') {
+      setTimeout(() => {
+        if (typeof setCategoryTab === 'function') setCategoryTab('monthly');
+      }, 350);
     }
   });
   window.addEventListener('hashchange', () => {
     if (window.location.hash === '#share') {
       toggleShareModal(true);
+    } else if (window.location.hash === '#monthly') {
+      if (typeof setCategoryTab === 'function') setCategoryTab('monthly');
     }
   });
 

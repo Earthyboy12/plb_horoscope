@@ -1025,6 +1025,242 @@ def build_stats_flex(user: dict, horoscope: dict, days_history: list = None) -> 
         }
     }
 
+def build_monthly_forecast_flex(user: dict, forecast_28: dict, liff_url: str = "", web_url: str = "https://plb-horoscope.vercel.app") -> dict:
+    """Build a specialized luxury Flex card for 28-day monthly horoscope & auspicious action days."""
+    web_url = web_url or "https://plb-horoscope.vercel.app"
+    liff_url = liff_url or f"{web_url}#monthly"
+    user_name = user.get("name", "ผู้ใช้")
+    asc_name = forecast_28.get("ascendant", "สิงห์")
+    avg_score = forecast_28.get("averageScore", 75)
+    date_range = forecast_28.get("dateRangeLabel", "")
+    peak_day = forecast_28.get("peakDay", {})
+    lowest_day = forecast_28.get("lowestDay", {})
+    golden_days = forecast_28.get("goldenDays", [])[:3]
+    caution_days = forecast_28.get("cautionDays", [])[:3]
+    weeks = forecast_28.get("weeks", [])
+
+    # 4 Weeks progress bar contents
+    week_rows = []
+    for w in weeks:
+        w_sc = w.get("avgScore", 75)
+        bar_color = "#fbbf24" if w_sc >= 80 else ("#38bdf8" if w_sc >= 74 else "#a78bfa")
+        week_rows.append({
+            "type": "box",
+            "layout": "vertical",
+            "margin": "xs",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {"type": "text", "text": w.get("label", ""), "size": "xxs", "color": "#cbd5e1", "flex": 3},
+                        {"type": "text", "text": f"{w_sc}%", "size": "xxs", "color": bar_color, "weight": "bold", "align": "end", "flex": 1}
+                    ]
+                },
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "margin": "xs",
+                    "contents": [
+                        make_progress_bar(w_sc, fill_color=bar_color, bg_color="#1e293b", height="5px")
+                    ]
+                }
+            ]
+        })
+
+    # Golden days box contents
+    golden_items = []
+    for g in golden_days:
+        golden_items.append({
+            "type": "box",
+            "layout": "vertical",
+            "margin": "xs",
+            "backgroundColor": "#0d2818",
+            "borderColor": "#10b981",
+            "borderWidth": "1px",
+            "cornerRadius": "8px",
+            "paddingAll": "8px",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {"type": "text", "text": f"🌟 {g.get('shortLabel', '')} ({g.get('weekday', '')})", "size": "xs", "weight": "bold", "color": "#86efac", "flex": 3},
+                        {"type": "text", "text": f"{g.get('score', 80)}%", "size": "xs", "weight": "bold", "color": "#fbbf24", "align": "end", "flex": 1}
+                    ]
+                },
+                {"type": "text", "text": f"• {g.get('actionAdvice', 'เหมาะทำการใหญ่')}", "size": "xxs", "color": "#f0fdf4", "wrap": True, "margin": "xs"}
+            ]
+        })
+
+    # Caution days box contents
+    caution_items = []
+    for c in caution_days:
+        caution_items.append({
+            "type": "box",
+            "layout": "vertical",
+            "margin": "xs",
+            "backgroundColor": "#2a0808",
+            "borderColor": "#ef4444",
+            "borderWidth": "1px",
+            "cornerRadius": "8px",
+            "paddingAll": "8px",
+            "contents": [
+                {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                        {"type": "text", "text": f"⚠️ {c.get('shortLabel', '')} ({c.get('weekday', '')})", "size": "xs", "weight": "bold", "color": "#fca5a5", "flex": 3},
+                        {"type": "text", "text": f"{c.get('score', 65)}%", "size": "xs", "weight": "bold", "color": "#f87171", "align": "end", "flex": 1}
+                    ]
+                },
+                {"type": "text", "text": f"• {c.get('actionAdvice', 'ควรระวังรอบคอบ')}", "size": "xxs", "color": "#fef2f2", "wrap": True, "margin": "xs"}
+            ]
+        })
+
+    return {
+        "type": "flex",
+        "altText": f"🗓️ สรุปดวงรายเดือน 28 วันข้างหน้า: คุณ {user_name} (คะแนนเฉลี่ย {avg_score}%) ✨",
+        "contents": {
+            "type": "bubble",
+            "size": "mega",
+            "hero": {
+                "type": "image",
+                "url": f"{web_url}/bear_monthly.jpg",
+                "size": "full",
+                "aspectRatio": "20:13",
+                "aspectMode": "cover"
+            },
+            "header": {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#080b16",
+                "paddingAll": "16px",
+                "contents": [
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "contents": [
+                            {"type": "text", "text": "🗓️ สรุปดวง 28 วันข้างหน้า ✨", "weight": "bold", "color": "#fbbf24", "size": "md", "flex": 1},
+                            {"type": "text", "text": "วางแผนชีวิตมงคล", "color": "#94a3b8", "size": "xxs", "align": "end"}
+                        ]
+                    },
+                    {"type": "text", "text": f"คุณ {user_name} • ลัคนาราศี{asc_name} • {date_range}", "color": "#cbd5e1", "size": "xs", "margin": "xs"}
+                ]
+            },
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#0f172a",
+                "paddingAll": "16px",
+                "contents": [
+                    # KPI Badges Box
+                    {
+                        "type": "box",
+                        "layout": "horizontal",
+                        "backgroundColor": "#1e293b",
+                        "cornerRadius": "12px",
+                        "paddingAll": "10px",
+                        "contents": [
+                            {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [
+                                    {"type": "text", "text": "คะแนนเฉลี่ย", "size": "xxs", "color": "#94a3b8", "align": "center"},
+                                    {"type": "text", "text": f"{avg_score}%", "size": "md", "weight": "bold", "color": "#38bdf8", "align": "center"}
+                                ]
+                            },
+                            {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [
+                                    {"type": "text", "text": "🌟 พีคสุด", "size": "xxs", "color": "#94a3b8", "align": "center"},
+                                    {"type": "text", "text": f"{peak_day.get('shortLabel', '')}", "size": "sm", "weight": "bold", "color": "#fbbf24", "align": "center"}
+                                ]
+                            },
+                            {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [
+                                    {"type": "text", "text": "⚠️ ควรระวัง", "size": "xxs", "color": "#94a3b8", "align": "center"},
+                                    {"type": "text", "text": f"{lowest_day.get('shortLabel', '')}", "size": "sm", "weight": "bold", "color": "#f87171", "align": "center"}
+                                ]
+                            }
+                        ]
+                    },
+                    # 4 Weeks Phase
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "margin": "md",
+                        "contents": [
+                            {"type": "text", "text": "📊 แนวโน้มดวงชะตา 4 สัปดาห์:", "weight": "bold", "size": "xs", "color": "#f8fafc"},
+                            *week_rows
+                        ]
+                    },
+                    # Golden Days
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "margin": "md",
+                        "contents": [
+                            {"type": "text", "text": "🌟 วันมงคลฤกษ์ดี • เหมาะทำการใหญ่:", "weight": "bold", "size": "xs", "color": "#34d399"},
+                            *golden_items
+                        ]
+                    },
+                    # Caution Days
+                    {
+                        "type": "box",
+                        "layout": "vertical",
+                        "margin": "md",
+                        "contents": [
+                            {"type": "text", "text": "⚠️ วันควรระวัง • งดทำการใหญ่และมีสติ:", "weight": "bold", "size": "xs", "color": "#f87171"},
+                            *caution_items
+                        ]
+                    }
+                ]
+            },
+            "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "backgroundColor": "#080b16",
+                "paddingAll": "12px",
+                "spacing": "sm",
+                "contents": [
+                    {
+                        "type": "button",
+                        "style": "primary",
+                        "color": "#f59e0b",
+                        "action": {
+                            "type": "uri",
+                            "label": "📊 ดูกราฟดวง 28 วันแบบเต็มบนเว็บ",
+                            "uri": f"{liff_url}#monthly"
+                        }
+                    },
+                    {
+                        "type": "button",
+                        "style": "secondary",
+                        "color": "#1e293b",
+                        "action": {
+                            "type": "message",
+                            "label": "🌟 ดูดวงสรุปวันนี้",
+                            "text": "สรุปดวงวันนี้"
+                        }
+                    }
+                ]
+            }
+        },
+        "quickReply": {
+            "items": [
+                {"type": "action", "action": {"type": "message", "label": "🌟 ดูดวงวันนี้", "text": "สรุปดวงประจำวัน"}},
+                {"type": "action", "action": {"type": "message", "label": "🔮 เลือกหมวดดวง", "text": "เลือกหมวดอยากจะดูหมวดไหน"}},
+                {"type": "action", "action": {"type": "message", "label": "🥠 เสี่ยงเซียมซี", "text": "เซียมซี"}},
+                {"type": "action", "action": {"type": "message", "label": "👕 สีเสื้อมงคล", "text": "สีเสื้อมงคล"}},
+                {"type": "action", "action": {"type": "message", "label": "👥 ชวนเพื่อนมู", "text": "ชวนเพื่อน"}}
+            ]
+        }
+    }
+
 def build_category_menu_flex(web_url: str = "https://plb-horoscope.vercel.app", user: dict = None) -> dict:
     """Build an interactive luxury card to choose horoscope categories."""
     web_url = web_url or "https://plb-horoscope.vercel.app"

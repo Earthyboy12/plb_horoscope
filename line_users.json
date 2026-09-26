@@ -10,21 +10,12 @@
     "transit_province": "เชียงใหม่",
     "transit_district": "อำเภอเมืองเชียงใหม่",
     "registered": true,
-    "check_count": 10,
-    "streak": 2,
-    "level": 3,
-    "last_check_date": "2026-09-25",
+    "check_count": 22,
+    "streak": 3,
+    "xp": 55,
+    "level": 5,
+    "last_check_date": "2026-09-26",
     "history": [
-      {
-        "date": "2026-09-25",
-        "score": 85,
-        "time": "11:07"
-      },
-      {
-        "date": "2026-09-25",
-        "score": 85,
-        "time": "11:32"
-      },
       {
         "date": "2026-09-25",
         "score": 85,
@@ -34,10 +25,70 @@
         "date": "2026-09-25",
         "score": 85,
         "time": "13:40"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "13:56"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "14:15"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 85,
+        "time": "14:16"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 85,
+        "time": "09:39"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 85,
+        "time": "09:40"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 85,
+        "time": "09:41"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 85,
+        "time": "09:45"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 85,
+        "time": "09:53"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 85,
+        "time": "10:11"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 85,
+        "time": "10:11"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 85,
+        "time": "10:12"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 85,
+        "time": "10:12"
       }
     ],
     "created_at": "2026-09-25T11:07:04.307506",
-    "updated_at": "2026-09-25T13:40:15.949673"
+    "updated_at": "2026-09-26T10:12:35.806272"
   },
   "test_user_earth": {
     "line_user_id": "test_user_earth",
@@ -457,5 +508,340 @@
     ],
     "created_at": "2026-09-25T11:06:51.888760",
     "updated_at": "2026-09-25T11:06:51.914348"
+  },
+  "U_test_counter_9999": {
+    "line_user_id": "U_test_counter_9999",
+    "name": "ผู้ใช้",
+    "registered": false,
+    "check_count": 3,
+    "streak": 1,
+    "level": 2,
+    "last_check_date": "2026-09-25",
+    "history": [
+      {
+        "date": "2026-09-25",
+        "score": 80,
+        "time": "13:56"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 80,
+        "time": "13:56"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 80,
+        "time": "14:15"
+      }
+    ],
+    "created_at": "2026-09-25T13:56:27.706496",
+    "xp": 5
+  },
+  "U_test_counter_1790320567983": {
+    "line_user_id": "U_test_counter_1790320567983",
+    "name": "ผู้ใช้",
+    "registered": false,
+    "check_count": 2,
+    "streak": 1,
+    "xp": 15,
+    "level": 1,
+    "last_check_date": "2026-09-25",
+    "history": [
+      {
+        "date": "2026-09-25",
+        "score": 80,
+        "time": "14:16"
+      },
+      {
+        "date": "2026-09-25",
+        "score": 80,
+        "time": "14:16"
+      }
+    ],
+    "created_at": "2026-09-25T14:16:07.984226"
+  },
+  "U_test_counter_1790390347032": {
+    "line_user_id": "U_test_counter_1790390347032",
+    "name": "ผู้ใช้",
+    "registered": false,
+    "check_count": 2,
+    "streak": 1,
+    "xp": 15,
+    "level": 1,
+    "last_check_date": "2026-09-26",
+    "history": [
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "09:39"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "09:39"
+      }
+    ],
+    "created_at": "2026-09-26T09:39:07.033381"
+  },
+  "U_test_counter_1790390453157": {
+    "line_user_id": "U_test_counter_1790390453157",
+    "name": "ผู้ใช้",
+    "registered": false,
+    "check_count": 2,
+    "streak": 1,
+    "xp": 15,
+    "level": 1,
+    "last_check_date": "2026-09-26",
+    "history": [
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "09:40"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "09:40"
+      }
+    ],
+    "created_at": "2026-09-26T09:40:53.158837"
+  },
+  "U_test_counter_1790390467460": {
+    "line_user_id": "U_test_counter_1790390467460",
+    "name": "ผู้ใช้",
+    "registered": false,
+    "check_count": 2,
+    "streak": 1,
+    "xp": 15,
+    "level": 1,
+    "last_check_date": "2026-09-26",
+    "history": [
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "09:41"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "09:41"
+      }
+    ],
+    "created_at": "2026-09-26T09:41:07.461983"
+  },
+  "U_test_poster": {
+    "line_user_id": "U_test_poster",
+    "name": "ผู้ใช้",
+    "registered": false,
+    "check_count": 2,
+    "streak": 1,
+    "xp": 15,
+    "level": 1,
+    "last_check_date": "2026-09-26",
+    "history": [
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "09:41"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "09:45"
+      }
+    ],
+    "created_at": "2026-09-26T09:41:13.488937"
+  },
+  "U_test_share": {
+    "line_user_id": "U_test_share",
+    "name": "ผู้ใช้",
+    "registered": false,
+    "check_count": 2,
+    "streak": 1,
+    "xp": 15,
+    "level": 1,
+    "last_check_date": "2026-09-26",
+    "history": [
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "09:41"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "09:45"
+      }
+    ],
+    "created_at": "2026-09-26T09:41:13.511580"
+  },
+  "U_test_counter_1790390710282": {
+    "line_user_id": "U_test_counter_1790390710282",
+    "name": "ผู้ใช้",
+    "registered": false,
+    "check_count": 2,
+    "streak": 1,
+    "xp": 15,
+    "level": 1,
+    "last_check_date": "2026-09-26",
+    "history": [
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "09:45"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "09:45"
+      }
+    ],
+    "created_at": "2026-09-26T09:45:10.282764"
+  },
+  "U_test_counter_1790391228445": {
+    "line_user_id": "U_test_counter_1790391228445",
+    "name": "ผู้ใช้",
+    "registered": false,
+    "check_count": 2,
+    "streak": 1,
+    "xp": 15,
+    "level": 1,
+    "last_check_date": "2026-09-26",
+    "history": [
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "09:53"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "09:53"
+      }
+    ],
+    "created_at": "2026-09-26T09:53:48.446488"
+  },
+  "U_test_counter_1790392277689": {
+    "line_user_id": "U_test_counter_1790392277689",
+    "name": "ผู้ใช้",
+    "registered": false,
+    "check_count": 2,
+    "streak": 1,
+    "xp": 15,
+    "level": 1,
+    "last_check_date": "2026-09-26",
+    "history": [
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "10:11"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "10:11"
+      }
+    ],
+    "created_at": "2026-09-26T10:11:17.690652"
+  },
+  "U_test_counter_1790392309416": {
+    "line_user_id": "U_test_counter_1790392309416",
+    "name": "ผู้ใช้",
+    "registered": false,
+    "check_count": 2,
+    "streak": 1,
+    "xp": 15,
+    "level": 1,
+    "last_check_date": "2026-09-26",
+    "history": [
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "10:11"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "10:11"
+      }
+    ],
+    "created_at": "2026-09-26T10:11:49.417057"
+  },
+  "U_test_counter_1790392341996": {
+    "line_user_id": "U_test_counter_1790392341996",
+    "name": "ผู้ใช้",
+    "registered": false,
+    "check_count": 2,
+    "streak": 1,
+    "xp": 15,
+    "level": 1,
+    "last_check_date": "2026-09-26",
+    "history": [
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "10:12"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "10:12"
+      }
+    ],
+    "created_at": "2026-09-26T10:12:21.996955"
+  },
+  "U_test_counter_1790392355834": {
+    "line_user_id": "U_test_counter_1790392355834",
+    "name": "ผู้ใช้",
+    "registered": false,
+    "check_count": 2,
+    "streak": 1,
+    "xp": 15,
+    "level": 1,
+    "last_check_date": "2026-09-26",
+    "history": [
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "10:12"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "10:12"
+      }
+    ],
+    "created_at": "2026-09-26T10:12:35.834151"
+  },
+  "U_test_monthly_event_999": {
+    "line_user_id": "U_test_monthly_event_999",
+    "name": "ทดสอบรายเดือน",
+    "birth_date": "1995-08-12",
+    "birth_time": "08:30",
+    "birth_province": "กรุงเทพมหานคร",
+    "birth_district": "พระนคร",
+    "calc_method": "suriyayatra",
+    "transit_province": "กรุงเทพมหานคร",
+    "transit_district": "พระนคร",
+    "registered": true,
+    "check_count": 3,
+    "streak": 1,
+    "xp": 10,
+    "level": 2,
+    "last_check_date": "2026-09-26",
+    "history": [
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "10:12"
+      },
+      {
+        "date": "2026-09-26",
+        "score": 80,
+        "time": "10:12"
+      }
+    ],
+    "created_at": "2026-09-26T10:12:40.536436",
+    "updated_at": "2026-09-26T10:12:40.536436"
   }
 }

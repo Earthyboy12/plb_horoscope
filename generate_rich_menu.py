@@ -82,12 +82,12 @@ def generate_cute_polar_rich_menu(output_path="rich_menu.png"):
             "rect": (1674, 30, 2470, 828),
             "bg": (14, 32, 40, 250),
             "border": (52, 211, 153, 230),
-            "tag_text": "สถิติวาสนา",
+            "tag_text": "วางแผน 28 วัน",
             "tag_color": (52, 211, 153),
-            "tag_icon": "👑",
-            "title": "เรียกดูสถิติ",
-            "sub": "คลื่นดวง 7 วัน • ยศ 7 ระดับ",
-            "btn_text": "แตะตรวจเช็กสถิติ ›",
+            "tag_icon": "🗓️",
+            "title": "ดวงรายเดือน",
+            "sub": "กราฟ 28 วัน • วันทำการใหญ่ • วันระวัง",
+            "btn_text": "แตะเปิดดวงรายเดือน ›",
             "asset": "card_3_stats.jpg"
         },
         # ROW 2

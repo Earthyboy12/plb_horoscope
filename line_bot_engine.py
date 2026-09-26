@@ -18,7 +18,7 @@ import urllib.parse
 import datetime
 
 try:
-    from thai_astrology import get_horoscope, PROVINCES_DICT
+    from thai_astrology import get_horoscope, compute_28day_forecast, PROVINCES_DICT
     from user_store import get_user, save_user, update_transit_location, record_user_check
     from line_flex_builder import (
         build_welcome_flex,
@@ -38,10 +38,11 @@ try:
         build_share_flex,
         build_poster_preview_flex,
         build_stats_flex,
+        build_monthly_forecast_flex,
         get_category_quick_reply
     )
 except ImportError:
-    from api.thai_astrology import get_horoscope, PROVINCES_DICT
+    from api.thai_astrology import get_horoscope, compute_28day_forecast, PROVINCES_DICT
     from api.user_store import get_user, save_user, update_transit_location, record_user_check
     from api.line_flex_builder import (
         build_welcome_flex,
@@ -61,6 +62,7 @@ except ImportError:
         build_share_flex,
         build_poster_preview_flex,
         build_stats_flex,
+        build_monthly_forecast_flex,
         get_category_quick_reply
     )
 
@@ -462,6 +464,16 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
                 }])
                 return
 
+        # Check Monthly Forecast 28-day & Auspicious Days ("ดวงรายเดือน", "รายเดือน", "28 วัน", "เดือนนี้", "วางแผน", "วันมงคล", "ทำการใหญ่", "วันควรระวัง", "monthly")
+        if any(k in text_lower for k in ["ดวงรายเดือน", "รายเดือน", "28 วัน", "28วัน", "เดือนนี้", "วางแผน", "วันมงคล", "ทำการใหญ่", "วันควรระวัง", "monthly", "สรุปรายเดือน"]):
+            if not is_registered:
+                prompt_registration()
+                return
+            forecast_28 = compute_28day_forecast(user)
+            monthly_flex = build_monthly_forecast_flex(user, forecast_28, liff_url, web_url)
+            reply([monthly_flex])
+            return
+
         # Check Personal Astro Stats & Streak Gimmick (สถิติดวงย้อนหลัง & กราฟ 7 วัน)
         if any(k in text_lower for k in ["stats", "สถิติ", "ประวัติ", "กี่ครั้ง", "streak", "ย้อนหลัง", "กิมมิก", "คะแนนย้อนหลัง"]):
             if not is_registered:
@@ -813,6 +825,15 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             summary_flex = build_daily_summary_flex(user, horoscope, liff_url, web_url)
             reply([summary_flex])
             
+        elif action in ("monthly_forecast", "monthly"):
+            if not user:
+                prompt_registration()
+                return
+            forecast_28 = compute_28day_forecast(user)
+            monthly_flex = build_monthly_forecast_flex(user, forecast_28, liff_url, web_url)
+            reply([monthly_flex])
+            return
+
         elif action == "stats":
             if not user:
                 prompt_registration()

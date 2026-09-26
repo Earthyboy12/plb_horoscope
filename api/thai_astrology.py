@@ -636,3 +636,169 @@ def get_horoscope(birth_dict, target_date_str=""):
         "luckyInfo": lucky_info,
         "quickSummary": f"ดวงรายวันลัคนาราศี{ascendant['signName']}: {categories['overall']['theme']} (คะแนนรวม {categories['overall']['score']}%)"
     }
+
+def compute_28day_forecast(birth_dict: dict, start_date_str: str = None) -> dict:
+    """
+    Compute a 28-day forward astrological forecast trend from start_date_str.
+    Identifies:
+      - Daily score trend for 28 days
+      - Top Golden Auspicious Days (วันมงคลทำการใหญ่ เช่น เซ็นสัญญา ออกรถ เปิดตัว ลงทุน)
+      - Top Caution Days (วันควรระวัง ชะลอเรื่องสำคัญ มีสติรอบคอบ)
+      - 4-week phase breakdown (Weeks 1 to 4)
+    """
+    now_th = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=7)
+    if start_date_str:
+        try:
+            start_dt = datetime.datetime.strptime(start_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            start_dt = now_th.date()
+    else:
+        start_dt = now_th.date()
+
+    thai_days = ["จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์", "อาทิตย์"]
+    thai_months = ["", "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."]
+    thai_full_months = ["", "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"]
+
+    days = []
+    asc_name = ""
+    for offset in range(28):
+        cur_date = start_dt + datetime.timedelta(days=offset)
+        d_str = cur_date.strftime("%Y-%m-%d")
+        
+        try:
+            h = get_horoscope(birth_dict, d_str)
+            cats = h.get("categories", {})
+            ov = cats.get("overall", {})
+            score = ov.get("score", 75)
+            theme = ov.get("theme", "")
+            career_sc = cats.get("career", {}).get("score", score)
+            finance_sc = cats.get("finance", {}).get("score", score)
+            love_sc = cats.get("love", {}).get("score", score)
+            health_sc = cats.get("health", {}).get("score", score)
+            if not asc_name:
+                asc_name = h.get("natalChart", {}).get("ascendant", {}).get("signName", "")
+        except Exception:
+            score = 75
+            theme = "ดวงชะตาราบรื่นปานกลาง"
+            career_sc = finance_sc = love_sc = health_sc = 75
+
+        day_name = thai_days[cur_date.weekday()]
+        short_label = f"{day_name[:2]} {cur_date.day} {thai_months[cur_date.month]}"
+        full_label = f"วัน{day_name}ที่ {cur_date.day} {thai_full_months[cur_date.month]}"
+
+        cat_scores = [("การงาน", career_sc), ("การเงิน", finance_sc), ("ความรัก", love_sc), ("สุขภาพ", health_sc)]
+        top_cat_name, top_cat_sc = max(cat_scores, key=lambda x: x[1])
+
+        days.append({
+            "offset": offset,
+            "dayIndex": offset + 1,
+            "date": d_str,
+            "day": cur_date.day,
+            "month": cur_date.month,
+            "weekday": day_name,
+            "shortLabel": short_label,
+            "fullLabel": full_label,
+            "score": score,
+            "theme": theme,
+            "topCategory": top_cat_name,
+            "isToday": (offset == 0),
+            "scores": {
+                "overall": score,
+                "career": career_sc,
+                "finance": finance_sc,
+                "love": love_sc,
+                "health": health_sc
+            }
+        })
+
+    sorted_days = sorted(days, key=lambda x: x["score"], reverse=True)
+    highest_score = sorted_days[0]["score"]
+    lowest_score = sorted_days[-1]["score"]
+    avg_score = round(sum(d["score"] for d in days) / 28)
+
+    golden_action_templates = [
+        "เหมาะเซ็นสัญญา เจรจาธุรกิจ ปิดการขายสำคัญ",
+        "เหมาะออกรถใหม่ ขึ้นบ้านใหม่ หรือเริ่มต้นโปรเจกต์ใหญ่",
+        "เหมาะเจรจาขอความช่วยเหลือ ผู้ใหญ่อุปถัมภ์ สมัครงาน",
+        "เหมาะลงทุน เสี่ยงโชคลาภ เจรจาเรื่องการเงิน"
+    ]
+    caution_templates = [
+        "ควรระวังเอกสารสัญญาผิดพลาด ชะลอการตัดสินใจเรื่องใหญ่",
+        "ระวังความใจร้อน ปากไว หลีกเลี่ยงข้อพิพาทและการปะทะ",
+        "มีสติในการขับขี่เดินทาง และระวังค่าใช้จ่ายฉุกเฉิน",
+        "งดเริ่มงานใหญ่ รักษาสุขภาพ และพักผ่อนให้เพียงพอ"
+    ]
+
+    golden_candidates = [d for d in sorted_days if d["score"] >= 80]
+    if len(golden_candidates) < 3:
+        golden_candidates = sorted_days[:3]
+    golden_days = golden_candidates[:4]
+    for idx, g in enumerate(golden_days):
+        g["status"] = "golden"
+        g["badge"] = "🌟 วันมงคลทำการใหญ่"
+        g["actionAdvice"] = golden_action_templates[idx % len(golden_action_templates)]
+
+    caution_candidates = [d for d in sorted_days[::-1] if d["score"] <= 68]
+    if len(caution_candidates) < 2:
+        caution_candidates = sorted_days[::-1][:2]
+    caution_days = caution_candidates[:3]
+    for idx, c in enumerate(caution_days):
+        c["status"] = "caution"
+        c["badge"] = "⚠️ วันควรระวังรอบคอบ"
+        c["actionAdvice"] = caution_templates[idx % len(caution_templates)]
+
+    golden_dates = {g["date"] for g in golden_days}
+    caution_dates = {c["date"] for c in caution_days}
+    for d in days:
+        if d["date"] in golden_dates:
+            d["status"] = "golden"
+            d["badge"] = "🌟 วันมงคลทำการใหญ่"
+        elif d["date"] in caution_dates:
+            d["status"] = "caution"
+            d["badge"] = "⚠️ วันควรระวังรอบคอบ"
+        else:
+            d["status"] = "steady"
+            d["badge"] = "✨ ราบรื่นตามปกติ"
+            d["actionAdvice"] = "ดำเนินงานตามแผน รักษาสมดุลชีวิตได้ดีเยี่ยม"
+
+    weeks = []
+    for w_idx in range(4):
+        w_days = days[w_idx * 7 : (w_idx + 1) * 7]
+        w_avg = round(sum(d["score"] for d in w_days) / 7)
+        w_start = w_days[0]["shortLabel"]
+        w_end = w_days[-1]["shortLabel"]
+        
+        if w_avg >= 80:
+            w_theme = "สัปดาห์ทองแห่งความสำเร็จและโอกาสใหม่"
+        elif w_avg >= 74:
+            w_theme = "สัปดาห์แห่งความก้าวหน้าราบรื่นต่อเนื่อง"
+        else:
+            w_theme = "สัปดาห์เน้นความสุขุมรอบคอบและตั้งรับ"
+
+        weeks.append({
+            "weekNumber": w_idx + 1,
+            "label": f"สัปดาห์ที่ {w_idx + 1} ({w_start} - {w_end})",
+            "avgScore": w_avg,
+            "theme": w_theme,
+            "days": w_days
+        })
+
+    end_dt = start_dt + datetime.timedelta(days=27)
+    date_range_label = f"{start_dt.day} {thai_months[start_dt.month]} - {end_dt.day} {thai_months[end_dt.month]} {start_dt.year + 543}"
+
+    return {
+        "startDate": start_dt.strftime("%Y-%m-%d"),
+        "endDate": end_dt.strftime("%Y-%m-%d"),
+        "dateRangeLabel": date_range_label,
+        "ascendant": asc_name,
+        "averageScore": avg_score,
+        "highestScore": highest_score,
+        "lowestScore": lowest_score,
+        "peakDay": golden_days[0],
+        "lowestDay": caution_days[0],
+        "goldenDays": golden_days,
+        "cautionDays": caution_days,
+        "weeks": weeks,
+        "days": days
+    }
+
