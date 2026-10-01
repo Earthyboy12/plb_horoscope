@@ -832,7 +832,17 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
 
         # Check Siamsee / Daily Fortune Oracle ("เซียมซี", "เสี่ยงเซียมซี", "ไพ่ประจำวัน", "ออราเคิล", "siamsee")
         if any(k in text_lower for k in ["เซียมซี", "เสี่ยงเซียมซี", "เขย่าเซียมซี", "ใบเซียมซี", "เซียมซีเสี่ยงทาย", "ไพ่ประจำวัน", "ออราเคิล", "เสี่ยงทาย", "siamsee", "siamsi"]):
-            siamsee_flex = build_siamsee_flex(user=user)
+            import re
+            m = re.search(r'(?:ใบที่|เลข|เบอร์)?\s*([1-9][0-9]?)\b', text)
+            req_stick = None
+            if m:
+                try:
+                    val = int(m.group(1))
+                    if 1 <= val <= 99:
+                        req_stick = val
+                except ValueError:
+                    pass
+            siamsee_flex = build_siamsee_flex(stick_num=req_stick, user=user)
             reply([siamsee_flex])
             return
 
@@ -1141,7 +1151,16 @@ def handle_line_event(event: dict, channel_access_token: str, liff_id: str, web_
             }])
             
         elif action == "siamsee":
-            siamsee_flex = build_siamsee_flex(user=user)
+            stick_arg = params.get("stick") or params.get("stick_num")
+            req_stick = None
+            if stick_arg:
+                try:
+                    val = int(stick_arg)
+                    if 1 <= val <= 99:
+                        req_stick = val
+                except ValueError:
+                    pass
+            siamsee_flex = build_siamsee_flex(stick_num=req_stick, user=user)
             reply([siamsee_flex])
             return
             
@@ -1313,11 +1332,16 @@ def broadcast_line_message(messages: list, access_token: str = "") -> dict:
 
 def send_noon_reminder_broadcast(web_url: str = "https://plb-horoscope.vercel.app", channel_access_token: str = "", force: bool = False) -> dict:
     """
-    Send midday noon reminder to all LINE OA friends.
-    Guards:
-      1. Time Guard: Only sends between 11:30 and 12:59 Thailand Time (UTC+7), unless force=True.
-      2. Deduplication Guard: Only sends ONCE per calendar day, unless force=True.
+    Midday noon reminder is disabled per user policy:
+    Push notifications are ONLY sent once in the morning on lottery days (วันหวยออก).
     """
+    if not force:
+        print("[NoonReminder] Skipped: Noon notifications are disabled. Push is sent only once in the morning on lottery days.")
+        return {
+            "success": True,
+            "skipped": True,
+            "reason": "ระบบปิดการแจ้งเตือนตอนเที่ยงแล้ว ตามการตั้งค่าให้ส่งเฉพาะเช้าวันหวยออก 1 รอบเท่านั้นครับ"
+        }
     import tempfile
     now_th = datetime.datetime.utcnow() + datetime.timedelta(hours=7)
     today_str = now_th.strftime("%Y-%m-%d")
@@ -1396,11 +1420,39 @@ def send_noon_reminder_broadcast(web_url: str = "https://plb-horoscope.vercel.ap
         "broadcast_error": b_res.get("error")
     }
 
+def is_thai_lottery_day(dt=None) -> bool:
+    """
+    Check if the given date is an official Thai Government Lottery draw date (วันหวยออก).
+    Standard draws: 1st and 16th of each month.
+    Official Government Lottery Office (GLO) regular holiday shifts:
+      - 17 January (moved from 16 Jan due to Teacher's Day / วันครู)
+      - 2 May (moved from 1 May due to National Labour Day / วันแรงงานแห่งชาติ)
+      - 30 December (moved from 1 Jan New Year)
+    """
+    if dt is None:
+        dt = (datetime.datetime.utcnow() + datetime.timedelta(hours=7)).date()
+    elif isinstance(dt, datetime.datetime):
+        dt = dt.date()
+        
+    day = dt.day
+    month = dt.month
+    if month == 1:
+        # 1 Jan is moved to 30 Dec; 16 Jan is moved to 17 Jan (Teacher's Day)
+        return day == 17
+    elif month == 5:
+        # 1 May is moved to 2 May (National Labour Day)
+        return day in (2, 16)
+    elif month == 12:
+        # Standard 1, 16 plus 30 Dec (New Year draw moved from 1 Jan)
+        return day in (1, 16, 30)
+    else:
+        return day in (1, 16)
+
 def send_morning_reminder_broadcast(web_url: str = "https://plb-horoscope.vercel.app", channel_access_token: str = "", force: bool = False) -> dict:
     """
-    Send 07:00 AM Morning Routine reminder to all LINE OA friends.
-    On 1st & 16th of month, sends Special Edition Lottery Card.
+    Send Morning Reminder to LINE OA friends ONLY on Thai Lottery Days (วันหวยออก) at 07:00 AM.
     Guards:
+      0. Lottery Day Guard: Sends ONLY on official Thai lottery draw days (1st, 16th, & holiday shifts), unless force=True.
       1. Time Guard: Only sends between 06:00 and 08:59 Thailand Time (UTC+7), unless force=True.
       2. Deduplication Guard: Only sends ONCE per calendar day, unless force=True.
     """
@@ -1409,6 +1461,16 @@ def send_morning_reminder_broadcast(web_url: str = "https://plb-horoscope.vercel
     today_str = now_th.strftime("%Y-%m-%d")
     current_hour = now_th.hour
     current_time_str = now_th.strftime("%H:%M:%S")
+
+    # Guard 0: Lottery Day Guard (Only push on lottery days!)
+    if not force and not is_thai_lottery_day(now_th):
+        print(f"[MorningReminder] Skipped: Today ({today_str}) is not a lottery day. Push notifications are sent ONLY on lottery days.")
+        return {
+            "success": True,
+            "skipped": True,
+            "reason": f"วันนี้ ({today_str}) ไม่ใช่วันหวยออก ระบบส่งแจ้งเตือนเฉพาะเช้าวันหวยออกเท่านั้นครับ",
+            "date": today_str
+        }
 
     # Guard 1: Time Window Check (must be around 07:00 AM, hours 6, 7, 8)
     if not force and current_hour not in (6, 7, 8):
@@ -1436,20 +1498,16 @@ def send_morning_reminder_broadcast(web_url: str = "https://plb-horoscope.vercel
         return {
             "success": True,
             "skipped": True,
-            "reason": f"วันนี้ ({today_str}) ได้ส่งข้อความเตือนยามเช้าเรียบร้อยแล้ว ไม่ส่งซ้ำครับ",
+            "reason": f"วันนี้ ({today_str}) ได้ส่งข้อความแจ้งเตือนวันหวยออกเรียบร้อยแล้ว ไม่ส่งซ้ำครับ",
             "date": today_str
         }
 
     channel_access_token = channel_access_token or get_channel_access_token()
     web_url = web_url or os.environ.get("APP_URL", "https://plb-horoscope.vercel.app")
     
-    # Check if today is 1st or 16th of month -> Lottery Special!
-    if now_th.day in (1, 16):
-        flex_card = build_lottery_special_flex(web_url)
-        reminder_type = "lottery_special"
-    else:
-        flex_card = build_morning_reminder_flex(web_url)
-        reminder_type = "morning_routine"
+    # Send Lottery Special Card on Lottery Days!
+    flex_card = build_lottery_special_flex(web_url)
+    reminder_type = "lottery_special"
 
     def mark_sent():
         try:
