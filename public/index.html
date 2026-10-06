@@ -1716,10 +1716,16 @@
 
     // Load saved profile & sanitize corrupted entries
     try {
-      const saved = localStorage.getItem('plb_horo_birth_v4') || localStorage.getItem('plb_horo_birth_v3');
+      const saved = localStorage.getItem('plb_horo_birth_v4') || localStorage.getItem('plb_user_profile') || localStorage.getItem('plb_horo_birth_v3');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && typeof parsed === 'object') {
+          if (!parsed.birthDate && parsed.birth_date) parsed.birthDate = parsed.birth_date;
+          if (!parsed.birthTime && parsed.birth_time) parsed.birthTime = parsed.birth_time;
+          if (!parsed.province && parsed.birth_province) parsed.province = parsed.birth_province;
+          if (!parsed.transitProvince && parsed.transit_province) parsed.transitProvince = parsed.transit_province;
+          if (!parsed.district && parsed.birth_district) parsed.district = parsed.birth_district;
+          if (!parsed.transitDistrict && parsed.transit_district) parsed.transitDistrict = parsed.transit_district;
           if (!isValidDateString(parsed.birthDate)) delete parsed.birthDate;
           if (!isValidTimeString(parsed.birthTime)) delete parsed.birthTime;
           if (isInvalidWord(parsed.province)) delete parsed.province;

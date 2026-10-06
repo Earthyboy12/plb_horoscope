@@ -18,7 +18,7 @@ import urllib.parse
 import datetime
 
 try:
-    from thai_astrology import get_horoscope, compute_28day_forecast, compute_synastry, compute_wedding_muhurta, PROVINCES_DICT
+    from thai_astrology import get_horoscope, compute_28day_forecast, compute_synastry, compute_wedding_muhurta, PROVINCES_DICT, BANGKOK_DISTRICTS
     from user_store import get_user, save_user, update_transit_location, record_user_check
     from line_flex_builder import (
         build_welcome_flex,
@@ -45,7 +45,7 @@ try:
         get_category_quick_reply
     )
 except ImportError:
-    from api.thai_astrology import get_horoscope, compute_28day_forecast, compute_synastry, compute_wedding_muhurta, PROVINCES_DICT
+    from api.thai_astrology import get_horoscope, compute_28day_forecast, compute_synastry, compute_wedding_muhurta, PROVINCES_DICT, BANGKOK_DISTRICTS
     from api.user_store import get_user, save_user, update_transit_location, record_user_check
     from api.line_flex_builder import (
         build_welcome_flex,
@@ -140,27 +140,70 @@ def parse_birth_info_from_text(text: str):
     mt = re.search(r'\b(\d{1,2})[:.](\d{2})\b', cleaned)
     btime = f"{int(mt.group(1)):02d}:{int(mt.group(2)):02d}" if mt else "08:30"
     
-    # Parse province
+    # Split birth section and transit section (e.g. "... จร กรุงเทพมหานคร ...")
+    parts = re.split(r'\bจร\s*[: ]|\s+จร\s+', cleaned, maxsplit=1)
+    birth_part = parts[0]
+    transit_part = parts[1] if len(parts) > 1 else ""
+
+    sorted_provinces = sorted(PROVINCES_DICT.keys(), key=lambda x: -len(x))
+
+    # 1. Parse birth province (strictly from birth_part to avoid transit province leakage)
     prov = "กรุงเทพมหานคร"
-    if "กทม" in cleaned or "กรุงเทพ" in cleaned:
+    if "กทม" in birth_part or "กรุงเทพ" in birth_part:
         prov = "กรุงเทพมหานคร"
     else:
-        for p in PROVINCES_DICT.keys():
-            if p in cleaned:
+        for p in sorted_provinces:
+            if p in birth_part:
                 prov = p
                 break
 
+    # 2. Parse birth district
     dist = "พระนคร" if prov == "กรุงเทพมหานคร" else f"อำเภอเมือง{prov}"
-    
+    if prov == "กรุงเทพมหานคร":
+        for bd in BANGKOK_DISTRICTS.keys():
+            if bd in birth_part:
+                dist = bd
+                break
+    else:
+        m_d = re.search(r'(?:อำเภอ|อ\.)([ก-๙]+)', birth_part)
+        if m_d:
+            dist = f"อำเภอ{m_d.group(1)}"
+        else:
+            idx = birth_part.find(prov)
+            if idx != -1:
+                after = birth_part[idx + len(prov):].strip()
+                tokens = [w for w in re.split(r'\s+', after) if w and not re.match(r'^[\d:.-]', w) and '=' not in w]
+                if tokens:
+                    dist = tokens[0]
+
+    # 3. Parse transit province & district
     t_prov = prov
     t_dist = dist
-    if "จร " in cleaned:
-        transit_part = cleaned.split("จร ", 1)[1].strip()
-        for p in PROVINCES_DICT.keys():
-            if p in transit_part:
-                t_prov = p
-                t_dist = "พระนคร" if p == "กรุงเทพมหานคร" else f"อำเภอเมือง{p}"
-                break
+    if transit_part:
+        if "กทม" in transit_part or "กรุงเทพ" in transit_part:
+            t_prov = "กรุงเทพมหานคร"
+        else:
+            for p in sorted_provinces:
+                if p in transit_part:
+                    t_prov = p
+                    break
+        t_dist = "พระนคร" if t_prov == "กรุงเทพมหานคร" else f"อำเภอเมือง{t_prov}"
+        if t_prov == "กรุงเทพมหานคร":
+            for bd in BANGKOK_DISTRICTS.keys():
+                if bd in transit_part:
+                    t_dist = bd
+                    break
+        else:
+            m_td = re.search(r'(?:อำเภอ|อ\.)([ก-๙]+)', transit_part)
+            if m_td:
+                t_dist = f"อำเภอ{m_td.group(1)}"
+            else:
+                idx = transit_part.find(t_prov)
+                if idx != -1:
+                    after = transit_part[idx + len(t_prov):].strip()
+                    tokens = [w for w in re.split(r'\s+', after) if w and not re.match(r'^[\d:.-]', w) and '=' not in w]
+                    if tokens:
+                        t_dist = tokens[0]
     
     cc = 0
     m_cc = re.search(r'\bcc[=:]\s*(\d+)\b', cleaned, re.IGNORECASE)

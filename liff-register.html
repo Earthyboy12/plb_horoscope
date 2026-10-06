@@ -800,7 +800,20 @@
       }
     }
 
-    let PROVINCES = [];
+    const ALL_77_PROVINCES = [
+      "กระบี่", "กรุงเทพมหานคร", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", "ขอนแก่น", "จันทบุรี",
+      "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร", "เชียงราย", "เชียงใหม่", "ตรัง",
+      "ตราด", "ตาก", "นครนายก", "นครปฐม", "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์",
+      "นนทบุรี", "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์",
+      "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา", "พัทลุง", "พิจิตร",
+      "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์", "แพร่", "ภูเก็ต", "มหาสารคาม", "มุกดาหาร",
+      "แม่ฮ่องสอน", "ยโสธร", "ยะลา", "ร้อยเอ็ด", "ระนอง", "ระยอง", "ราชบุรี", "ลพบุรี",
+      "ลำปาง", "ลำพูน", "เลย", "ศรีสะเกษ", "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ",
+      "สมุทรสงคราม", "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย", "สุพรรณบุรี",
+      "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย", "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ",
+      "อุดรธานี", "อุตรดิตถ์", "อุทัยธานี", "อุบลราชธานี"
+    ];
+    let PROVINCES = ALL_77_PROVINCES.map(p => ({ name: p }));
     let latestLineChatMsg = "สรุปดวงประจำวัน";
 
     // Populate Day & Year Dropdowns
@@ -894,39 +907,45 @@
 
     // Populate Provinces
     async function loadProvinces() {
-      try {
-        const res = await fetch('/api/astrology/provinces');
-        const json = await res.json();
-        if (json.success && json.data) {
-          PROVINCES = json.data;
-          renderProvinceDropdowns();
-        }
-      } catch (e) {
-        console.warn("Falling back to local provinces list", e);
-      }
+      renderProvinceDropdowns();
     }
 
-    function renderProvinceDropdowns() {
+    function renderProvinceDropdowns(prefBirthProv, prefTransitProv) {
       const bpSelect = document.getElementById('birthProvinceSelect');
       const tpSelect = document.getElementById('transitProvinceSelect');
       const ntpSelect = document.getElementById('natalTransitProvinceSelect');
+      if (!bpSelect) return;
       
+      const currentBirth = prefBirthProv || bpSelect.value || "กรุงเทพมหานคร";
+      const currentTransit = prefTransitProv || (tpSelect ? tpSelect.value : "") || currentBirth;
+
       let html = "";
-      PROVINCES.forEach(p => {
-        html += `<option value="${p.name}">${p.name}</option>`;
+      ALL_77_PROVINCES.forEach(p => {
+        html += `<option value="${p}">${p}</option>`;
       });
 
       if (html) {
         bpSelect.innerHTML = html;
-        tpSelect.innerHTML = html;
-        ntpSelect.innerHTML = html;
+        if (tpSelect) tpSelect.innerHTML = html;
+        if (ntpSelect) ntpSelect.innerHTML = html;
       }
+
+      if (ALL_77_PROVINCES.includes(currentBirth)) {
+        bpSelect.value = currentBirth;
+      }
+      if (tpSelect && ALL_77_PROVINCES.includes(currentTransit)) {
+        tpSelect.value = currentTransit;
+      }
+      if (ntpSelect && ALL_77_PROVINCES.includes(currentTransit)) {
+        ntpSelect.value = currentTransit;
+      }
+
       onBirthProvinceChange();
       onTransitProvinceChange();
       onNatalTransitProvinceChange();
     }
 
-    function onBirthProvinceChange() {
+    function onBirthProvinceChange(savedDistrict = "") {
       const prov = document.getElementById('birthProvinceSelect').value;
       const select = document.getElementById('birthDistrictSelect');
       const custom = document.getElementById('birthDistrictCustom');
@@ -935,20 +954,37 @@
         select.classList.remove('hidden');
         custom.classList.add('hidden');
         select.innerHTML = BANGKOK_DISTRICTS.map(d => `<option value="${d}">${d}</option>`).join('');
+        if (savedDistrict && BANGKOK_DISTRICTS.includes(savedDistrict)) {
+          select.value = savedDistrict;
+        }
       } else {
         select.classList.remove('hidden');
-        custom.classList.remove('hidden');
-        select.innerHTML = `<option value="อำเภอเมือง${prov}">อำเภอเมือง${prov}</option><option value="other">ระบุอำเภออื่น...</option>`;
+        const defaultMuang = `อำเภอเมือง${prov}`;
+        select.innerHTML = `<option value="${defaultMuang}">${defaultMuang}</option><option value="other">ระบุอำเภออื่น...</option>`;
+        if (savedDistrict) {
+          if (savedDistrict === defaultMuang) {
+            select.value = defaultMuang;
+            custom.classList.add('hidden');
+            custom.value = '';
+          } else {
+            select.value = 'other';
+            custom.classList.remove('hidden');
+            custom.value = savedDistrict;
+          }
+        } else {
+          custom.classList.remove('hidden');
+          custom.value = '';
+        }
       }
 
       // If same as birth is checked, update transit too
       if (document.getElementById('sameAsBirthCheckbox').checked) {
         document.getElementById('natalTransitProvinceSelect').value = prov;
-        onNatalTransitProvinceChange();
+        onNatalTransitProvinceChange(savedDistrict);
       }
     }
 
-    function onNatalTransitProvinceChange() {
+    function onNatalTransitProvinceChange(savedDistrict = "") {
       const prov = document.getElementById('natalTransitProvinceSelect').value;
       const select = document.getElementById('natalTransitDistrictSelect');
       const custom = document.getElementById('natalTransitDistrictCustom');
@@ -957,14 +993,31 @@
         select.classList.remove('hidden');
         custom.classList.add('hidden');
         select.innerHTML = BANGKOK_DISTRICTS.map(d => `<option value="${d}">${d}</option>`).join('');
+        if (savedDistrict && BANGKOK_DISTRICTS.includes(savedDistrict)) {
+          select.value = savedDistrict;
+        }
       } else {
         select.classList.remove('hidden');
-        custom.classList.remove('hidden');
-        select.innerHTML = `<option value="อำเภอเมือง${prov}">อำเภอเมือง${prov}</option><option value="other">ระบุอำเภออื่น...</option>`;
+        const defaultMuang = `อำเภอเมือง${prov}`;
+        select.innerHTML = `<option value="${defaultMuang}">${defaultMuang}</option><option value="other">ระบุอำเภออื่น...</option>`;
+        if (savedDistrict) {
+          if (savedDistrict === defaultMuang) {
+            select.value = defaultMuang;
+            custom.classList.add('hidden');
+            custom.value = '';
+          } else {
+            select.value = 'other';
+            custom.classList.remove('hidden');
+            custom.value = savedDistrict;
+          }
+        } else {
+          custom.classList.remove('hidden');
+          custom.value = '';
+        }
       }
     }
 
-    function onTransitProvinceChange() {
+    function onTransitProvinceChange(savedDistrict = "") {
       const prov = document.getElementById('transitProvinceSelect').value;
       const select = document.getElementById('transitDistrictSelect');
       const custom = document.getElementById('transitDistrictCustom');
@@ -973,10 +1026,27 @@
         select.classList.remove('hidden');
         custom.classList.add('hidden');
         select.innerHTML = BANGKOK_DISTRICTS.map(d => `<option value="${d}">${d}</option>`).join('');
+        if (savedDistrict && BANGKOK_DISTRICTS.includes(savedDistrict)) {
+          select.value = savedDistrict;
+        }
       } else {
         select.classList.remove('hidden');
-        custom.classList.remove('hidden');
-        select.innerHTML = `<option value="อำเภอเมือง${prov}">อำเภอเมือง${prov}</option><option value="other">ระบุอำเภออื่น...</option>`;
+        const defaultMuang = `อำเภอเมือง${prov}`;
+        select.innerHTML = `<option value="${defaultMuang}">${defaultMuang}</option><option value="other">ระบุอำเภออื่น...</option>`;
+        if (savedDistrict) {
+          if (savedDistrict === defaultMuang) {
+            select.value = defaultMuang;
+            custom.classList.add('hidden');
+            custom.value = '';
+          } else {
+            select.value = 'other';
+            custom.classList.remove('hidden');
+            custom.value = savedDistrict;
+          }
+        } else {
+          custom.classList.remove('hidden');
+          custom.value = '';
+        }
       }
     }
 
@@ -1005,16 +1075,16 @@
         if (urlCc > 0) mergedUser.check_count = Math.max(existingLocal.check_count || existingLocal.cc || 0, urlCc);
         if (urlSt > 0) mergedUser.streak = Math.max(existingLocal.streak || existingLocal.st || 1, urlSt);
         if (urlLd) mergedUser.last_check_date = urlLd;
-        if (urlName && !mergedUser.name) mergedUser.name = urlName;
-        if (urlB && !mergedUser.birthDate) {
+        if (urlName) mergedUser.name = urlName;
+        if (urlB) {
           mergedUser.birthDate = urlB;
           mergedUser.birth_date = urlB;
         }
-        if (urlT && !mergedUser.birthTime) {
+        if (urlT) {
           mergedUser.birthTime = urlT;
           mergedUser.birth_time = urlT;
         }
-        if (urlP && !mergedUser.birthProvince) {
+        if (urlP) {
           mergedUser.birthProvince = urlP;
           mergedUser.birth_province = urlP;
           mergedUser.province = urlP;
@@ -1120,21 +1190,23 @@
           if (u.birthTime || u.birth_time) {
             document.getElementById('birthTimeInput').value = u.birthTime || u.birth_time;
           }
-          if (u.birthProvince || u.birth_province || u.province) {
-            const p = u.birthProvince || u.birth_province || u.province;
+          const p = u.birth_province || u.birthProvince || u.province;
+          const d = u.birth_district || u.birthDistrict || u.district || "";
+          if (p) {
             document.getElementById('birthProvinceSelect').value = p;
-            onBirthProvinceChange();
+            onBirthProvinceChange(d);
           }
 
           // Transit
-          const tProv = u.transitProvince || u.transit_province || u.province;
-          if (tProv && tProv !== (u.birthProvince || u.birth_province || u.province)) {
+          const tProv = u.transit_province || u.transitProvince || p || "กรุงเทพมหานคร";
+          const tDist = u.transit_district || u.transitDistrict || (tProv === "กรุงเทพมหานคร" ? "พระนคร" : `อำเภอเมือง${tProv}`);
+          if (tProv && p && tProv !== p) {
             document.getElementById('sameAsBirthCheckbox').checked = false;
             onSameAsBirthToggle();
             document.getElementById('natalTransitProvinceSelect').value = tProv;
             document.getElementById('transitProvinceSelect').value = tProv;
-            onNatalTransitProvinceChange();
-            onTransitProvinceChange();
+            onNatalTransitProvinceChange(tDist);
+            onTransitProvinceChange(tDist);
           } else {
             document.getElementById('sameAsBirthCheckbox').checked = true;
             onSameAsBirthToggle();
@@ -1146,7 +1218,7 @@
           const descSpan = document.getElementById('savedBannerDesc');
           if (banner && nameSpan) {
             nameSpan.textContent = `พบข้อมูลดวงของคุณ: ${u.name || 'ผู้ใช้'}`;
-            descSpan.textContent = `เกิด ${u.birthDate || u.birth_date} • จ. ${u.birthProvince || u.birth_province || u.province || '-'}`;
+            descSpan.textContent = `เกิด ${u.birthDate || u.birth_date} • จ. ${p || '-'}${d ? ' (' + d + ')' : ''}`;
             banner.classList.remove('hidden');
           }
         }
@@ -1166,15 +1238,16 @@
           if (u.birth_time) document.getElementById('birthTimeInput').value = u.birth_time;
           if (u.birth_province) {
             document.getElementById('birthProvinceSelect').value = u.birth_province;
-            onBirthProvinceChange();
+            onBirthProvinceChange(u.birth_district || "");
           }
           if (u.transit_province) {
             document.getElementById('transitProvinceSelect').value = u.transit_province;
-            if (u.transit_province !== u.birth_province) {
+            onTransitProvinceChange(u.transit_district || "");
+            if (u.birth_province && u.transit_province !== u.birth_province) {
               document.getElementById('sameAsBirthCheckbox').checked = false;
               onSameAsBirthToggle();
               document.getElementById('natalTransitProvinceSelect').value = u.transit_province;
-              onNatalTransitProvinceChange();
+              onNatalTransitProvinceChange(u.transit_district || "");
             }
           }
           // Safely merge with existing local profile so stats are never reset
@@ -1188,6 +1261,17 @@
           localStorage.setItem('plb_user_profile', JSON.stringify(mergedUser));
           localStorage.setItem('plb_horo_birth_v4', JSON.stringify(mergedUser));
           updateUserStatsBadge();
+
+          // Also update banner display if present
+          const banner = document.getElementById('savedProfileBanner');
+          const nameSpan = document.getElementById('savedBannerName');
+          const descSpan = document.getElementById('savedBannerDesc');
+          if (banner && nameSpan && u.birth_date) {
+            nameSpan.textContent = `พบข้อมูลดวงของคุณ: ${u.name || 'ผู้ใช้'}`;
+            const dText = u.birth_district ? ` (${u.birth_district})` : '';
+            descSpan.textContent = `เกิด ${u.birth_date} • จ. ${u.birth_province || '-'}${dText}`;
+            banner.classList.remove('hidden');
+          }
         }
       } catch (e) {
         console.log("Load user error:", e);
@@ -1195,19 +1279,44 @@
     }
 
     // Quick view saved horoscope shortcut
-    function quickViewSavedHoroscope() {
+    async function quickViewSavedHoroscope() {
       const raw = localStorage.getItem('plb_user_profile') || localStorage.getItem('plb_horo_birth_v4');
       if (raw) {
         const u = JSON.parse(raw);
-        const bDate = u.birthDate || u.birth_date;
-        const bTime = u.birthTime || u.birth_time || "08:30";
-        const prov = u.birthProvince || u.birth_province || u.province || "กรุงเทพมหานคร";
-        const dist = u.birthDistrict || u.birth_district || u.district || "";
-        const tProv = u.transitProvince || u.transit_province || prov;
+        const bDate = u.birth_date || u.birthDate;
+        const bTime = u.birth_time || u.birthTime || "08:30";
+        const prov = u.birth_province || u.birthProvince || u.province || document.getElementById('birthProvinceSelect').value || "กรุงเทพมหานคร";
+        let dist = u.birth_district || u.birthDistrict || u.district;
+        if (!dist) {
+          dist = prov === "กรุงเทพมหานคร" ? "พระนคร" : `อำเภอเมือง${prov}`;
+        }
+        const tProv = u.transit_province || u.transitProvince || prov;
 
         const uCc = u.check_count || u.cc || 0;
         const uSt = u.streak || u.st || 1;
-        latestLineChatMsg = `เกิด ${bDate} ${bTime} ${prov} ${dist} จร ${tProv}` + (uCc > 0 ? ` cc=${uCc} st=${uSt}` : '');
+        const uXp = u.xp || 0;
+        const uLvl = u.level || 1;
+        const uLd = u.last_check_date || u.ld || "";
+        latestLineChatMsg = `เกิด ${bDate} ${bTime} ${prov} ${dist} จร ${tProv}` + 
+          (uCc > 0 ? ` cc=${uCc} st=${uSt}` : '') + 
+          (uXp > 0 ? ` xp=${uXp}` : '') + 
+          (uLvl > 1 ? ` lvl=${uLvl}` : '') + 
+          (uLd ? ` ld=${uLd}` : '');
+
+        if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) {
+          try {
+            await liff.sendMessages([
+              {
+                type: 'text',
+                text: latestLineChatMsg
+              }
+            ]);
+            liff.closeWindow();
+            return;
+          } catch (le) {
+            console.log("LIFF sendMessages note in quickView:", le);
+          }
+        }
         goToLineChat();
       } else {
         alert("กรุณากรอกข้อมูลดวงชะตาและกดบันทึกด้านล่างก่อนครับ ✨");
@@ -1442,7 +1551,7 @@
 
     // Auto initialize
     window.addEventListener('DOMContentLoaded', () => {
-      loadProvinces();
+      renderProvinceDropdowns();
       initLiff();
     });
   </script>
