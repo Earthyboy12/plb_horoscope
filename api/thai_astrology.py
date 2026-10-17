@@ -648,7 +648,12 @@ def get_horoscope(birth_dict, target_date_str=""):
 
     # Synthesize detailed lucky boosters, thaksa, chants & auspicious windows
     lucky_info = synthesize_detailed_lucky(
-        weekday_idx, ty, tm, td, solar_times, transit_prov_name
+        weekday_idx, ty, tm, td, solar_times, transit_prov_name,
+        asc_sign=asc_sign,
+        birth_dict=birth_dict,
+        transit_by_house=transit_by_house,
+        transit_planets=transit_planets,
+        natal_planets=natal_planets
     )
 
     # Add transit location specific highlight to overall category

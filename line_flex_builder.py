@@ -2172,9 +2172,15 @@ def build_lucky_numbers_flex(user: dict, horoscope: dict, web_url: str = "https:
     asc_name = horoscope.get("natalChart", {}).get("ascendant", {}).get("signName", "เมษ")
     day_lord = lucky_info.get("dailyDayLord", "พระพฤหัสบดี (๕) กำลังเทวดา 19")
     
-    two_digits = [f"{nums[0]}{nums[1]}", f"{nums[1]}{nums[2]}", f"{nums[2]}{nums[3]}", f"{nums[0]}{nums[3]}"]
-    three_digits = [f"{nums[0]}{nums[1]}{nums[2]}", f"{nums[1]}{nums[2]}{nums[3]}"]
+    two_digits = lucky_info.get("twoDigits") or [f"{nums[0]}{nums[1]}", f"{nums[1]}{nums[2]}", f"{nums[2]}{nums[3]}", f"{nums[0]}{nums[3]}"]
+    three_digits = lucky_info.get("threeDigits") or [f"{nums[0]}{nums[1]}{nums[2]}", f"{nums[1]}{nums[2]}{nums[3]}"]
     
+    fortune_score = lucky_info.get("fortuneScore", 75)
+    fortune_tier = lucky_info.get("fortuneTier", "✨ โชคลาภโดดเด่นมีลุ้น")
+    fortune_desc = lucky_info.get("fortuneDesc", "กระแสดาวลาภะและดาวศุภเคราะห์หนุนดวงชะตา")
+    fortune_advice = lucky_info.get("fortuneAdvice", "เสี่ยงโชคตามกำลังทรัพย์ ไม่โลภเกินตัว")
+    astro_roots = lucky_info.get("personalAstroRoots", [])
+
     ausp_time = lucky_info.get("auspiciousTime", "ช่วงเช้า 09:00 - 11:00 น. (มหัทธโนฤกษ์)")
     if "(" in ausp_time:
         time_display = ausp_time.split("(")[0].strip() + " น."
@@ -2186,6 +2192,23 @@ def build_lucky_numbers_flex(user: dict, horoscope: dict, web_url: str = "https:
         time_sub = "ฤกษ์มงคลเปิดทรัพย์"
 
     direction = lucky_info.get("luckyDirection", "ทิศใต้ (เสริมโชคลาภเงินทอง)")
+    
+    # Meter bar styling
+    meter_color = "#22c55e" if fortune_score >= 80 else ("#f59e0b" if fortune_score >= 65 else "#38bdf8")
+    card_border = "#eab308" if fortune_score >= 80 else ("#ca8a04" if fortune_score >= 65 else "#64748b")
+
+    # Astro roots list
+    astro_roots_contents = []
+    if astro_roots:
+        astro_roots_contents.append({"type": "text", "text": "🔮 ที่มาของเลขเด่นเฉพาะดวงชะตาคุณ:", "size": "xxs", "color": "#38bdf8", "weight": "bold"})
+        for r in astro_roots[:4]:
+            astro_roots_contents.append({
+                "type": "text",
+                "text": f"• เลข {r.get('num')}: {r.get('title')} - {r.get('desc')}",
+                "size": "xxs",
+                "color": "#e2e8f0",
+                "wrap": True
+            })
     
     bubble = {
         "type": "bubble",
@@ -2207,13 +2230,13 @@ def build_lucky_numbers_flex(user: dict, horoscope: dict, web_url: str = "https:
                     "type": "box",
                     "layout": "horizontal",
                     "contents": [
-                        {"type": "text", "text": "🎰 เลขเด็ด & เลขมงคลประจำวัน", "weight": "bold", "color": "#fbbf24", "size": "md", "flex": 1},
+                        {"type": "text", "text": "🎰 เลขเด็ดเฉพาะดวงชะตาคุณ", "weight": "bold", "color": "#fbbf24", "size": "md", "flex": 1},
                         {"type": "text", "text": "PLB โหราศาสตร์", "color": "#94a3b8", "size": "xxs", "align": "end"}
                     ]
                 },
                 {
                     "type": "text",
-                    "text": f"คำนวณตามมหาทักษา & ดาวจร: คุณ {user_name} (ลัคนา {asc_name})",
+                    "text": f"คำนวณตามดวงเกิด & ลาภะเฉพาะคุณ {user_name} (ลัคนา {asc_name})",
                     "color": "#cbd5e1",
                     "size": "xs",
                     "margin": "xs",
@@ -2228,19 +2251,62 @@ def build_lucky_numbers_flex(user: dict, horoscope: dict, web_url: str = "https:
             "paddingAll": "16px",
             "spacing": "md",
             "contents": [
+                # 1. Fortune Meter Card
                 {
                     "type": "box",
                     "layout": "vertical",
                     "backgroundColor": "#172554",
+                    "cornerRadius": "12px",
+                    "paddingAll": "12px",
+                    "borderColor": card_border,
+                    "borderWidth": "1.5px",
+                    "contents": [
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "alignItems": "center",
+                            "contents": [
+                                {"type": "text", "text": "🎯 ดัชนีโชคลาภเฉพาะดวงคุณ:", "size": "xxs", "color": "#fef08a", "weight": "bold", "flex": 1},
+                                {"type": "text", "text": f"{fortune_score}%", "size": "sm", "color": "#fbbf24", "weight": "bold"}
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "backgroundColor": "#0f172a",
+                            "cornerRadius": "4px",
+                            "height": "8px",
+                            "margin": "xs",
+                            "contents": [
+                                {
+                                    "type": "box",
+                                    "layout": "vertical",
+                                    "backgroundColor": meter_color,
+                                    "cornerRadius": "4px",
+                                    "width": f"{fortune_score}%",
+                                    "height": "8px"
+                                }
+                            ]
+                        },
+                        {"type": "text", "text": fortune_tier, "size": "xxs", "color": "#fef9c3", "weight": "bold", "margin": "xs", "wrap": True},
+                        {"type": "text", "text": fortune_desc, "size": "xxs", "color": "#cbd5e1", "wrap": True}
+                    ]
+                },
+                # 2. Day Lord & Planetary Energy
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#0f172a",
                     "cornerRadius": "10px",
                     "paddingAll": "10px",
-                    "borderColor": "#3b82f6",
+                    "borderColor": "#334155",
                     "borderWidth": "1px",
                     "contents": [
                         {"type": "text", "text": "🪐 ภูมิเทวดาพระเคราะห์เสวยอายุ & ดาวจร:", "size": "xxs", "color": "#93c5fd", "weight": "bold"},
                         {"type": "text", "text": day_lord, "size": "xs", "color": "#f8fafc", "weight": "bold", "wrap": True, "margin": "xs"}
                     ]
                 },
+                # 3. 4 Personalized Lucky Numbers
                 {
                     "type": "box",
                     "layout": "vertical",
@@ -2251,7 +2317,7 @@ def build_lucky_numbers_flex(user: dict, horoscope: dict, web_url: str = "https:
                     "borderWidth": "2px",
                     "alignItems": "center",
                     "contents": [
-                        {"type": "text", "text": "🌟 เลขเด่นนำโชคประจำวัน 🌟", "size": "xs", "color": "#fde047", "weight": "bold"},
+                        {"type": "text", "text": "🌟 4 เลขเด่นเฉพาะดวงชะตาคุณ 🌟", "size": "xs", "color": "#fde047", "weight": "bold"},
                         {
                             "type": "box",
                             "layout": "horizontal",
@@ -2319,6 +2385,7 @@ def build_lucky_numbers_flex(user: dict, horoscope: dict, web_url: str = "https:
                         {"type": "text", "text": lucky_info.get("luckyNumbersDesc", f"เลขเด่น: {nums[0]} และ {nums[1]} • เลขรอง: {nums[2]} และ {nums[3]}"), "size": "xxs", "color": "#fef08a", "margin": "sm", "wrap": True, "align": "center"}
                     ]
                 },
+                # 4. 2-Digits & 3-Digits
                 {
                     "type": "box",
                     "layout": "horizontal",
@@ -2354,6 +2421,23 @@ def build_lucky_numbers_flex(user: dict, horoscope: dict, web_url: str = "https:
                         }
                     ]
                 },
+                # 5. Astrological Roots
+                *(
+                    [
+                        {
+                            "type": "box",
+                            "layout": "vertical",
+                            "backgroundColor": "#0b1329",
+                            "cornerRadius": "10px",
+                            "paddingAll": "10px",
+                            "borderColor": "#1e293b",
+                            "borderWidth": "1px",
+                            "spacing": "xs",
+                            "contents": astro_roots_contents
+                        }
+                    ] if astro_roots_contents else []
+                ),
+                # 6. Auspicious Time & Direction
                 {
                     "type": "box",
                     "layout": "vertical",
@@ -2381,6 +2465,20 @@ def build_lucky_numbers_flex(user: dict, horoscope: dict, web_url: str = "https:
                                 {"type": "text", "text": direction, "size": "xxs", "color": "#f8fafc", "wrap": True, "flex": 3}
                             ]
                         }
+                    ]
+                },
+                # 7. Fortune Advice
+                {
+                    "type": "box",
+                    "layout": "vertical",
+                    "backgroundColor": "#1c1917",
+                    "cornerRadius": "10px",
+                    "paddingAll": "10px",
+                    "borderColor": "#d97706",
+                    "borderWidth": "1px",
+                    "contents": [
+                        {"type": "text", "text": "💡 เคล็ดลับการเสี่ยงโชค:", "size": "xxs", "color": "#fde047", "weight": "bold"},
+                        {"type": "text", "text": fortune_advice, "size": "xxs", "color": "#fef3c7", "wrap": True, "margin": "xs"}
                     ]
                 }
             ]

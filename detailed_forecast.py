@@ -3,6 +3,7 @@
 Detailed Astrological Synthesizer for PLB Horoscope
 Generates rich, multi-paragraph, professional daily forecasts across all categories.
 """
+import datetime
 
 HEALTH_VULNERABILITIES = {
     0: {"organ": "ศีรษะ สมอง ไมเกรน และความดันโลหิต", "advice": "ระวังอาการปวดศีรษะจากความเครียดหรือเพ่งสายตานาน ควรพักสายตาทุก 45 นาที"},
@@ -456,7 +457,9 @@ def synthesize_detailed_categories(asc_sign, asc_name, moon_house_id, moon_house
         }
     }
 
-def synthesize_detailed_lucky(weekday_idx, ty, tm, td, solar_times, transit_prov_name):
+def synthesize_detailed_lucky(weekday_idx, ty, tm, td, solar_times, transit_prov_name,
+                              asc_sign=None, birth_dict=None, transit_by_house=None,
+                              transit_planets=None, natal_planets=None):
     # Color scheme according to Mahathaksa
     color_schemes = [
         {"work": "สีเขียวมรกต", "wealth": "สีส้ม / ทองอำพัน", "love": "สีฟ้าคราม / ขาวนวล", "avoid": "สีแดงเพลิง"}, # จันทร์
@@ -490,7 +493,46 @@ def synthesize_detailed_lucky(weekday_idx, ty, tm, td, solar_times, transit_prov
     ]
     lucky_direction = directions[weekday_idx % 7]
 
-    # Dynamic lucky numbers
+    # --- ADVANCED PERSONALIZED ASTROLOGY LUCKY ENGINE ---
+    SIGN_NAMES = ["เมษ", "พฤษภ", "เมถุน", "กรกฎ", "สิงห์", "กันย์", "ตุลย์", "พิจิก", "ธนู", "มังกร", "กุมภ์", "มีน"]
+    SIGN_RULERS = [3, 6, 4, 2, 1, 4, 6, 3, 5, 7, 8, 5]
+    PLANET_NAMES = {
+        0: "พระอาทิตย์ (๑)", 1: "พระอาทิตย์ (๑)", 2: "พระจันทร์ (๒)", 3: "พระอังคาร (๓)",
+        4: "พระพุธ (๔)", 5: "พระพฤหัสบดี (๕)", 6: "พระศุกร์ (๖)", 7: "พระเสาร์ (๗)",
+        8: "พระราหู (๘)", 9: "พระเกตุ (๙)"
+    }
+    WEEKDAY_NAMES = ["วันจันทร์", "วันอังคาร", "วันพุธ", "วันพฤหัสบดี", "วันศุกร์", "วันเสาร์", "วันอาทิตย์"]
+
+    user_asc = 0 if asc_sign is None else int(asc_sign) % 12
+    asc_name = SIGN_NAMES[user_asc]
+    tanu_lord = SIGN_RULERS[user_asc]
+    labha_sign = (user_asc + 10) % 12   # ภพที่ 11 (ลาภะ: โชคลาภ/ลาภลอย/เก็งกำไร)
+    labha_lord = SIGN_RULERS[labha_sign]
+    kadumba_sign = (user_asc + 1) % 12  # ภพที่ 2 (กดุมภะ: การเงิน/กระแสเงินสด)
+    kadumba_lord = SIGN_RULERS[kadumba_sign]
+    putta_sign = (user_asc + 4) % 12    # ภพที่ 5 (ปุตตะ: ลาภผลเสี่ยงโชค)
+    putta_lord = SIGN_RULERS[putta_sign]
+
+    # User Birth Day & Mahathaksa (มหาทักษาประจำวันเกิด)
+    b_date_str = (birth_dict or {}).get("birthDate", "1995-05-15")
+    try:
+        by, bm, bd = [int(x) for x in b_date_str.split("-")[:3]]
+        b_dt = datetime.datetime(by, bm, bd)
+        b_weekday = b_dt.weekday() # 0=Mon..6=Sun
+    except Exception:
+        b_weekday = 0
+    b_day_name = WEEKDAY_NAMES[b_weekday % 7]
+
+    THAKSA_SEQ = [1, 2, 3, 4, 7, 5, 8, 6]
+    day_to_thaksa_lord = {6: 1, 0: 2, 1: 3, 2: 4, 3: 5, 4: 6, 5: 7}
+    b_lord = day_to_thaksa_lord.get(b_weekday, 2)
+    b_idx = THAKSA_SEQ.index(b_lord) if b_lord in THAKSA_SEQ else 0
+    rot_thaksa = THAKSA_SEQ[b_idx:] + THAKSA_SEQ[:b_idx]
+    thaksa_sri = rot_thaksa[3]      # ภูมิที่ 4 = ศรี (สิริมงคล โชคลาภ ทรัพย์สิน)
+    thaksa_montri = rot_thaksa[6]   # ภูมิที่ 7 = มนตรี (ผู้อุปถัมภ์ เทวดารักษา)
+    thaksa_kala = rot_thaksa[7]     # ภูมิที่ 8 = กาลกิณี (อุปสรรค)
+
+    # Dynamic day ruler numbers (กำลังดาวประจำวัน)
     day_numbers = [
         [2, 4, 6, 9], # Mon
         [3, 5, 8, 9], # Tue
@@ -500,7 +542,91 @@ def synthesize_detailed_lucky(weekday_idx, ty, tm, td, solar_times, transit_prov
         [7, 8, 1, 9], # Sat
         [1, 9, 5, 8]  # Sun
     ]
-    lucky_nums = day_numbers[weekday_idx % 7]
+    day_nums = day_numbers[weekday_idx % 7]
+
+    # Fortune Score Analysis (ดัชนีโชคลาภรายวัน: 38% - 96%)
+    fortune_score = 65
+    transit_houses = transit_by_house or {}
+    
+    # Check 11th House (ลาภะ)
+    planets_11 = transit_houses.get(11, []) or []
+    for p in planets_11:
+        pid = p.get("planetId", -1) if isinstance(p, dict) else -1
+        if pid in (5, 6, 2, 4): # ศุภเคราะห์ให้คุณ
+            fortune_score += 12
+        elif pid == 8: # พระราหูเจ้าแห่งการเสี่ยงโชค
+            fortune_score += 15
+        elif pid in (1, 3, 7):
+            fortune_score += 5
+
+    # Check 2nd House (กดุมภะ) & 5th House (ปุตตะ)
+    planets_2 = transit_houses.get(2, []) or []
+    planets_5 = transit_houses.get(5, []) or []
+    if any(isinstance(p, dict) and p.get("planetId") in (5, 6, 2, 8) for p in planets_2):
+        fortune_score += 8
+    if any(isinstance(p, dict) and p.get("planetId") in (5, 6, 2, 8) for p in planets_5):
+        fortune_score += 8
+
+    # Day Lord synergy with User's Sri or Montri
+    today_lord_id = [2, 3, 4, 5, 6, 7, 1][weekday_idx % 7]
+    if today_lord_id == thaksa_sri:
+        fortune_score += 10
+    elif today_lord_id == thaksa_montri:
+        fortune_score += 6
+    elif today_lord_id == thaksa_kala:
+        fortune_score -= 8
+
+    # Date harmonic offset (-4 to +4)
+    harmonic = ((ty * 31 + tm * 12 + td * 7 + user_asc * 5) % 9) - 4
+    fortune_score += harmonic
+    fortune_score = max(38, min(96, fortune_score))
+
+    if fortune_score >= 82:
+        fortune_tier = "🌟 โชคลาภเปิดกว้างสูงสุด"
+        fortune_status = "high"
+        fortune_desc = "ดวงดาวแห่งโชคลาภทำมุมส่งกำลังเต็มที่ มีเกณฑ์ได้ลาภลอยหรือรางวัลใหญ่ เหมาะแก่การเสี่ยงโชคตามฤกษ์มงคล"
+        advice = "วันแห่งโชคใหญ่ ก้าวเท้าขวาออกจากบ้าน ตั้งจิตแผ่เมตตาก่อนกดซื้อสลากหรือเลือกตัวเลข"
+    elif fortune_score >= 68:
+        fortune_tier = "✨ โชคลาภโดดเด่นมีลุ้น"
+        fortune_status = "good"
+        fortune_desc = "กระแสดาวลาภะและดาวศุภเคราะห์หนุนดวงชะตา พอมีลุ้นรางวัล ควรเสี่ยงโชคตามกำลังทรัพย์ ไม่โลภเกินตัว"
+        advice = "เลือกซื้อสลากกับคนขายที่อารมณ์ดี อิ่มเอิบ หรือแผงสลากใกล้ริมน้ำ/วัดวาอาราม"
+    elif fortune_score >= 52:
+        fortune_tier = "⚖️ โชคลาภปานกลางทั่วไป"
+        fortune_status = "moderate"
+        fortune_desc = "เกณฑ์โชคลาภอยู่ในระดับปกติ ลาภผลส่วนใหญ่จะมาจากการลงมือทำงานหรือการค้าขายมากกว่าการเสี่ยงโชค"
+        advice = "หากต้องการเสี่ยงโชค ให้เน้นติดปลายนวมเบาๆ ไม่ควรทุ่มเงินก้อนใหญ่"
+    else:
+        fortune_tier = "🛑 ดวงการเงินต้องรอบคอบ"
+        fortune_status = "low"
+        fortune_desc = "ดาวการเงินและลาภะมีมุมพักหรือถูกบดบัง แนะนำให้งดการเสี่ยงโชคหรือชะลอการลงทุนเก็งกำไร"
+        advice = "วันนี้ควรงดเสี่ยงโชค นำเงินไปทำบุญค่าน้ำค่าไฟวัด หรือปล่อยปลาสะเดาะเคราะห์เสริมดวงชะตาแทน"
+
+    # Select 4 Unique Lucky Numbers
+    candidates = [labha_lord, thaksa_sri, tanu_lord, day_nums[0]]
+    backup_pool = [
+        thaksa_montri, kadumba_lord, putta_lord,
+        day_nums[1], day_nums[2], day_nums[3],
+        9, 8, 5, 2, 1, 3, 4, 6, 7
+    ]
+    lucky_nums = []
+    for c in candidates + backup_pool:
+        if c not in lucky_nums:
+            lucky_nums.append(c)
+        if len(lucky_nums) == 4:
+            break
+
+    n0, n1, n2, n3 = lucky_nums[0], lucky_nums[1], lucky_nums[2], lucky_nums[3]
+    two_digits = [f"{n0}{n1}", f"{n1}{n2}", f"{n2}{n3}", f"{n0}{n3}"]
+    three_digits = [f"{n0}{n1}{n2}", f"{n1}{n2}{n3}"]
+    lucky_desc = f"เลขเด่นประจำดวง: {n0} และ {n1} • เลขรองหนุนโชค: {n2} และ {n3}"
+
+    personal_astro_roots = [
+        {"num": n0, "title": "ดาวเจ้าเรือนลาภะ", "desc": f"{PLANET_NAMES.get(n0, f'ดาว {n0}')} ครองภพโชคลาภของลัคนา{asc_name}"},
+        {"num": n1, "title": "ภูมิศรีมหาทักษา", "desc": f"{PLANET_NAMES.get(n1, f'ดาว {n1}')} เป็นดาวมงคลแห่งทรัพย์ของคนเกิด{b_day_name}"},
+        {"num": n2, "title": "ดาวตนุลัคน์/หนุนดวง", "desc": f"{PLANET_NAMES.get(n2, f'ดาว {n2}')} เสริมบารมีและตัวตนของเจ้าชะตา"},
+        {"num": n3, "title": "ดาวจรส่งเสริมโชค", "desc": f"{PLANET_NAMES.get(n3, f'ดาว {n3}')} ทำมุมรับกระแสสิริมงคลประจำงวดนี้"}
+    ]
 
     return {
         "dailyDayLord": chant_info["lord"],
@@ -511,7 +637,15 @@ def synthesize_detailed_lucky(weekday_idx, ty, tm, td, solar_times, transit_prov
         },
         "inauspiciousColors": [colors["avoid"]],
         "luckyNumbers": lucky_nums,
-        "luckyNumbersDesc": f"เลขมงคลหลัก: {lucky_nums[0]} และ {lucky_nums[1]} • เลขมงคลรอง: {lucky_nums[2]} และ {lucky_nums[3]}",
+        "luckyNumbersDesc": lucky_desc,
+        "twoDigits": two_digits,
+        "threeDigits": three_digits,
+        "fortuneScore": fortune_score,
+        "fortuneTier": fortune_tier,
+        "fortuneStatus": fortune_status,
+        "fortuneDesc": fortune_desc,
+        "fortuneAdvice": advice,
+        "personalAstroRoots": personal_astro_roots,
         "auspiciousTime": auspicious_time_str,
         "transitLocationSummary": f"ปรับตามพิกัด {transit_prov_name} (อาทิตย์อุทัย {solar_times['sunriseStr']} น. / อัสดง {solar_times['sunsetStr']} น.)",
         "luckyDirection": lucky_direction,
@@ -524,3 +658,4 @@ def synthesize_detailed_lucky(weekday_idx, ty, tm, td, solar_times, transit_prov
         "goodDeedAdvice": chant_info["goodDeed"],
         "meditationAdvice": "ก้าวออกจากบ้านด้วยเท้าขวา สูดลมหายใจลึกๆ นึกถึงพระคุณพ่อแม่ครูบาอาจารย์และตั้งจิตแผ่เมตตาให้แก่สรรพสัตว์"
     }
+
