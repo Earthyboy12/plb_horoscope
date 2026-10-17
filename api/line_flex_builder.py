@@ -2284,7 +2284,8 @@ def build_lucky_numbers_flex(user: dict, horoscope: dict, web_url: str = "https:
                                     "backgroundColor": meter_color,
                                     "cornerRadius": "4px",
                                     "width": f"{fortune_score}%",
-                                    "height": "8px"
+                                    "height": "8px",
+                                    "contents": [{"type": "filler"}]
                                 }
                             ]
                         },
