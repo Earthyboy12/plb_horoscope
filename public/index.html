@@ -1666,6 +1666,18 @@
       "ทุ่งครุ", "บางบอน"
     ];
 
+    function getBangkokDateString(d = new Date()) {
+      try {
+        return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok' }).format(d);
+      } catch (e) {
+        const nowTh = new Date(d.getTime() + (7 * 60 + d.getTimezoneOffset()) * 60000);
+        const y = nowTh.getFullYear();
+        const m = String(nowTh.getMonth() + 1).padStart(2, '0');
+        const day = String(nowTh.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      }
+    }
+
     let state = {
       birth: {
         name: "คุณดวงดี",
@@ -1678,7 +1690,7 @@
         transitProvince: "กรุงเทพมหานคร",
         transitDistrict: "พระนคร"
       },
-      targetDate: new Date().toISOString().split('T')[0],
+      targetDate: getBangkokDateString(),
       activeTab: "all",
       data: null,
       exportFormat: "story",
@@ -1841,7 +1853,7 @@
       let visits = parseInt(localStorage.getItem('plb_visit_count') || '0', 10);
       let streak = parseInt(localStorage.getItem('plb_reading_streak') || '1', 10);
       const lastDate = localStorage.getItem('plb_last_visit_date') || '';
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = getBangkokDateString();
 
       // Check URL parameters if incoming from LINE chat with existing state
       const urlParams = new URLSearchParams(window.location.search);
@@ -1887,7 +1899,7 @@
 
     function addAstroXP(points, reason, actionKey = null) {
       if (actionKey) {
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = getBangkokDateString();
         const dailyKey = `plb_act_${todayStr}`;
         let dailyActs = {};
         try {
@@ -1976,7 +1988,7 @@
       document.getElementById('inputBirthDate').value = isValidDateString(state.birth.birthDate) ? state.birth.birthDate : "1995-05-15";
       document.getElementById('inputBirthTime').value = isValidTimeString(state.birth.birthTime) ? state.birth.birthTime : "09:30";
       document.getElementById('selectMethod').value = state.birth.calcMethod || "suriyayatra";
-      document.getElementById('inputCustomDate').value = state.targetDate || new Date().toISOString().split('T')[0];
+      document.getElementById('inputCustomDate').value = state.targetDate || getBangkokDateString();
       
       const isSame = state.birth.isSameLocation !== false;
       document.getElementById('checkSameLocation').checked = isSame;
@@ -2061,7 +2073,7 @@
         transitProvince: "กรุงเทพมหานคร",
         transitDistrict: "พระนคร"
       };
-      state.targetDate = new Date().toISOString().split('T')[0];
+      state.targetDate = getBangkokDateString();
       initInputs();
       loadHoroscope();
     }
@@ -2079,7 +2091,7 @@
       if (isInvalidWord(state.birth.transitProvince)) state.birth.transitProvince = state.birth.province;
       if (isInvalidWord(state.birth.name)) state.birth.name = "คุณดวงดี";
       if (!state.targetDate || !isValidDateString(state.targetDate)) {
-        state.targetDate = new Date().toISOString().split('T')[0];
+        state.targetDate = getBangkokDateString();
       }
 
       try {
@@ -2093,7 +2105,7 @@
           isSameLocation: state.birth?.isSameLocation !== false,
           transitProvince: state.birth?.transitProvince || state.birth?.province || "กรุงเทพมหานคร",
           transitDistrict: state.birth?.transitDistrict || state.birth?.district || "พระนคร",
-          targetDate: state.targetDate || new Date().toISOString().split('T')[0],
+          targetDate: state.targetDate || getBangkokDateString(),
           action: "daily"
         };
 
@@ -2952,7 +2964,7 @@
           district: (state.birth && state.birth.district) || "พระนคร",
           transitProvince: (state.birth && (state.birth.transitProvince || state.birth.province)) || "กรุงเทพมหานคร",
           transitDistrict: (state.birth && (state.birth.transitDistrict || state.birth.district)) || "พระนคร",
-          targetDate: state.targetDate || new Date().toISOString().split('T')[0]
+          targetDate: state.targetDate || getBangkokDateString()
         };
         const resp = await fetch('/api', {
           method: 'POST',
@@ -4563,7 +4575,7 @@
           lucky: 'เลขเด็ด & ทิศมงคล'
         };
         const tName = tabNames[tab] || tab;
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = getBangkokDateString();
         addAstroXP(5, `อ่านเจาะลึกหมวด${tName} 🔮`, `tab_${tab}_${todayStr}`);
       }
 
@@ -4644,7 +4656,7 @@
       const badge = document.getElementById('feedbackMetaBadge');
       if (!badge) return;
       const ascSign = state.data?.natalChart?.ascendant?.signName || '-';
-      const targetDate = state.targetDate || new Date().toISOString().split('T')[0];
+      const targetDate = state.targetDate || getBangkokDateString();
       badge.innerText = `ลัคนาราศี${ascSign} • วันที่ ${targetDate}`;
 
       // Check if user already submitted rating for this date
@@ -4695,7 +4707,7 @@
       }
 
       const comment = (document.getElementById('feedbackComment')?.value || '').trim();
-      const targetDate = state.targetDate || new Date().toISOString().split('T')[0];
+      const targetDate = state.targetDate || getBangkokDateString();
       const ascSign = state.data?.natalChart?.ascendant?.signName || '-';
 
       let clientId = localStorage.getItem('plb_client_id');
@@ -4817,7 +4829,7 @@
     }
 
     function setToday() {
-      state.targetDate = new Date().toISOString().split('T')[0];
+      state.targetDate = getBangkokDateString();
       document.getElementById('inputCustomDate').value = state.targetDate;
       loadHoroscope();
     }
@@ -6035,7 +6047,7 @@
       document.getElementById('siamseeResultCard').classList.remove('hidden');
 
       if (typeof addAstroXP === 'function') {
-        const todayStr = new Date().toISOString().split('T')[0];
+        const todayStr = getBangkokDateString();
         addAstroXP(15, `เสี่ยงเซียมซีใบที่ ${stickNum} 🥠`, `siamsee_${todayStr}`);
       }
     }, 750);
